@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+  api_service:
+    build: .
+    restart: always
+    ports:
+      - "8081:8080"
+    networks:
+      - springapimysql-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/orbital_backend?allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: orbitaldb
+      SPRING_DATASOURCE_PASSWORD: Orbital2024
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+      SPRING_SQL_INIT_MODE: always
+      SPRING_DATASOURCE_INITIALIZATION_MODE: always
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - mysqldb
+    volumes:
+      - .m2:/root/.m2
+
+  mysqldb:
+    image: "mysql:8.0"
+    restart: always
+    ports:
+      - "3307:3306"
+    networks:
+      - springapimysql-net
+    environment:
+      MYSQL_DATABASE: orbital_backend
+      MYSQL_USER: orbitaldb
+      MYSQL_PASSWORD: Orbital2024
+      MYSQL_ROOT_PASSWORD: Orbital2024
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./orbital_backend_dump.sql:/docker-entrypoint-initdb.d/orbital_backend_dump.sql
+
+volumes:
+  mysql-data:
+
+networks:
+  springapimysql-net:
