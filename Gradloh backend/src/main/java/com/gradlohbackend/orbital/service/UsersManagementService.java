@@ -31,6 +31,11 @@ public class UsersManagementService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private EmailService emailService;
+
+    public UsersManagementService(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     public ReqRes register(ReqRes registrationRequest) {
         ReqRes resp = new ReqRes();
@@ -42,6 +47,8 @@ public class UsersManagementService {
             ourUser.setRole(Role.USER);
             ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
             ourUser.setRefreshToken(jwtUtils.generateRefreshToken(ourUser));
+            ourUser.setResetOTP("");
+            ourUser.setResetOTPExp(0);
             User userResult = usersRepo.save(ourUser);
 
             resp.setRefreshToken(userResult.getRefreshToken());
@@ -77,7 +84,7 @@ public class UsersManagementService {
 
             if (userOptional.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
-                response.setMessage("User not found.");
+                response.setMessage("Invalid email or password.");
                 return response;
             }
 
@@ -98,6 +105,122 @@ public class UsersManagementService {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             response.setMessage("An internal error occurred.");
         }
+        return response;
+    }
+
+    //Sending email w otp
+    public ReqRes sendResetEmail(ReqRes sendResetEmailRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = usersRepo.findByEmail(sendResetEmailRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Invalid email address.");
+                return response;
+            }
+
+            //If successful, generate otp
+            var user = userOptional.get();
+            String otp = emailService.generateOTP();
+            long otpExpirationtime = emailService.getOtpExpirationTime();
+
+            user.setResetOTP(otp);
+            user.setResetOTPExp(otpExpirationtime);
+            usersRepo.save(user);
+
+            String htmlContent = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">" +
+                    "<div style=\"margin:50px auto;width:70%;padding:20px 0\">" +
+                    "<div style=\"border-bottom:1px solid #eee\">" +
+                    "<a href=\"\" style=\"font-size:1.4em;color: #EF7C00;text-decoration:none;font-weight:600\">GradLoh</a>" +
+                    "</div>" +
+                    "<p style=\"font-size:1.1em\">Hi " + user.getNickname() + ",</p>" +
+                    "<p>Use the following OTP to reset your password. OTP is valid for 5 minutes</p>" +
+                    "<h2 style=\"background: #EF7C00;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;\">" + otp + "</h2>" +
+                    "<br>" +
+                    "<hr style=\"border:none;border-top:1px solid #eee\" />" +
+                    "<div style=\"float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300\">" +
+                    "<p>Copyright © 2024 - 2024 GradLoh</p>" +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+
+            emailService.sendHtmlEmail(user.getEmail(), "GRADLOH: Reset Password",
+                    htmlContent);
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+            response.setEmail(user.getEmail());
+            response.setMessage("Sent OTP to email address.");
+
+
+        } catch (AuthenticationException e) {
+            // Handle authentication failures.
+            response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+            response.setMessage("Invalid email address.");
+        } catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes resetPassword(ReqRes resetPasswordRequest) {
+        ReqRes response = new ReqRes();
+
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = usersRepo.findByEmail(resetPasswordRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Invalid email address.");
+                return response;
+            }
+
+            //If successful, check otp
+            var user = userOptional.get();
+
+            //If valid otp,
+            if (emailService.validateOtp(user.getEmail(), resetPasswordRequest.getResetOTP())) {
+                //Check if password and confirm password is same.
+                if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmNewPassword())) {
+                    // Invalid match
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+                    response.setMessage("Passwords do not match.");
+                } else {
+                    //If its same, then check if new password is the old password
+                    Boolean passwordsMatch = passwordEncoder.matches(resetPasswordRequest.getNewPassword(), user.getPassword());
+                    if (passwordsMatch) {
+                        response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+                        response.setMessage("New password cannot be the same as old password.");
+                    } else {
+                        //Else, reset new password
+                        var encodedNewPassword = passwordEncoder.encode(resetPasswordRequest.getNewPassword());
+                        user.setPassword(encodedNewPassword);
+                        usersRepo.save(user);
+                        response.setStatusCode(HttpStatus.OK.value()); // 200
+                        response.setMessage("Password has successfully been reset.");
+                    }
+
+                }
+
+            } else {
+                // Invalid OTP
+                response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+                response.setMessage("Invalid OTP.");
+            }
+
+        } catch (AuthenticationException e) {
+            // Handle authentication failures.
+            response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+            response.setMessage("Invalid email address.");
+        } catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+
         return response;
     }
 

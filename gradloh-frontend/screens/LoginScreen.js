@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useContext } from 'react';
+import React, { useState, useRef, forwardRef, useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Platform, TouchableNativeFeedback, TouchableOpacity, } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Lexend_400Regular, Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
@@ -8,8 +8,13 @@ import Toast from 'react-native-toast-message';
 import { AuthContext } from '../contexts/AuthContext';
 import { AxiosContext } from '../contexts/AxiosContext';
 import * as SecureStore from 'expo-secure-store';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function LoginScreen() {
+
+    const navigation = useNavigation();
+    const route = useRoute();
+    const { showToast, toastMessage } = route.params || {} ;
 
     const authContext = useContext(AuthContext);
     const { publicAxios } = useContext(AxiosContext);
@@ -34,7 +39,18 @@ export default function LoginScreen() {
 
     const toastConfig = {
         warning: ({ text1, text2, props }) => (
-          <View style={styles.toastContainer}>
+          <View style={[styles.toastContainer, styles.warningToast]}>
+            <View style={styles.textContainer}>
+              <Text style={styles.toastText1}>{text1}</Text>
+              {text2 ? <Text style={styles.toastText2}>{text2}</Text> : null}
+            </View>
+            <TouchableOpacity onPress={() => Toast.hide()} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        ),
+        success: ({ text1, text2, props }) => (
+          <View style={[styles.toastContainer, styles.successToast]}>
             <View style={styles.textContainer}>
               <Text style={styles.toastText1}>{text1}</Text>
               {text2 ? <Text style={styles.toastText2}>{text2}</Text> : null}
@@ -80,13 +96,13 @@ export default function LoginScreen() {
       
         if (!email) {
           newErrors.email = true;
-          newErrorMessages.email = 'Enter a valid email';
+          newErrorMessages.email = 'This field is required.';
           hasError = true;
         }
       
         if (!password) {
           newErrors.password = true;
-          newErrorMessages.password = 'Enter a valid password';
+          newErrorMessages.password = 'This field is required.';
           hasError = true;
         }
       
@@ -99,9 +115,8 @@ export default function LoginScreen() {
               email,
               password,
             });
-      
             const { accessToken, refreshToken } = response.data;
-      
+            
             // Store tokens in SecureStore
             await SecureStore.setItemAsync(
               'token',
@@ -123,8 +138,8 @@ export default function LoginScreen() {
               type: 'warning',
               text1: 'Error',
               text2: error.response.data.message,
-              visibilityTime: 3000,
-              autoHide: false,
+              visibilityTime: 5000,
+              autoHide: true,
               position: 'bottom',
               bottomOffset: 40,
             });
@@ -133,11 +148,27 @@ export default function LoginScreen() {
       };
       
 
+
+
     const [fontsLoaded] = useFonts({
         Lexend_400Regular,
         Lexend_600SemiBold,
         Lexend_700Bold,
     });
+
+    useEffect(() => {
+      if (showToast) {
+          Toast.show({
+              type: 'success',
+              text1: 'Success',
+              text2: toastMessage,
+              visibilityTime: 5000,
+              autoHide: true,
+              position: 'bottom',
+              bottomOffset: 40,
+          });
+      }
+  }, [showToast, toastMessage]);
 
     if (!fontsLoaded) {
         return <Text>Loading...</Text>;
@@ -160,9 +191,8 @@ export default function LoginScreen() {
                     error={error}
                     errorMessage={errorMessage}
                 />
-                
                 ))}
-                <Pressable>
+                <Pressable onPress={() => navigation.push('ForgotPasswordScreen')}>
                     <Text style={styles.forgotPasswordText}>
                         Forgot password?
                     </Text>
@@ -229,7 +259,6 @@ const styles = StyleSheet.create({
     toastContainer: {
         height: 60,
         width: '90%',
-        backgroundColor: '#D00E17',
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 8,
@@ -242,10 +271,18 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 5,
       },
+      warningToast: {
+        backgroundColor: '#D00E17',
+      },
+      successToast: {
+        backgroundColor: '#28a745', // Green color for success
+      },
       textContainer: {
         flex: 1,
       },
       toastText1: {
+        marginTop: 5,
+        marginBottom: 5,
         fontSize: 16,
         fontWeight: 'bold',
         color: 'white',
@@ -253,6 +290,7 @@ const styles = StyleSheet.create({
       toastText2: {
         fontSize: 14,
         color: 'white',
+        marginBottom: 5
       },
       closeButton: {
         padding: 5,

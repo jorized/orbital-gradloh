@@ -25,6 +25,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     private String refreshToken;
+    private String resetOTP;
+    private long resetOTPExp;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

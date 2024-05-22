@@ -33,6 +33,24 @@ public class UserManagementController {
                 .body(reqRes);
     }
 
+    @PostMapping("/auth/sendresetemail")
+    public ResponseEntity<ReqRes> sendResetEmail(@RequestBody ReqRes req){
+        var reqRes = usersManagementService.sendResetEmail(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @PostMapping("/auth/resetpassword")
+    public ResponseEntity<ReqRes> resetPassword(@RequestBody ReqRes req){
+        var reqRes = usersManagementService.resetPassword(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
     @PostMapping("/auth/refresh")
     public ResponseEntity<ReqRes> refreshToken(@RequestBody ReqRes req){
         var reqRes = usersManagementService.refreshToken(req);
