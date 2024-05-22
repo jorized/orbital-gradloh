@@ -14,6 +14,8 @@ import HomeScreen from './screens/HomeScreen';
 import Spinner from './components/Spinner';
 import * as SecureStore from 'expo-secure-store';
 import { AxiosProvider } from './contexts/AxiosContext';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import ResetPasswordConfirmationScreen from './screens/ResetPasswordConfirmationScreen';
 
 const PublicStack = createStackNavigator();
 const PrivateStack = createStackNavigator();
@@ -28,6 +30,32 @@ const PublicNavigator = () => (
     <PublicStack.Screen
       name="LoginScreen"
       component={LoginScreen}
+      options={{
+        header: ({ navigation }) => (
+          <SafeAreaView style={styles.loginHeader}>
+            <View style={styles.loginBackBtnContainer}>
+              <HeaderBackButton onPress={() => navigation.goBack()} style={styles.loginBackBtn} tintColor="#EF7C00" labelVisible={false} />
+            </View>
+          </SafeAreaView>
+        ),
+      }}
+    />
+    <PublicStack.Screen
+      name="ForgotPasswordScreen"
+      component={ForgotPasswordScreen}
+      options={{
+        header: ({ navigation }) => (
+          <SafeAreaView style={styles.loginHeader}>
+            <View style={styles.loginBackBtnContainer}>
+              <HeaderBackButton onPress={() => navigation.goBack()} style={styles.loginBackBtn} tintColor="#EF7C00" labelVisible={false} />
+            </View>
+          </SafeAreaView>
+        ),
+      }}
+    />
+    <PublicStack.Screen
+      name="ResetPasswordConfirmationScreen"
+      component={ResetPasswordConfirmationScreen}
       options={{
         header: ({ navigation }) => (
           <SafeAreaView style={styles.loginHeader}>
@@ -126,9 +154,9 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      {authContext?.authState?.authenticated ? <PrivateNavigator /> : <PublicNavigator />}
-    </NavigationContainer>
+      <NavigationContainer>
+        {authContext?.authState?.authenticated ? <PrivateNavigator /> : <PublicNavigator />}
+      </NavigationContainer>
   );
 };
 
@@ -148,7 +176,7 @@ const styles = StyleSheet.create({
 export default () => (
   <AuthProvider>
     <AxiosProvider>
-      <App />
+        <App />
     </AxiosProvider>
   </AuthProvider>
 );
