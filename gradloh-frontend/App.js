@@ -16,6 +16,8 @@ import * as SecureStore from 'expo-secure-store';
 import { AxiosProvider } from './contexts/AxiosContext';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import ResetPasswordConfirmationScreen from './screens/ResetPasswordConfirmationScreen';
+import LottieView from 'lottie-react-native';
+import SplashScreen from './components/SplashScreen';
 
 const PublicStack = createStackNavigator();
 const PrivateStack = createStackNavigator();
@@ -121,6 +123,7 @@ const PrivateNavigator = () => (
 const App = () => {
   const authContext = useContext(AuthContext);
   const [status, setStatus] = useState('loading');
+  const [showSplash, setShowSplash] = useState(true);
 
   const loadJWT = useCallback(async () => {
     try {
@@ -148,6 +151,11 @@ const App = () => {
   useEffect(() => {
     loadJWT();
   }, [loadJWT]);
+
+
+  if (showSplash) {
+    return <SplashScreen onAnimationFinish={() => setShowSplash(false)} />;
+  }
 
   if (status === 'loading') {
     return <Spinner />;

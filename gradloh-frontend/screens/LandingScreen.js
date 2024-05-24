@@ -66,7 +66,7 @@ export default function LandingScreen() {
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
-                <Image style={styles.landingImg} source={require('../assets/images/gradlohlanding-removebg-preview.png')} />
+                <Image style={styles.landingImg} source={require('../assets/images/GradLohLanding.png')} />
             </View>
             <View style={styles.buttonContainer}>
                 <Pressable style={styles.registerPressable} onPress={() => navigation.push('RegisterScreen')}>
