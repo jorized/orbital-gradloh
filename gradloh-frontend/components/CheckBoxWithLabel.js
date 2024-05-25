@@ -1,35 +1,60 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Checkbox from 'expo-checkbox';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const CheckBoxWithLabel = ({ label, value, onValueChange }) => {
+const CheckBoxWithLabel = ({ label, value, onValueChange, error, errorMessage }) => {
   return (
-    <TouchableOpacity onPress={() => onValueChange(!value)} style={styles.container}>
-      <Checkbox
-        value={value}
-        onValueChange={onValueChange}
-        color={value ? '#EF7C00' : undefined} // Customize colors if needed
-      />
-      <Text style={styles.label}>{label}</Text>
-    </TouchableOpacity>
+    <View style={styles.container}>
+      <TouchableOpacity onPress={() => onValueChange(!value)} style={styles.checkboxContainer}>
+        <Checkbox
+          value={value}
+          onValueChange={onValueChange}
+          color={value ? '#EF7C00' : error ? '#D00E17' : undefined}
+          style={styles.checkbox}
+        />
+        <Text style={[styles.label, error && styles.errorLabel]}>{label}</Text>
+      </TouchableOpacity>
+      {error && (
+        <View style={styles.errorContainer}>
+          <Icon name="error" size={16} color="#D00E17" style={styles.errorIcon} />
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
+        </View>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginBottom: 24, // To create space between the checkbox and the button
+  },
+  checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+
+  },
+  checkbox: {
+    marginRight: 8,
   },
   label: {
-    marginLeft: 8,
     fontSize: 16,
     color: '#000',
   },
-  appContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  errorLabel: {
+    color: '#D00E17',
+  },
+  errorContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 5,
+  },
+  errorIcon: {
+    marginRight: 5,
+  },
+  errorMessage: {
+    color: '#D00E17',
+    fontSize: 12,
   },
 });
 

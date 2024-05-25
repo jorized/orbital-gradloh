@@ -41,6 +41,35 @@ public class UsersManagementService {
         ReqRes resp = new ReqRes();
 
         try {
+            //Check if email exists
+            var userOptional = usersRepo.findByEmail(registrationRequest.getEmail());
+            if (!userOptional.isEmpty()) {
+                resp.setMessage("Email already exists.");
+                resp.setStatusCode(409);
+                return resp;
+            }
+            //If email does not start with @u.nus.edu
+            if (!registrationRequest.getEmail().endsWith("@u.nus.edu")) {
+                resp.setMessage("Invalid student email.");
+                resp.setStatusCode(400);
+                return resp;
+            }
+
+            // If email is correct, check if password meets criteria
+            String password = registrationRequest.getPassword();
+            if (!isValidPassword(password)) {
+                resp.setMessage("Password must be 8-16 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
+                resp.setStatusCode(400);
+                return resp;
+            }
+
+            // Check if password matches confirm password
+            if (!password.equals(registrationRequest.getNewPassword())) {
+                resp.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
+                resp.setMessage("Passwords do not match.");
+                return resp;
+            }
+
             User ourUser = new User();
             ourUser.setNickname(registrationRequest.getNickname());
             ourUser.setEmail(registrationRequest.getEmail());
@@ -55,14 +84,6 @@ public class UsersManagementService {
             resp.setAccessToken(jwtUtils.generateAccessToken(ourUser));
             resp.setMessage("User created successfully.");
             resp.setStatusCode(201); // 201 Created
-        } catch (DataIntegrityViolationException e) {
-            if (e.getMessage().contains("Duplicate entry")) {
-                resp.setMessage("This email already exists.");
-                resp.setStatusCode(409); // 409 Conflict
-            } else {
-                resp.setMessage("Internal Server Error.");
-                resp.setStatusCode(500); // 500 Internal Server Error
-            }
         } catch (Exception e) {
             resp.setMessage("Internal Server Error.");
             resp.setStatusCode(500); // 500 Internal Server Error
@@ -188,12 +209,14 @@ public class UsersManagementService {
                     // Invalid match
                     response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
                     response.setMessage("Passwords do not match.");
+                    return response;
                 } else {
                     //If its same, then check if new password is the old password
                     Boolean passwordsMatch = passwordEncoder.matches(resetPasswordRequest.getNewPassword(), user.getPassword());
                     if (passwordsMatch) {
                         response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
                         response.setMessage("New password cannot be the same as old password.");
+                        return response;
                     } else {
                         //Else, reset new password
                         var encodedNewPassword = passwordEncoder.encode(resetPasswordRequest.getNewPassword());
@@ -201,6 +224,7 @@ public class UsersManagementService {
                         usersRepo.save(user);
                         response.setStatusCode(HttpStatus.OK.value()); // 200
                         response.setMessage("Password has successfully been reset.");
+                        return response;
                     }
 
                 }
@@ -209,6 +233,7 @@ public class UsersManagementService {
                 // Invalid OTP
                 response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
                 response.setMessage("Invalid OTP.");
+                return response;
             }
 
         } catch (AuthenticationException e) {
@@ -360,5 +385,23 @@ public class UsersManagementService {
         }
         return reqRes;
 
+    }
+
+    // Helper method to validate password
+    private boolean isValidPassword(String password) {
+        if (password.length() < 8 || password.length() > 16) {
+            return false;
+        }
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if ("!@#$%^&*()".indexOf(c) >= 0) hasSpecial = true;
+        }
+        return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 }

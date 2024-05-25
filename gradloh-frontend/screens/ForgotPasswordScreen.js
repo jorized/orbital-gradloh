@@ -1,4 +1,4 @@
-import { Platform, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 import { AxiosContext } from "../contexts/AxiosContext";
 import React, { useState, useRef, useContext, forwardRef } from "react";
@@ -21,6 +21,7 @@ export default function ForgotPasswordScreen() {
     const [errors, setErrors] = useState({ email: false });
     const [errorMessages, setErrorMessages] = useState({ email: '' });
     const [buttonsHidden, setButtonsHidden] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const emailRef = useRef(null);
 
@@ -69,31 +70,44 @@ export default function ForgotPasswordScreen() {
 
         setErrors(newErrors);
         setErrorMessages(newErrorMessages);
-
+        
         if (!hasError) {
+            setLoading(true);
             try {
-
                 const response = await publicAxios.post('/sendresetemail', {
                     email,
                 });
-        
+                setLoading(false);
                 //If successful, pass the email response over to the next page
                 navigation.push("ResetPasswordConfirmationScreen", { 
                     email,
                     showToast: true,
                     toastMessage: response.data.message
                 })
-  
+                
             } catch (error) {
-                Toast.show({
-                    type: 'warning',
-                    text1: 'Error',
-                    text2: error.response.data.message,
-                    visibilityTime: 5000,
-                    autoHide: true,
-                    position: 'bottom',
-                    bottomOffset: 40,
-                });
+                setLoading(false);
+                if (!error.response) {
+                    Toast.show({
+                      type: 'warning',
+                      text1: 'Error',
+                      text2: "Server is offline",
+                      visibilityTime: 5000,
+                      autoHide: true,
+                      position: 'bottom',
+                      bottomOffset: 40,
+                    });
+                } else {
+                    Toast.show({
+                        type: 'warning',
+                        text1: 'Error',
+                        text2: error.response.data.message,
+                        visibilityTime: 5000,
+                        autoHide: true,
+                        position: 'bottom',
+                        bottomOffset: 40,
+                    });
+                }
             }
         }
     }
@@ -159,15 +173,23 @@ export default function ForgotPasswordScreen() {
                 />
                 ))}
                 {Platform.OS === 'android' ? (
-                <TouchableNativeFeedback onPress={handleResetPassword} background={TouchableNativeFeedback.Ripple('#fff', false)}>
-                    <View style={styles.loginPressable}>
-                    <Text style={styles.loginText}>Reset Password</Text>
-                    </View>
-                </TouchableNativeFeedback>
+                    <TouchableNativeFeedback
+                        onPress={loading ? null : handleResetPassword}
+                        background={TouchableNativeFeedback.Ripple('#fff', false)}
+                        disabled={loading}
+                    >
+                        <View style={[styles.loginPressable, loading && styles.disabledPressable]}>
+                            {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Reset Password</Text>}
+                        </View>
+                    </TouchableNativeFeedback>
                 ) : (
-                <TouchableOpacity style={styles.loginPressable} onPress={handleResetPassword}>
-                    <Text style={styles.loginText}>Reset Password</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.loginPressable, loading && styles.disabledPressable]}
+                        onPress={loading ? null : handleResetPassword}
+                        disabled={loading}
+                    >
+                        {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Reset Password</Text>}
+                    </TouchableOpacity>
                 )}
             </ScrollView>
             {Platform.OS === 'ios' && (
@@ -180,6 +202,7 @@ export default function ForgotPasswordScreen() {
             onPrevious={handleFocusPrevious}
             doneButtonTitle="Done"
             onDone={handleDone}
+            avoidKeyboard
             />
         )}
         <CustomToast />
@@ -223,13 +246,11 @@ const styles = {
         fontFamily: "Lexend_400Regular"
     },
     toastContainer: {
-        height: 60,
         width: '90%',
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 8,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -245,18 +266,15 @@ const styles = {
       },
       textContainer: {
         flex: 1,
+        flexShrink: 1, 
       },
       toastText1: {
-        marginTop: 5,
-        marginBottom: 5,
         fontSize: 16,
-        fontWeight: 'bold',
         color: 'white',
       },
       toastText2: {
-        fontSize: 14,
+        fontSize: 12,
         color: 'white',
-        marginBottom: 5
       },
       closeButton: {
         padding: 5,
