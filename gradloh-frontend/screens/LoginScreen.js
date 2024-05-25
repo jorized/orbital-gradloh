@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useContext, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Platform, TouchableNativeFeedback, TouchableOpacity, } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, TouchableNativeFeedback, TouchableOpacity, ActivityIndicator, } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Lexend_400Regular, Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
 import { KeyboardAccessoryNavigation } from 'react-native-keyboard-accessory';
@@ -13,8 +13,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 export default function LoginScreen() {
 
     const navigation = useNavigation();
-    const route = useRoute();
-    const { showToast, toastMessage } = route.params || {} ;
+
 
     const authContext = useContext(AuthContext);
     const { publicAxios } = useContext(AxiosContext);
@@ -24,6 +23,7 @@ export default function LoginScreen() {
     const [buttonsHidden, setButtonsHidden] = useState(false);
     const [errors, setErrors] = useState({ email: false, password: false });
     const [errorMessages, setErrorMessages] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
 
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
@@ -85,8 +85,7 @@ export default function LoginScreen() {
     };
 
     const handleDone = () => {
-        emailRef.current.blur();
-        passwordRef.current.blur();
+      inputs.forEach(input => input.ref.current.blur());
     };
 
     const handleSignIn = async () => {
@@ -110,11 +109,14 @@ export default function LoginScreen() {
         setErrorMessages(newErrorMessages);
       
         if (!hasError) {
+          setLoading(true);
           try {
             const response = await publicAxios.post('/login', {
               email,
               password,
             });
+            setLoading(false);
+
             const { accessToken, refreshToken } = response.data;
             
             // Store tokens in SecureStore
@@ -125,7 +127,7 @@ export default function LoginScreen() {
                 refreshToken,
               })
             );
-      
+
             // Update state only after storing the token
             authContext.setAuthState({
               accessToken,
@@ -134,15 +136,28 @@ export default function LoginScreen() {
             });
 
           } catch (error) {
-            Toast.show({
-              type: 'warning',
-              text1: 'Error',
-              text2: error.response.data.message,
-              visibilityTime: 5000,
-              autoHide: true,
-              position: 'bottom',
-              bottomOffset: 40,
-            });
+            setLoading(false);
+            if (!error.response) {
+              Toast.show({
+                type: 'warning',
+                text1: 'Error',
+                text2: "Server is offline",
+                visibilityTime: 5000,
+                autoHide: true,
+                position: 'bottom',
+                bottomOffset: 40,
+              });
+            } else {
+              Toast.show({
+                type: 'warning',
+                text1: 'Error',
+                text2: error.response.data.message,
+                visibilityTime: 5000,
+                autoHide: true,
+                position: 'bottom',
+                bottomOffset: 40,
+              });
+            }
           }
         }
       };
@@ -155,20 +170,6 @@ export default function LoginScreen() {
         Lexend_600SemiBold,
         Lexend_700Bold,
     });
-
-    useEffect(() => {
-      if (showToast) {
-          Toast.show({
-              type: 'success',
-              text1: 'Success',
-              text2: toastMessage,
-              visibilityTime: 5000,
-              autoHide: true,
-              position: 'bottom',
-              bottomOffset: 40,
-          });
-      }
-  }, [showToast, toastMessage]);
 
     if (!fontsLoaded) {
         return <Text>Loading...</Text>;
@@ -198,15 +199,23 @@ export default function LoginScreen() {
                     </Text>
                 </Pressable>
                 {Platform.OS === 'android' ? (
-                <TouchableNativeFeedback onPress={handleSignIn} background={TouchableNativeFeedback.Ripple('#fff', false)}>
-                    <View style={styles.loginPressable}>
-                    <Text style={styles.loginText}>Sign in</Text>
-                    </View>
-                </TouchableNativeFeedback>
+                    <TouchableNativeFeedback
+                        onPress={loading ? null : handleSignIn}
+                        background={TouchableNativeFeedback.Ripple('#fff', false)}
+                        disabled={loading}
+                    >
+                        <View style={[styles.loginPressable, loading && styles.disabledPressable]}>
+                            {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Sign in</Text>}
+                        </View>
+                    </TouchableNativeFeedback>
                 ) : (
-                <TouchableOpacity style={styles.loginPressable} onPress={handleSignIn}>
-                    <Text style={styles.loginText}>Sign in</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.loginPressable, loading && styles.disabledPressable]}
+                        onPress={loading ? null : handleSignIn}
+                        disabled={loading}
+                    >
+                        {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Sign in</Text>}
+                    </TouchableOpacity>
                 )}
             </ScrollView>
             {Platform.OS === 'ios' && (
@@ -219,6 +228,7 @@ export default function LoginScreen() {
             onPrevious={handleFocusPrevious}
             doneButtonTitle="Done"
             onDone={handleDone}
+            avoidKeyboard
             />
         )}
         <CustomToast />
@@ -257,13 +267,11 @@ const styles = StyleSheet.create({
         fontFamily: "Lexend_400Regular"
     },
     toastContainer: {
-        height: 60,
         width: '90%',
         borderRadius: 8,
         paddingHorizontal: 10,
         paddingVertical: 8,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -279,18 +287,15 @@ const styles = StyleSheet.create({
       },
       textContainer: {
         flex: 1,
+        flexShrink: 1, 
       },
       toastText1: {
-        marginTop: 5,
-        marginBottom: 5,
         fontSize: 16,
-        fontWeight: 'bold',
         color: 'white',
       },
       toastText2: {
-        fontSize: 14,
+        fontSize: 12,
         color: 'white',
-        marginBottom: 5
       },
       closeButton: {
         padding: 5,

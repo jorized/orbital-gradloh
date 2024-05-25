@@ -1,22 +1,24 @@
 package com.gradlohbackend.orbital.service;
 
+import com.gradlohbackend.orbital.config.SendGridConfig;
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.repository.UsersRepo;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Random;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import java.io.IOException;
 
 @Service
 public class EmailService {
@@ -27,43 +29,32 @@ public class EmailService {
     @Autowired
     private UsersRepo usersRepo;
 
-    private final JavaMailSender mailSender;
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+    @Autowired
+    private SendGridConfig sendGridConfig;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
-    @Async
-    public void sendEmail(String to, String subject, String body) {
+
+    public void sendHtmlEmail(String to, String subject, String htmlContent) {
+
+        Email toEmail = new Email(to);
+        Email from = new Email("nusgradloh@gmail.com");
+        Content content = new Content("text/html", htmlContent);
+        Mail mail = new Mail(from, subject, toEmail, content);
+
+        SendGrid sg = sendGridConfig.getSendGrid();
+        Request request = new Request();
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setFrom("gradloh@demomailtrap.com");
-            message.setSubject(subject);
-            message.setText(body);
-            logger.info("Sending email to {}", to);
-            mailSender.send(message);
-            logger.info("Email sent successfully to {}", to);
-        } catch (Exception e) {
-            logger.error("Error sending email to {}", to, e);
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+            System.out.println(response.getHeaders());
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
-    }
 
-    public void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-
-            message.setFrom(new InternetAddress("gradloh@demomailtrap.com"));
-            message.setRecipients(MimeMessage.RecipientType.TO, to);
-            message.setSubject(subject);
-
-            message.setContent(htmlContent, "text/html; charset=utf-8");
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("Error sending email to {}", to, e);
-        }
 
 
     }
@@ -79,7 +70,7 @@ public class EmailService {
             }
 
         } catch (Exception e) {
-            logger.error("Error sending email to {}", e);
+            System.out.println(e.getMessage());
         }
         return otp.toString();
 
