@@ -19,7 +19,7 @@ public class ReqRes {
     private String accessToken;
     private String expirationTime;
     private String resetOTP;
-    private long resetOTPExp;
+    private Long resetOTPExp;
     private String newPassword;
     private String confirmNewPassword;
     private String nickname;
