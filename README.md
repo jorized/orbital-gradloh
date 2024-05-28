@@ -47,6 +47,17 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
             </td>
         </tr>
         <tr>
+            <td>Personalised settings</td>
+            <td>A highly customisable settings page
+              <ul>
+                - Feature includes: 
+                <ul>
+                  <li>A side-menu which allow users to change their avatars, password, as well as their majors/minors (At their own risk) at any point in time.</li>
+                  <li>A FAQ section which allow questions regarding the application itself to be answered.</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
             <td>Graduation Progress Dashboard</td>
             <td>A dashboard that enables users to track their remaining modules and verify their eligibility for graduation, according to their academic disciplines.
               <ul>
@@ -61,14 +72,24 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
         </tr>
         <tr>
             <td>Course planner</td>
-            <td>A dynamic course planner which allow users to plan and create 
+            <td>A dynamic course planner which allow users to plan and create modules for every semester, while at the same time, check their completion status.
               <ul>
                 - Feature includes: 
                 <ul>
-                  <li>A simple but yet straightforward algorithm-driven text display that shows the graduation progress percentage.</li>
-                  <li>An interactive chart that tracks and shows the different segments of their progress (E.g. Core modules and UEs etc.)</li>
-                  <li>An on-tap feature which allow users to customise and change the chart to their preferred chart (E.g. Doughnut chart, Pie chart etc.)</li>
-                  <li>A progress indicator which determine if they are "On-track", "Behind Schedule", and "At Risk", based on their different academic disciplines.</li>
+                  <li>A section which has the all the semester stored as a folder, with each folder consisting of that semester's modules.</li>
+                  <li>A module section which allow users to search and choose and add/save/edit their desired modules, while at the same time show pre-requisites (if any). Follows a add-to-cart design which allows simplicity and multi-adding.</li>
+                  <li>An infographic section within the folders, which allow users to have a preview of the module details, and delete them if they want to. If needed, they are also allowed to have an in-depth one, just by clicking on the module.</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>AI-powered review system</td>
+            <td>A review system that allow users to indicate their review and give feedback of the modules they had completed after each semester.
+              <ul>
+                - Feature includes: 
+                <ul>
+                  <li>A chatbot assistant which will prompt recommendations to users after given the user's feedback, regarding the next combination of modules they should take for their next semester, through thorough review of what they have/have not completed.</li>
+                  <li>A hands-free feedback session which allow users to give feedback on the module based on AI-suggested answers, to provide a more convenient and straightforward feedback, all the while keeping it rational.</li>
                 </ul>
             </td>
         </tr>
