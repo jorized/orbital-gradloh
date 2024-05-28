@@ -76,7 +76,7 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
               <ul>
                 - Feature includes: 
                 <ul>
-                  <li>A section which has the all the semester stored as a folder, with each folder consisting of that semester's modules.</li>
+                  <li>A section which has the all the semesters stored as folders, with each folder consisting of that semester's modules.</li>
                   <li>A module section which allow users to search and choose and add/save/edit their desired modules, while at the same time show pre-requisites (if any). Follows a add-to-cart design which allows simplicity and multi-adding.</li>
                   <li>An infographic section within the folders, which allow users to have a preview of the module details, and delete them if they want to. If needed, they are also allowed to have an in-depth one, just by clicking on the module.</li>
                 </ul>
