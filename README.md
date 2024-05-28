@@ -52,7 +52,7 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
               <ul>
                 - Feature includes: 
                 <ul>
-                  <li>A side-menu which allow users to change their avatars, password, as well as their majors/minors (At their own risk) at any point in time.</li>
+                  <li>A side-menu which allow users to change their avatars, password (Mail OTP), as well as their majors/minors (At their own risk) at any point in time.</li>
                   <li>A FAQ section which allow questions regarding the application itself to be answered.</li>
                 </ul>
             </td>
@@ -95,6 +95,148 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
         </tr>
     </tbody>
 </table>
+
+## User Stories
+
+## Design (UI/UX & Architecture)
+
+### Colour Scheme
+<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/16926fdd-893d-4c09-a9a8-c321462227b4" width="350"/>
+
+### Font
+Primary fonts: Arial, Lexend Deca. Secondary fonts: Times new Roman, Helvetica Neue
+<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/1d62731b-16c8-43cd-9ea2-8d6cde9632a5" width="450"/>
+
+### Entity-Relationship Diagram (ERD)
+<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/b31244b9-1962-4bab-be50-5670c2fa2b1e" width="350"/>
+
+### Summary
+<table>
+    <tr>
+        <th>Table</th>
+        <th>Attributes</th>
+        <th>Types</th>
+        <th>Primary Key</th>
+        <th>Foreign Keys</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><b>Modules</b></td>
+        <td>
+            <ol>
+                <li>module_code</li>
+                <li>module_name</li>
+                <li>faculty</li>
+                <li>module_description</li>
+                <li>completition_status</li>
+            </ol>
+        </td>
+        <td>
+            <ol>
+                <li>VARCHAR(7), NOT NULL</li>
+                <li>VARCHAR(45), UNIQUE, NOT NULL</li>
+                <li>VARCHAR(45), NOT NULL</li>
+                <li>TEXT</li>
+                <li>BOOLEAN, NOT NULL</li>
+            </ol>
+        </td>
+        <td>module_code</td>
+        <td>N/A</td>
+        <td>Stores information about academic modules.</td>
+    </tr>
+    <tr>
+        <td><b>Folders</b></td>
+        <td>
+            <ol>
+                <li>folder_id</li>
+                <li>folder_name</li>
+                <li>module_code</li>
+            </ol>
+        </td>
+        <td>
+            <ol>
+                <li>VARCHAR(255)</li>
+                <li>VARCHAR(10), NOT NULL</li>
+                <li>VARCHAR(7), NOT NULL</li>
+            </ol>
+        </td>
+        <td>folder_id</td>
+        <td>module_code references Modules(module_code)</td>
+        <td>Associates specific folders with modules.</td>
+    </tr>
+    <tr>
+        <td><b>Combinations</b></td>
+        <td>
+            <ol>
+                <li>primary_major</li>
+                <li>secondary_major</li>
+                <li>first_minor</li>
+                <li>second_minor</li>
+                <li>module_code</li>
+            </ol>
+        </td>
+        <td>
+            <ol>
+                <li>VARCHAR(45), NOT NULL</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(7), NOT NULL</li>
+            </ol>
+        </td>
+        <td>Composite key: primary_major, secondary_major, first_minor, second_minor</td>
+        <td>module_code references Modules(module_code)</td>
+        <td>Defines combinations of majors and minors that correspond to modules.</td>
+    </tr>
+    <tr>
+        <td><b>Users</b></td>
+        <td>
+            <ol>
+                <li>email</li>
+                <li>folder_id</li>
+                <li>nickname</li>
+                <li>password</li>
+                <li>refresh_token</li>
+                <li>reset_otp</li>
+                <li>reset_otp_exp</li>
+                <li>enrolment_year</li>
+                <li>primary_major</li>
+                <li>secondary_major</li>
+                <li>first_minor</li>
+                <li>second_minor</li>
+                <li>home_faculty</li>
+            </ol>
+        </td>
+        <td>
+            <ol>
+                <li>VARCHAR(255), NOT NULL</li>
+                <li>VARCHAR(255)</li>
+                <li>VARCHAR(45), NOT NULL</li>
+                <li>VARCHAR(255), NOT NULL</li>
+                <li>VARCHAR(255)</li>
+                <li>VARCHAR(255)</li>
+                <li>BIGINT</li>
+                <li>VARCHAR(7)</li>
+                <li>VARCHAR(45), NOT NULL</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(45)</li>
+                <li>VARCHAR(45)</li>
+            </ol>
+        </td>
+        <td>email</td>
+        <td>
+            <ol>
+                <li>folder_id references Folders(folder_id)</li>
+                <li>primary_major, secondary_major, first_minor, second_minor references Combinations(primary_major, secondary_major, first_minor, second_minor)</li>
+            </ol>
+        </td>
+        <td>Stores user information, including their majors, minors, and associated folder.</td>
+    </tr>
+</table>                  
+
+
+## Plan 
 
 ## Project Logging
 
