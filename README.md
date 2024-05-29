@@ -97,6 +97,12 @@ As NUS students, we all have to track our graduation process. Some uses excel sh
 </table>
 
 ## User Stories
+As a prospective student, I can see the graduation dashboard to get a quick overview of my current graduation status based on current date and projected modules so that I can have be rest assured about my academic journey.
+As a senior, I can use the graduation module builder to obtain specific module information so that I can effectively build my module combinations in preparation for fulfilling all graduation requirements.
+As a freshman,  I can use Henry, the helpful AI bot which can recommend me modules based on the highly rated combination of modules seniors have chosen so that I can decide what combinations are best for my upcoming semester. 
+As an incoming exchange student, I can use the module combination review feature so that I can choose modules that are highly sought after by local students especially when I am unsure about the module selection culture in NUS.
+As an NUS student, I can create and maintain my profile feature to always ensure that my graduation status is stored in Gradloh so that I can revisit it every time module registration approaches or when I intend to plan for my graduation on the fly.
+As an educator in NUS, I can use the module combination review to determine student behavior so that I can better plan for a cross-module curriculum. 
 
 ## Design (UI/UX & Architecture)
 
