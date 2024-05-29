@@ -37,6 +37,8 @@ CREATE TABLE Users (
 	refresh_token VARCHAR(255),
     reset_otp VARCHAR(255),
     reset_otp_exp BIGINT,
+    completed_onboard BOOLEAN,
+    completed_tutorial BOOLEAN,
     enrolment_year VARCHAR(7),
     primary_major VARCHAR(45) NOT NULL,
     secondary_major VARCHAR(45),
