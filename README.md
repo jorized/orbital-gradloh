@@ -119,7 +119,7 @@ Primary fonts: Arial, Lexend Deca. Secondary fonts: Times new Roman, Helvetica N
 <img src="https://github.com/jorized/orbital-gradloh/assets/79164390/1d62731b-16c8-43cd-9ea2-8d6cde9632a5" width="450"/>
 
 ### Entity-Relationship Diagram (ERD)
-<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/b31244b9-1962-4bab-be50-5670c2fa2b1e" width="350"/>
+<img src="https://github.com/jorized/orbital-gradloh/assets/98576382/96c7b9fc-bcf9-4d86-af8d-e3656db70bdc" width="350"/>
 
 ### Summary
 <table>
