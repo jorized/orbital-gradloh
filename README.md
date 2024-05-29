@@ -116,7 +116,7 @@ As an educator in NUS, I can use the module combination review to determine stud
 
 ### Font
 Primary fonts: Arial, Lexend Deca. Secondary fonts: Times new Roman, Helvetica Neue
-<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/1d62731b-16c8-43cd-9ea2-8d6cde9632a5" width="450"/>
+<img src="https://github.com/jorized/orbital-gradloh/assets/79164390/1d62731b-16c8-43cd-9ea2-8d6cde9632a5" width="1000"/>
 
 ### Entity-Relationship Diagram (ERD)
 <img src="https://github.com/jorized/orbital-gradloh/assets/98576382/96c7b9fc-bcf9-4d86-af8d-e3656db70bdc" width="350"/>
