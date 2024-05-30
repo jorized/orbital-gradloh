@@ -11,6 +11,15 @@ Proposed level of achievement: Apollo 11
 ## Promotional Video (Watch it on Youtube : 
 https://github.com/jorized/orbital-gradloh/assets/79164390/d5ed73bc-51c6-4bc1-b91e-956c4f4ce62d
 
+## Before using the app
+
+### Limitations
+- As of the current version (30/5/2024), GradLoh do not support all combination of modules (E.g. Business + Computer Science) required for graduation.
+- This is mainly due to the vast majority of module combinations that NUS can have (ranging from majors to minors), and the fact that most of these data are going to be manually scraped and curated by us.
+- As such, the app will be mostly focusing and will only be dedicated towards SOC ( + DSA) courses for now.
+- GradLoh also does not support special cases, e.g. Exemptions, special terms etc. as our main focus will be on the basic curriculum.
+- These features may or may not be implemented in future updates.
+
 
 ## Milestone 1 (Ideation)
 ### Motivation
