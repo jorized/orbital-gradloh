@@ -4,6 +4,7 @@ CREATE TABLE Modules (
     faculty VARCHAR(45) NOT NULL,
     module_description TEXT, 
     completion_status BOOLEAN NOT NULL,
+    module_credits TINYINT,
 	
 	PRIMARY KEY (module_code)
 );
@@ -17,6 +18,41 @@ CREATE TABLE Folders (
     FOREIGN KEY (module_code) REFERENCES Modules(module_code)
 );
 
+
+
+CREATE TABLE PrimaryMajorRequirements (
+    primary_major VARCHAR(45),
+    module_type ENUM("Core", "GE"),
+    module_code VARCHAR(7),
+
+    PRIMARY KEY (primary_major),
+    FOREIGN KEY (module_code) REFERENCES Modules(module_code),
+);
+
+CREATE TABLE SecondaryMajorRequirements (
+    secondary_major VARCHAR(45),
+    module_code VARCHAR(7),
+
+    PRIMARY KEY (secondary_major),
+    FOREIGN KEY (module_code) REFERENCES Modules(module_code),
+);
+
+
+CREATE TABLE FirstMinorRequirements (
+    first_minor VARCHAR(45),
+    module_code VARCHAR(7),
+
+    PRIMARY KEY (first_minor),
+    FOREIGN KEY (module_code) REFERENCES Modules(module_code),
+);
+
+CREATE TABLE SecondMinorRequirements (
+    second_minor VARCHAR(45),
+    module_code VARCHAR(7),
+
+    PRIMARY KEY (second_minor),
+    FOREIGN KEY (module_code) REFERENCES Modules(module_code),
+);
 CREATE TABLE Combinations (
 	primary_major VARCHAR(45) NOT NULL,
     secondary_major VARCHAR(45),
