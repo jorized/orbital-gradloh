@@ -3,14 +3,14 @@ CREATE TABLE Modules (
     module_name VARCHAR(45) UNIQUE NOT NULL,
     faculty VARCHAR(45) NOT NULL,
     module_description TEXT, 
-    completition_status BOOLEAN NOT NULL,
+    completion_status BOOLEAN NOT NULL,
 	
 	PRIMARY KEY (module_code)
 );
 
 CREATE TABLE Folders (
 	folder_id VARCHAR(255),
-    folder_name VARCHAR(10) NOT NULL, 
+    folder_name ENUM("Y1S1", "Y1S2", "Y2S1", "Y2S2","Y3S1", "Y3S2", "Y4S1", "Y4S2") NOT NULL, 
 	module_code VARCHAR(7) NOT NULL,
     
     PRIMARY KEY (folder_id),
@@ -37,6 +37,8 @@ CREATE TABLE Users (
 	refresh_token VARCHAR(255),
     reset_otp VARCHAR(255),
     reset_otp_exp BIGINT,
+    completed_onboard BOOLEAN,
+    completed_tutorial BOOLEAN,
     enrolment_year VARCHAR(7),
     primary_major VARCHAR(45) NOT NULL,
     secondary_major VARCHAR(45),
