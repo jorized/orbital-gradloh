@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import LandingScreen from './screens/LandingScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -18,9 +19,13 @@ import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import ResetPasswordConfirmationScreen from './screens/ResetPasswordConfirmationScreen';
 import LottieView from 'lottie-react-native';
 import SplashScreen from './components/SplashScreen';
+import ProfileSetUpThreeScreen from './screens/ProfileSetUpThreeScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
+import LogoutDrawerContent from './components/LogoutDrawerContent';
 
 const PublicStack = createStackNavigator();
 const PrivateStack = createStackNavigator();
+const PrivateDrawer = createDrawerNavigator();
 
 const PublicNavigator = () => (
   <PublicStack.Navigator>
@@ -107,17 +112,38 @@ const PublicNavigator = () => (
         ),
       }}
     />
+    <PublicStack.Screen
+      name="ProfileSetUpThreeScreen"
+      component={ProfileSetUpThreeScreen}
+      options={{
+        header: ({ navigation }) => (
+          <SafeAreaView style={styles.loginHeader}>
+            <View style={styles.loginBackBtnContainer}>
+              <HeaderBackButton onPress={() => navigation.goBack()} style={styles.loginBackBtn} tintColor="#EF7C00" labelVisible={false} />
+            </View>
+          </SafeAreaView>
+        ),
+      }}
+    />
+    <PublicStack.Screen
+      name="OnboardingScreen"
+      component={OnboardingScreen}
+      options={{
+        gestureEnabled : false,
+        headerShown: false
+      }}
+    />
   </PublicStack.Navigator>
 );
 
 const PrivateNavigator = () => (
-  <PrivateStack.Navigator>
-    <PrivateStack.Screen
+  <PrivateDrawer.Navigator drawerContent={(props) => <LogoutDrawerContent {...props} />}>
+    <PrivateDrawer.Screen
       name="HomeScreen"
       component={HomeScreen}
-      options={{ headerShown: false }}
+      options={{ headerShown: false, swipeEnabled: true, title: 'Home' }}
     />
-  </PrivateStack.Navigator>
+  </PrivateDrawer.Navigator>
 );
 
 const App = () => {

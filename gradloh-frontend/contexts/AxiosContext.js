@@ -26,6 +26,7 @@ const AxiosProvider = ({children}) => {
   authAxios.interceptors.request.use(
     config => {
       if (!config.headers.Authorization) {
+        console.log(authContext.getAccessToken());
         config.headers.Authorization = `Bearer ${authContext.getAccessToken()}`;
       }
 

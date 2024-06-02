@@ -20,11 +20,19 @@ public class ReqRes {
     private String expirationTime;
     private String resetOTP;
     private Long resetOTPExp;
+    private Boolean completedOnboard;
+    private String enrolmentYear;
+    private String primaryMajor;
+    private String secondaryMajor;
+    private String firstMinor;
+    private String secondMinor;
+    private String homeFaculty;
     private String newPassword;
     private String confirmNewPassword;
     private String nickname;
     private String email;
     private String password;
+    private String confirmPassword;
     private User user;
     private List<User> userList;
 

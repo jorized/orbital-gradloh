@@ -1,21 +1,17 @@
 package com.gradlohbackend.orbital.service;
 
 import com.gradlohbackend.orbital.dto.ReqRes;
-import com.gradlohbackend.orbital.entity.Role;
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.repository.UsersRepo;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +33,7 @@ public class UsersManagementService {
         this.emailService = emailService;
     }
 
-    public ReqRes register(ReqRes registrationRequest) {
+    public ReqRes processRegister(ReqRes registrationRequest) {
         ReqRes resp = new ReqRes();
 
         try {
@@ -64,28 +60,56 @@ public class UsersManagementService {
             }
 
             // Check if password matches confirm password
-            if (!password.equals(registrationRequest.getNewPassword())) {
+            if (!password.equals(registrationRequest.getConfirmPassword())) {
                 resp.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
                 resp.setMessage("Passwords do not match.");
                 return resp;
             }
 
+            resp.setNickname(registrationRequest.getNickname());
+            resp.setEmail(registrationRequest.getEmail());
+            resp.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+            resp.setMessage("Registration valid.");
+            resp.setStatusCode(200); // 201 Created
+        } catch (Exception e) {
+            resp.setMessage("Internal Server Error.");
+            resp.setStatusCode(500); // 500 Internal Server Error
+        }
+
+        return resp;
+    }
+
+    public ReqRes register(ReqRes registrationRequest) {
+        ReqRes resp = new ReqRes();
+
+        try {
             User ourUser = new User();
-            ourUser.setNickname(registrationRequest.getNickname());
             ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setRole(Role.USER);
-            ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+            ourUser.setFolderId("Y1S1");
+            ourUser.setNickname(registrationRequest.getNickname());
+            ourUser.setPassword(registrationRequest.getPassword());
+            ourUser.setRole(User.Role.USER);
             ourUser.setRefreshToken(jwtUtils.generateRefreshToken(ourUser));
-            ourUser.setResetOTP("");
-            ourUser.setResetOTPExp(0);
+            ourUser.setResetOtp("");
+            ourUser.setResetOtpExp(0L);
+            ourUser.setCompletedOnboard(false);
+            ourUser.setCompletedTutorial(false);
+            ourUser.setEnrolmentYear(registrationRequest.getEnrolmentYear());
+            ourUser.setPrimaryMajor(registrationRequest.getPrimaryMajor());
+            ourUser.setSecondaryMajor(registrationRequest.getSecondaryMajor());
+            ourUser.setFirstMinor(registrationRequest.getFirstMinor());
+            ourUser.setSecondMinor(registrationRequest.getSecondMinor());
+            ourUser.setHomeFaculty(registrationRequest.getHomeFaculty());
+
             User userResult = usersRepo.save(ourUser);
 
             resp.setRefreshToken(userResult.getRefreshToken());
             resp.setAccessToken(jwtUtils.generateAccessToken(ourUser));
             resp.setMessage("User created successfully.");
-            resp.setStatusCode(201); // 201 Created
+            resp.setStatusCode(201);
+
         } catch (Exception e) {
-            resp.setMessage("Internal Server Error.");
+            resp.setMessage("This combination has not yet been configured.");
             resp.setStatusCode(500); // 500 Internal Server Error
         }
 
@@ -115,6 +139,7 @@ public class UsersManagementService {
 
             response.setAccessToken(jwtUtils.generateAccessToken(user));
             response.setRefreshToken(userResult.getRefreshToken());
+            response.setCompletedOnboard(userResult.getCompletedOnboard());
             response.setStatusCode(HttpStatus.OK.value()); // 200
             response.setMessage("Successfully Logged In");
         } catch (AuthenticationException e) {
@@ -122,6 +147,31 @@ public class UsersManagementService {
             response.setStatusCode(HttpStatus.UNAUTHORIZED.value()); // 401
             response.setMessage("Invalid email or password.");
         } catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes updateOnboard(ReqRes onboardRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = usersRepo.findByEmail(onboardRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            var user = userOptional.get();
+            user.setCompletedOnboard(true);
+            usersRepo.save(user);
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+            response.setMessage("Updated onboarding.");
+        }  catch (Exception e) {
             // Handle general exceptions, possibly logging them.
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             response.setMessage("An internal error occurred.");
@@ -147,8 +197,8 @@ public class UsersManagementService {
             String otp = emailService.generateOTP();
             long otpExpirationtime = emailService.getOtpExpirationTime();
 
-            user.setResetOTP(otp);
-            user.setResetOTPExp(otpExpirationtime);
+            user.setResetOtp(otp);
+            user.setResetOtpExp(otpExpirationtime);
             usersRepo.save(user);
 
             String htmlContent = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">" +

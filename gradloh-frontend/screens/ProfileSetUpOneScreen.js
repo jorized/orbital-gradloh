@@ -1,26 +1,30 @@
-
-import { View, Text, StyleSheet, Image, TextInput, Pressable } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Platform, TouchableNativeFeedback, TouchableOpacity } from "react-native";
 import { useFonts } from "expo-font";
 import { Lexend_300Light, Lexend_400Regular, Lexend_600SemiBold, Lexend_700Bold } from "@expo-google-fonts/lexend";
-import { Fontisto } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
-import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import DropdownWithErrorHandling from "../components/DropdownWithErrorHandling";
+import axios from 'axios';
+import SelectableButton from "../components/SelectableButton";
 
 export default function ProfileSetUpOneScreen() {
 
     const navigation = useNavigation();
 
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState('');
     const [isFocus, setIsFocus] = useState(false);
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    const route = useRoute();
+    const { nickname, email, password } = route.params || {};
 
     const data = [
-        { label: '2022/2023', value: '2022/2023' },
-        { label: '2023/2024', value: '2023/2024' },
-      ];
+        { label: '2022/2023', value: '2022-2023' },
+        { label: '2023/2024', value: '2023-2024' },
+    ];
 
     const [fontsLoaded] = useFonts({
         Lexend_300Light,
@@ -29,6 +33,24 @@ export default function ProfileSetUpOneScreen() {
         Lexend_700Bold
     });
 
+
+    const handleSubmit = () => {
+        if (!value) {
+          setError(true);
+        } else {
+          setError(false);
+          // Handle the submission
+          navigation.push("ProfileSetUpTwoScreen", { 
+            nickname: nickname,
+            email: email,
+            password: password,
+            enrolmentYear: value
+          })
+        }
+    };
+
+
+
     if (!fontsLoaded) {
         return <Text>Loading...</Text>;
     }
@@ -36,7 +58,7 @@ export default function ProfileSetUpOneScreen() {
     return (
         <View style={styles.container}>
 
-            <View style = {styles.form}>
+            <View style={styles.form}>
                 <Text style={styles.profileSetUpTitle}>
                     Profile Setup
                 </Text>
@@ -44,27 +66,37 @@ export default function ProfileSetUpOneScreen() {
                     *Please enter your matriculation year
                 </Text>
 
-                <Dropdown 
-                    style={styles.dropdown} 
+                <DropdownWithErrorHandling
                     data={data} 
                     value={value} 
-                    labelField="label" 
-                    valueField="value" 
-                    placeholder="Select AY" 
-                    placeholderStyle={styles.dropdownPlaceholder}
-                    onChange={item => {
-                        setValue(item.value);
-                        setIsFocus(false);
-                    }}
+                    placeholder="Select AY*"
+                    error={error}
+                    setValue={setValue}
+                    setIsFocus={setIsFocus}
+                    setError={setError}
                 />
-
             </View>
-            <Pressable style={styles.nextPressable} onPress={() => navigation.push('ProfileSetUpTwoScreen')}>
-                    <Text style={styles.nextText}>Next</Text>
-            </Pressable>
+            {Platform.OS === 'android' ? (
+                    <TouchableNativeFeedback
+                        onPress={loading ? null : handleSubmit}
+                        background={TouchableNativeFeedback.Ripple('#fff', false)}
+                        disabled={loading}
+                    >
+                        <View style={[styles.loginPressable, loading && styles.disabledPressable]}>
+                            {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Next</Text>}
+                        </View>
+                    </TouchableNativeFeedback>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.loginPressable, loading && styles.disabledPressable]}
+                        onPress={loading ? null : handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Next</Text>}
+                    </TouchableOpacity>
+            )}
 
         </View>
-
     )
 }
 
@@ -92,15 +124,33 @@ const styles = StyleSheet.create({
     dropdownPlaceholder: {
         color: "#CBCBCB"
     },
-    nextPressable: {
+    dropdownError: {
+        borderBottomColor: "#D00E17",
+    },
+    dropdownErrorText: {
+        color: "#D00E17"
+    },
+    loginPressable: {
         padding: 16,
         backgroundColor: "#EF7C00",
-        borderRadius: 12
+        borderRadius: 12,
     },
-    nextText: {
+    loginText: {
         textAlign: "center",
         color: "white",
         fontSize: 18,
         fontFamily: "Lexend_400Regular"
-    }
-})
+    },
+    errorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 5,
+      },
+      errorIcon: {
+        marginRight: 5,
+      },
+      errorMessage: {
+        color: '#D00E17',
+        fontSize: 12,
+    },
+});

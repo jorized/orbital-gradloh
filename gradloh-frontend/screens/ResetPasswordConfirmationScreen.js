@@ -14,7 +14,7 @@ export default function ResetPasswordConfirmationScreen() {
     const navigation = useNavigation();
 
     const route = useRoute();
-    const { email, showToast, toastMessage } = route.params;
+    const { email, showToast, toastMessage } = route.params || {};
 
     const authContext = useContext(AuthContext);
     const { publicAxios } = useContext(AxiosContext);
