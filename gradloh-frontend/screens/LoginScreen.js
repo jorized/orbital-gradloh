@@ -117,23 +117,36 @@ export default function LoginScreen() {
             });
             setLoading(false);
 
-            const { accessToken, refreshToken } = response.data;
-            
-            // Store tokens in SecureStore
-            await SecureStore.setItemAsync(
-              'token',
-              JSON.stringify({
+            const { accessToken, refreshToken, completedOnboard } = response.data;
+            if (!completedOnboard) {
+              authContext.setAuthState({
                 accessToken,
                 refreshToken,
-              })
-            );
+              });
+              navigation.push('OnboardingScreen', {
+                email: email,
+                accessToken : accessToken,
+                refreshToken : refreshToken
+              });
+            } else {
+            // Store tokens in SecureStore
+              await SecureStore.setItemAsync(
+                'token',
+                JSON.stringify({
+                  accessToken,
+                  refreshToken,
+                })
+              );
 
-            // Update state only after storing the token
-            authContext.setAuthState({
-              accessToken,
-              refreshToken,
-              authenticated: true,
-            });
+              // Update state only after storing the token
+              authContext.setAuthState({
+                accessToken,
+                refreshToken,
+                authenticated: true,
+              });
+            }
+            
+
 
           } catch (error) {
             setLoading(false);

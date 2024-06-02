@@ -3,6 +3,7 @@ package com.gradlohbackend.orbital.controller;
 import com.gradlohbackend.orbital.dto.ReqRes;
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.service.UsersManagementService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,15 @@ public class UserManagementController {
     private UsersManagementService usersManagementService;
 
     //Auth routes (those that begin with /auth, do not require JWT)
+    @PostMapping("/auth/processregister")
+    public ResponseEntity<ReqRes> processRegister(@RequestBody ReqRes req){
+        var reqRes = usersManagementService.processRegister(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
     @PostMapping("/auth/register")
     public ResponseEntity<ReqRes> register(@RequestBody ReqRes req){
         var reqRes = usersManagementService.register(req);
@@ -61,9 +71,14 @@ public class UserManagementController {
     }
 
     //Normal routes (require either user/admin JWT)
-    @GetMapping("/test")
-    public ResponseEntity<String> sayHello() {
-        return ResponseEntity.ok("Here is your resource");
+    @PostMapping("/updateonboarding")
+    public ResponseEntity<ReqRes> updateOnboarding(@RequestBody ReqRes req) {
+
+        var reqRes = usersManagementService.updateOnboard(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
     }
 
     //For admin only routes (those that begin with /admin, require admin JWT)

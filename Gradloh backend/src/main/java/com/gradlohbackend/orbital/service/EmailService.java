@@ -88,7 +88,7 @@ public class EmailService {
 
         User user = userOptional.get();
 
-        if (user.getResetOTP().equals(otp) && Instant.now().toEpochMilli() < user.getResetOTPExp()) {
+        if (user.getResetOtp().equals(otp) && Instant.now().toEpochMilli() < user.getResetOtpExp()) {
             return true;
         } else {
             return false;

@@ -9,8 +9,11 @@ import TermsAndConditionsModal from '../components/TermsAndConditionsModal';
 import Toast from 'react-native-toast-message';
 import { AuthContext } from '../contexts/AuthContext';
 import { AxiosContext } from '../contexts/AxiosContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function RegisterScreen() {
+
+    const navigation = useNavigation();
 
     const authContext = useContext(AuthContext);
     const { publicAxios } = useContext(AxiosContext);
@@ -132,14 +135,18 @@ export default function RegisterScreen() {
         if (!hasError) {
             setLoading(true);
             try {
-              const response = await publicAxios.post('/register', {
+              const response = await publicAxios.post('/processregister', {
                 nickname,
                 email,
                 password,
                 confirmPassword
               });
               setLoading(false);
-
+              navigation.push("ProfileSetUpOneScreen", { 
+                nickname: response.data.nickname,
+                email: response.data.email, 
+                password: response.data.password
+              })
             } catch (error) {
               setLoading(false);
               if (!error.response) {

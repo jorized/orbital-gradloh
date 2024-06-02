@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.jorized.gradlohfrontend"
     },
     "experiments": {
       "typedRoutes": true
@@ -27,6 +28,13 @@
     "plugins": [
       "expo-font",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3baf6e70-1742-4ebb-8ec5-67ca87dff68a",
+        "authApiUrl": "http://192.168.0.151:8080/auth",
+        "apiUrl": "http://192.168.0.151:8080"
+      }
+    }
   }
 }
