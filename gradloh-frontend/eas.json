@@ -9,8 +9,8 @@
     },
     "preview": {
       "env": {
-        "EXPO_PUBLIC_API_AUTH_URL": "http://192.168.0.151:8080/auth",
-        "EXPO_PUBLIC_API_URL": "http://192.168.0.151:8080"
+        "EXPO_PUBLIC_API_AUTH_URL": "https://fearless-adventure-development.up.railway.app/auth",
+        "EXPO_PUBLIC_API_URL": "https://heroku-gradloh-backend-a497927b339d.herokuapp.com"
       },
       "android": {
         "buildType": "apk"
