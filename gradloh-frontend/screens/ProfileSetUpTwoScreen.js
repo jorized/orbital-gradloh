@@ -2,9 +2,6 @@ import {
 	View,
 	Text,
 	StyleSheet,
-	Image,
-	TextInput,
-	Pressable,
 	TouchableOpacity,
 	Platform,
 	TouchableNativeFeedback,
@@ -18,15 +15,15 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import { Dropdown } from 'react-native-element-dropdown';
 import { forwardRef, useContext, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import CheckBoxWithLabel from '../components/CheckBoxWithLabel';
 import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
 import SelectableButton from '../components/SelectableButton';
 import { AxiosContext } from '../contexts/AxiosContext';
 import Toast from 'react-native-toast-message';
 import { AuthContext } from '../contexts/AuthContext';
+import Faculties from '../assets/data/Faculties.json';
+import PrimaryMajors from '../assets/data/PrimaryMajors.json';
 
 LogBox.ignoreLogs([
 	'Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.'
@@ -91,59 +88,10 @@ export default function ProfileSetUpTwoScreen() {
 		<Toast ref={ref} config={toastConfig} />
 	));
 
-	const facultyData = [
-		{ label: 'Arts and Social Sciences (FASS)', value: 'FASS' },
-		{ label: 'Business (SOB)', value: 'SOB' },
-		{ label: 'Computing (SOC)', value: 'SOC' },
-		{ label: 'Design and Engineering (CDE)', value: 'CDE' },
-		{ label: 'Science (FOS)', value: 'FOS' }
-	];
+	//Loading in data
+	const facultyData = Faculties;
+	const majorData = PrimaryMajors;
 
-	const majorData = {
-		FASS: [
-			{ label: 'Anthropology', value: 'Anthropology' },
-			{ label: 'Chinese Studies', value: 'Chinese Studies' },
-			{
-				label: 'Communications and New Media',
-				value: 'Communications and New Media'
-			},
-			{ label: 'Economics', value: 'Economics' }
-			// Add other majors for FASS
-		],
-		SOB: [
-			{
-				label: 'Business Administration',
-				value: 'Business Administration'
-			},
-			{ label: 'Accountancy', value: 'Accountancy' }
-			// Add other majors for SOB
-		],
-		SOC: [
-			{ label: 'Business Analytics', value: 'Business Analytics' },
-			{ label: 'Computer Engineering', value: 'Computer Engineering' },
-			{ label: 'Computer Science', value: 'Computer Science' },
-			{ label: 'Information Security', value: 'Information Security' },
-			{ label: 'Information Systems', value: 'Information Systems' }
-			// Add other majors for SOC
-		],
-		CDE: [
-			{ label: 'Architecture', value: 'Architecture' },
-			{ label: 'Industrial Design', value: 'Industrial Design' },
-			{ label: 'Real Estate', value: 'Real Estate' },
-			{ label: 'Biomedical Engineering', value: 'Biomedical Engineering' }
-			// Add other majors for CDE
-		],
-		FOS: [
-			{ label: 'Applied Mathematics', value: 'Applied Mathematics' },
-			{ label: 'Chemistry', value: 'Chemistry' },
-			{ label: 'Computational Biology', value: 'Computational Biology' },
-			{
-				label: 'Data Science and Analytics',
-				value: 'Data Science and Analytics'
-			}
-			// Add other majors for FOS
-		]
-	};
 	const filteredMajorData = facultyValue ? majorData[facultyValue] : [];
 
 	const [fontsLoaded] = useFonts({
@@ -307,11 +255,11 @@ export default function ProfileSetUpTwoScreen() {
 							isSelected={isSelectedSecondMajor}
 							setIsSelected={setIsSelectedSecondMajor}
 						/>
-						{/* <SelectableButton
+						<SelectableButton
                             label="Minor" 
                             isSelected={isSelectedMinor} 
                             setIsSelected={setIsSelectedMinor} 
-                        /> */}
+                        />
 					</>
 				)}
 			</View>

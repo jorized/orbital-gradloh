@@ -1,0 +1,16 @@
+singleServerConfig:
+  address: "rediss://lucky-stingray-54189.upstash.io:6379"
+  password: "AdOtAAIncDExNDI4M2Q3NzI1OTg0MjA5YTgwMmFhODE1M2I2ZTI0NnAxNTQxODk"  # replace with your actual password
+  connectionMinimumIdleSize: 10
+  connectionPoolSize: 64
+  idleConnectionTimeout: 10000
+  pingConnectionInterval: 1000
+  connectTimeout: 10000
+  timeout: 3000
+  retryAttempts: 3
+  retryInterval: 1500
+  subscriptionsPerConnection: 5
+  sslEnableEndpointIdentification: false
+
+
+

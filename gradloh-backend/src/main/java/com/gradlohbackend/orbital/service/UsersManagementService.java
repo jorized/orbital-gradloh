@@ -26,6 +26,8 @@ public class UsersManagementService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private OurUserDetailsService ourUserDetailsService;
 
     private EmailService emailService;
 
@@ -38,7 +40,7 @@ public class UsersManagementService {
 
         try {
             //Check if email exists
-            var userOptional = usersRepo.findByEmail(registrationRequest.getEmail());
+            var userOptional = ourUserDetailsService.findUserByEmail(registrationRequest.getEmail());
             if (!userOptional.isEmpty()) {
                 resp.setMessage("Email already exists.");
                 resp.setStatusCode(409);
@@ -90,10 +92,9 @@ public class UsersManagementService {
             ourUser.setPassword(registrationRequest.getPassword());
             ourUser.setRole(User.Role.USER);
             ourUser.setRefreshToken(jwtUtils.generateRefreshToken(ourUser));
-            ourUser.setResetOtp("");
-            ourUser.setResetOtpExp(0L);
             ourUser.setCompletedOnboard(false);
             ourUser.setCompletedTutorial(false);
+            ourUser.setIsDarkMode(false);
             ourUser.setEnrolmentYear(registrationRequest.getEnrolmentYear());
             ourUser.setPrimaryMajor(registrationRequest.getPrimaryMajor());
             ourUser.setSecondaryMajor(registrationRequest.getSecondaryMajor());
@@ -125,7 +126,7 @@ public class UsersManagementService {
                     loginRequest.getEmail(), loginRequest.getPassword()));
 
             // Retrieve the user details from the database.
-            var userOptional = usersRepo.findByEmail(loginRequest.getEmail());
+            var userOptional = ourUserDetailsService.findUserByEmail(loginRequest.getEmail());
 
             if (userOptional.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
@@ -137,6 +138,7 @@ public class UsersManagementService {
             user.setRefreshToken(jwtUtils.generateRefreshToken(user));
             User userResult = usersRepo.save(user);
 
+            response.setNickname(userResult.getNickname());
             response.setAccessToken(jwtUtils.generateAccessToken(user));
             response.setRefreshToken(userResult.getRefreshToken());
             response.setCompletedOnboard(userResult.getCompletedOnboard());
@@ -158,7 +160,7 @@ public class UsersManagementService {
         ReqRes response = new ReqRes();
         try {
             // Retrieve the user details from the database.
-            var userOptional = usersRepo.findByEmail(onboardRequest.getEmail());
+            var userOptional = ourUserDetailsService.findUserByEmail(onboardRequest.getEmail());
 
             if (userOptional.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
@@ -179,12 +181,65 @@ public class UsersManagementService {
         return response;
     }
 
+    public ReqRes getProgressDetails(ReqRes userProgressDetailsRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = ourUserDetailsService.findUserByEmail(userProgressDetailsRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            response.setTotalCore(ourUserDetailsService.getTotalCoreModsCount(userProgressDetailsRequest.getEmail()));
+            response.setTotalCoreCompleted(ourUserDetailsService.getCompletedCoreModsCount(userProgressDetailsRequest.getEmail()));
+            response.setTotalGe(ourUserDetailsService.getTotalGeModsCount(userProgressDetailsRequest.getEmail()));
+            response.setTotalGeCompleted(ourUserDetailsService.getCompletedGeModsCount(userProgressDetailsRequest.getEmail()));
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+
+            response.setMessage("Successfully retrieved progress details.");
+        }  catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    //Update dark mode
+    public ReqRes updateDarkMode(ReqRes darkModeRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = ourUserDetailsService.findUserByEmail(darkModeRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            var user = userOptional.get();
+            user.setIsDarkMode(darkModeRequest.getIsDarkMode());
+            usersRepo.save(user);
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+            response.setMessage("Updated dark mode.");
+        }  catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
     //Sending email w otp
     public ReqRes sendResetEmail(ReqRes sendResetEmailRequest) {
         ReqRes response = new ReqRes();
         try {
             // Retrieve the user details from the database.
-            var userOptional = usersRepo.findByEmail(sendResetEmailRequest.getEmail());
+            var userOptional = ourUserDetailsService.findUserByEmail(sendResetEmailRequest.getEmail());
 
             if (userOptional.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
@@ -241,7 +296,7 @@ public class UsersManagementService {
 
         try {
             // Retrieve the user details from the database.
-            var userOptional = usersRepo.findByEmail(resetPasswordRequest.getEmail());
+            var userOptional = ourUserDetailsService.findUserByEmail(resetPasswordRequest.getEmail());
 
             if (userOptional.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
@@ -305,13 +360,13 @@ public class UsersManagementService {
         try {
 
             String ourEmail = jwtUtils.extractUsername(refreshTokenRequest.getRefreshToken());
-            Optional<User> userOpt = usersRepo.findByEmail(ourEmail);
+            Optional<User> userOpt = ourUserDetailsService.findUserByEmail(ourEmail);
             if (userOpt.isEmpty()) {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value());
                 response.setMessage("User not found.");
                 return response;
             }
-
+            System.out.println("COMES HEREE JWT");
             User user = userOpt.get();
 
             response.setAccessToken(jwtUtils.generateAccessToken(user));
