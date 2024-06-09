@@ -1,4 +1,5 @@
 package com.gradlohbackend.orbital.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,10 +9,9 @@ import lombok.Data;
 public class SecondaryMajorRequirement {
 
     @Id
-    @Column(name = "secondary_major", length = 45, nullable = false)
+    @Column(name = "secondary_major", length = 45)
     private String secondaryMajor;
 
     @Column(name = "module_code", length = 7)
     private String moduleCode;
-
 }

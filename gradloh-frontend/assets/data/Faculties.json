@@ -1,0 +1,8 @@
+[
+    { "label": "Arts and Social Sciences (FASS)", "value": "FASS" },
+    { "label": "Business (SOB)", "value": "SOB" },
+    { "label": "Computing (SOC)", "value": "SOC" },
+    { "label": "Design and Engineering (CDE)", "value": "CDE" },
+    { "label": "Science (FOS)", "value": "FOS" }
+  ]
+  

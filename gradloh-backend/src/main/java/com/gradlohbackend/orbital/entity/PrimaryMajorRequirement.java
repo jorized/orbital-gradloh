@@ -1,4 +1,5 @@
 package com.gradlohbackend.orbital.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import lombok.Data;
 public class PrimaryMajorRequirement {
 
     @Id
-    @Column(name = "primary_major", length = 45, nullable = false)
+    @Column(name = "primary_major", length = 45)
     private String primaryMajor;
 
     @Enumerated(EnumType.STRING)
@@ -21,5 +22,4 @@ public class PrimaryMajorRequirement {
     public enum ModuleType {
         Core, GE
     }
-
 }

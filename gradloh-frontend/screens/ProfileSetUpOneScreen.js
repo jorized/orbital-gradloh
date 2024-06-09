@@ -2,8 +2,6 @@ import {
 	View,
 	Text,
 	StyleSheet,
-	TextInput,
-	Pressable,
 	Platform,
 	TouchableNativeFeedback,
 	TouchableOpacity
@@ -15,13 +13,10 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import { Dropdown } from 'react-native-element-dropdown';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
-import axios from 'axios';
-import SelectableButton from '../components/SelectableButton';
+import AcademicYear from '../assets/data/AcademicYears.json';
 
 export default function ProfileSetUpOneScreen() {
 	const navigation = useNavigation();
@@ -34,10 +29,7 @@ export default function ProfileSetUpOneScreen() {
 	const route = useRoute();
 	const { nickname, email, password } = route.params || {};
 
-	const data = [
-		{ label: '2022/2023', value: '2022-2023' },
-		{ label: '2023/2024', value: '2023-2024' }
-	];
+	const data = AcademicYear;
 
 	const [fontsLoaded] = useFonts({
 		Lexend_300Light,
