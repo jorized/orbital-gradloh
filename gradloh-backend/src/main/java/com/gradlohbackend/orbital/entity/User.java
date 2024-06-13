@@ -1,10 +1,9 @@
 package com.gradlohbackend.orbital.entity;
 import lombok.Data;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cache;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @Column(name = "email", length = 255)
+    @Column(name = "email", length = 255, nullable = false)
     private String email;
 
     @Column(name = "folder_id", length = 255)
@@ -26,6 +25,10 @@ public class User implements UserDetails {
 
     @Column(name = "password", length = 255, nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     @Column(name = "refresh_token", length = 255)
     private String refreshToken;
@@ -42,10 +45,7 @@ public class User implements UserDetails {
     @Column(name = "completed_tutorial")
     private Boolean completedTutorial;
 
-    @Column(name = "is_dark_mode")
-    private Boolean isDarkMode;
-
-    @Column(name = "enrolment_year", length = 7)
+    @Column(name = "enrolment_year", length = 9)
     private String enrolmentYear;
 
     @Column(name = "primary_major", length = 45, nullable = false)
@@ -63,12 +63,17 @@ public class User implements UserDetails {
     @Column(name = "home_faculty", length = 45)
     private String homeFaculty;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "primary_major", referencedColumnName = "primary_major", insertable = false, updatable = false),
+            @JoinColumn(name = "secondary_major", referencedColumnName = "secondary_major", insertable = false, updatable = false),
+            @JoinColumn(name = "first_minor", referencedColumnName = "first_minor", insertable = false, updatable = false),
+            @JoinColumn(name = "second_minor", referencedColumnName = "second_minor", insertable = false, updatable = false)
+    })
+    private Combination combination;
 
     public enum Role {
-        USER, ADMIN
+        USER,ADMIN
     }
 
 

@@ -17,7 +17,7 @@ import CustomNextButton from '../components/CustomNextButton';
 import { AxiosContext } from '../contexts/AxiosContext';
 export default function OnboardingOneScreen() {
 	const route = useRoute();
-	const { nickname, email, accessToken, refreshToken } = route.params || {};
+	const { email, accessToken, refreshToken } = route.params || {};
 
 	const authContext = useContext(AuthContext);
 	const publicAxios = useContext(AxiosContext);
@@ -33,13 +33,6 @@ export default function OnboardingOneScreen() {
 		await SecureStore.setItemAsync(
 			'token',
 			JSON.stringify({ accessToken, refreshToken })
-		)
-		await SecureStore.setItemAsync(
-			'userprofiledetails',
-			JSON.stringify({
-				nickname,
-				email
-			})
 		)
 			.then(() => {
 				publicAxios.authAxios.post('/updateonboarding', { email });

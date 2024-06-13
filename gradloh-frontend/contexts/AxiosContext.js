@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
@@ -8,8 +8,6 @@ const AxiosContext = createContext();
 const authApiUrl = process.env.EXPO_PUBLIC_API_AUTH_URL;
 const publicApiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { Provider } = AxiosContext;
-
-
 
 const AxiosProvider = ({ children }) => {
 	const authContext = useContext(AuthContext);
@@ -34,7 +32,6 @@ const AxiosProvider = ({ children }) => {
 			return config;
 		},
 		(error) => {
-			console.log("COMES");
 			return Promise.reject(error);
 		}
 	);
@@ -43,6 +40,7 @@ const AxiosProvider = ({ children }) => {
 		const data = {
 			refreshToken: authContext.authState.refreshToken
 		};
+
 		const options = {
 			method: 'POST',
 			data,
@@ -58,13 +56,15 @@ const AxiosProvider = ({ children }) => {
 					...authContext.authState,
 					accessToken: tokenRefreshResponse.data.accessToken
 				});
+
 				await SecureStore.setItemAsync(
 					'token',
 					JSON.stringify({
 						accessToken: tokenRefreshResponse.data.accessToken,
 						refreshToken: authContext.authState.refreshToken
 					})
-				)
+				);
+
 				return Promise.resolve();
 			})
 			.catch((e) => {
@@ -75,8 +75,7 @@ const AxiosProvider = ({ children }) => {
 			});
 	};
 
-	createAuthRefreshInterceptor(authAxios, refreshAuthLogic, {statusCodes: [403] });
-
+	createAuthRefreshInterceptor(authAxios, refreshAuthLogic, {});
 
 	return (
 		<Provider

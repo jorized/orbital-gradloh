@@ -21,7 +21,6 @@ public class ReqRes {
     private String resetOTP;
     private Long resetOTPExp;
     private Boolean completedOnboard;
-    private Boolean isDarkMode;
     private String enrolmentYear;
     private String primaryMajor;
     private String secondaryMajor;
@@ -36,9 +35,5 @@ public class ReqRes {
     private String confirmPassword;
     private User user;
     private List<User> userList;
-    private Long totalCore;
-    private Long totalCoreCompleted;
-    private Long totalGe;
-    private Long totalGeCompleted;
 
 }

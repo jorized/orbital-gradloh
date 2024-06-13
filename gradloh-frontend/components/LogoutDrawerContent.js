@@ -9,7 +9,6 @@ import { AuthContext } from '../contexts/AuthContext';
 
 const LogoutDrawerContent = (props) => {
 	const authContext = useContext(AuthContext);
-	const { userNickname } = props;
 
 	const handleLogout = () => {
 		Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -29,9 +28,6 @@ const LogoutDrawerContent = (props) => {
 
 	return (
 		<DrawerContentScrollView {...props}>
-			<View style={styles.userInfoSection}>
-				<Text style={styles.userNickname}>{userNickname}</Text>
-			</View>
 			<DrawerItemList {...props} />
 			<View style={styles.logoutContainer}>
 				<Button title="Logout" onPress={handleLogout} color="#ff6347" />
@@ -41,15 +37,6 @@ const LogoutDrawerContent = (props) => {
 };
 
 const styles = StyleSheet.create({
-	userInfoSection: {
-		padding: 20,
-		backgroundColor: '#f4f4f4',
-		marginBottom: 10
-	},
-	userNickname: {
-		fontSize: 16,
-		fontWeight: 'bold',
-	},
 	logoutContainer: {
 		margin: 20
 	}

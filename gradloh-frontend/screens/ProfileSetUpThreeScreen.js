@@ -15,17 +15,12 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import { forwardRef, useContext, useEffect, useState } from 'react';
+import { forwardRef, useContext, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
 import { AuthContext } from '../contexts/AuthContext';
 import { AxiosContext } from '../contexts/AxiosContext';
 import Toast from 'react-native-toast-message';
-import Faculties from '../assets/data/Faculties.json';
-import PrimaryMajors from '../assets/data/PrimaryMajors.json';
-import SecondaryMajors from '../assets/data/SecondaryMajors.json';
-import MinorsData from '../assets/data/MinorsData.json';
-
 export default function ProfileSetUpThreeScreen() {
 	const navigation = useNavigation();
 
@@ -47,7 +42,6 @@ export default function ProfileSetUpThreeScreen() {
 	const [majorError, setMajorError] = useState(false);
 	const [minorFacultyError, setMinorFacultyError] = useState(false);
 	const [minorError, setMinorError] = useState(false);
-
 
 	const toastConfig = {
 		warning: ({ text1, text2, props }) => (
@@ -95,13 +89,729 @@ export default function ProfileSetUpThreeScreen() {
 		password,
 		enrolmentYear,
 		primaryMajor,
-		choseMinor,
+		isSelectedMinor,
 		homeFaculty
 	} = route.params || {};
 
-	const facultyData = Faculties;
-	const secondMajorRestrictions = SecondaryMajors;
-	const minors = MinorsData;
+	const facultyData = [
+		{ label: 'Arts and Social Sciences (FASS)', value: 'FASS' },
+		{ label: 'Business (SOB)', value: 'SOB' },
+		{ label: 'Computing (SOC)', value: 'SOC' },
+		{ label: 'Design and Engineering (CDE)', value: 'CDE' },
+		{ label: 'Science (FOS)', value: 'FOS' }
+	];
+
+	const secondMajorRestrictions = [
+		{
+			label: 'Anthropology',
+			value: 'Anthropology',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chinese Language',
+			value: 'Chinese Language',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chinese Studies',
+			value: 'Chinese Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Communications and New Media',
+			value: 'Communications and New Media',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Economics',
+			value: 'Economics',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'English Language',
+			value: 'English Language',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'English Literature',
+			value: 'English Literature',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'European Studies',
+			value: 'European Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Geography',
+			value: 'Geography',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Global Studies',
+			value: 'Global Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'History',
+			value: 'History',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Japanese Studies',
+			value: 'Japanese Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Malay Studies',
+			value: 'Malay Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Philosophy',
+			value: 'Philosophy',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Political Science',
+			value: 'Political Science',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Psychology',
+			value: 'Psychology',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Social Work',
+			value: 'Social Work',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Sociology',
+			value: 'Sociology',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Southeast Asian Studies',
+			value: 'Southeast Asian Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'South Asian Studies',
+			value: 'South Asian Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Theatre Studies',
+			value: 'Theatre Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Management',
+			value: 'Management',
+			faculty: 'SOB',
+			restrictedWith: ['Business Administration']
+		},
+		{
+			label: 'Real Estate Finance',
+			value: 'Real Estate Finance',
+			faculty: 'SOB',
+			restrictedWith: ['Real Estate']
+		},
+		{
+			label: 'Business Analytics',
+			value: 'Business Analytics',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Computer Science',
+				'Information Systems',
+				'Computer Engineering',
+				'Information Security',
+				'Business Analytics'
+			]
+		},
+		{
+			label: 'Computer Science',
+			value: 'Computer Science',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Information Systems',
+				'Computer Engineering',
+				'Information Security'
+			]
+		},
+		{
+			label: 'Information Security',
+			value: 'Information Security',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Information Systems',
+				'Computer Engineering'
+			]
+		},
+		{
+			label: 'Information Systems',
+			value: 'Information Systems',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Information Security',
+				'Computer Engineering'
+			]
+		},
+		{
+			label: 'Innovation and Design',
+			value: 'Innovation and Design',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Systems Engineering',
+			value: 'Systems Engineering',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Sustainable Urban Development',
+			value: 'Sustainable Urban Development',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Chemistry',
+			value: 'Chemistry',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Data Analytics',
+			value: 'Data Analytics',
+			faculty: 'FOS',
+			restrictedWith: [
+				'Business Analytics',
+				'Data Science and Analytics',
+				'Computer Science'
+			]
+		},
+		{
+			label: 'Food Science',
+			value: 'Food Science',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Life Sciences',
+			value: 'Life Sciences',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Mathematics',
+			value: 'Mathematics',
+			faculty: 'FOS',
+			restrictedWith: [
+				'Applied Mathematics',
+				'Quantitative Finance',
+				'Data Science and Analytics'
+			]
+		},
+		{
+			label: 'Nutrition',
+			value: 'Nutrition',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Pharmaceutical Science',
+			value: 'Pharmaceutical Science',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Physics',
+			value: 'Physics',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Quantitative Finance',
+			value: 'Quantitative Finance',
+			faculty: 'FOS',
+			restrictedWith: [
+				'Applied Mathematics',
+				'Mathematics',
+				'Data Science and Analytics'
+			]
+		},
+		{
+			label: 'Statistics',
+			value: 'Statistics',
+			faculty: 'FOS',
+			restrictedWith: []
+		}
+	];
+
+	const minors = [
+		// Faculty of Arts & Social Sciences (FASS)
+		{
+			label: 'Anthropology',
+			value: 'Anthropology',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chinese Language',
+			value: 'Chinese Language',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chinese Studies',
+			value: 'Chinese Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chinese Translation',
+			value: 'Chinese Translation',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Communications and New Media',
+			value: 'Communications and New Media',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Economics',
+			value: 'Economics',
+			faculty: 'FASS',
+			restrictedWith: ['Economics']
+		},
+		{
+			label: 'English Language',
+			value: 'English Language',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'English Literature',
+			value: 'English Literature',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'European Studies',
+			value: 'European Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'History',
+			value: 'History',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Human Services',
+			value: 'Human Services',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'India Studies',
+			value: 'India Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Interpreting',
+			value: 'Interpreting',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Japanese Studies',
+			value: 'Japanese Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Malay Studies',
+			value: 'Malay Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Philosophy',
+			value: 'Philosophy',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Political Science',
+			value: 'Political Science',
+			faculty: 'FASS',
+			restrictedWith: ['Political Science']
+		},
+		{
+			label: 'Psychology',
+			value: 'Psychology',
+			faculty: 'FASS',
+			restrictedWith: ['Psychology']
+		},
+		{
+			label: 'Sociology',
+			value: 'Sociology',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Southeast Asian Studies',
+			value: 'Southeast Asian Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'South Asian Studies',
+			value: 'South Asian Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+		{
+			label: 'Theatre Studies',
+			value: 'Theatre Studies',
+			faculty: 'FASS',
+			restrictedWith: []
+		},
+
+		// School of Business (SOB)
+		{
+			label: 'Management',
+			value: 'Management',
+			faculty: 'SOB',
+			restrictedWith: ['Business Administration']
+		},
+		{
+			label: 'Entrepreneurship',
+			value: 'Entrepreneurship',
+			faculty: 'SOB',
+			restrictedWith: []
+		},
+		{
+			label: 'Technopreneurship',
+			value: 'Technopreneurship',
+			faculty: 'SOB',
+			restrictedWith: []
+		},
+		{
+			label: 'Real Estate',
+			value: 'Real Estate',
+			faculty: 'SOB',
+			restrictedWith: ['Real Estate Finance']
+		},
+		{
+			label: 'Management of Technology',
+			value: 'Management of Technology',
+			faculty: 'SOB',
+			restrictedWith: []
+		},
+
+		// School of Computing (SOC)
+		{
+			label: 'Artificial Intelligence',
+			value: 'Artificial Intelligence',
+			faculty: 'SOC',
+			restrictedWith: []
+		},
+		{
+			label: 'Business Analytics',
+			value: 'Business Analytics',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Computer Engineering',
+				'Information Security',
+				'Information Systems'
+			]
+		},
+		{
+			label: 'Computer Science',
+			value: 'Computer Science',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Computer Engineering',
+				'Information Security',
+				'Information Systems'
+			]
+		},
+		{
+			label: 'Information Security',
+			value: 'Information Security',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Computer Engineering',
+				'Information Security',
+				'Information Systems'
+			]
+		},
+		{
+			label: 'Information Systems',
+			value: 'Information Systems',
+			faculty: 'SOC',
+			restrictedWith: [
+				'Business Analytics',
+				'Computer Science',
+				'Computer Engineering',
+				'Information Security',
+				'Information Systems'
+			]
+		},
+		{
+			label: 'Data Engineering',
+			value: 'Data Engineering',
+			faculty: 'SOC',
+			restrictedWith: []
+		},
+		{
+			label: 'Interactive Media Development',
+			value: 'Interactive Media Development',
+			faculty: 'SOC',
+			restrictedWith: []
+		},
+
+		// College of Design and Engineering (CDE)
+		{
+			label: 'Architectural Studies',
+			value: 'Architectural Studies',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Biomedical Engineering',
+			value: 'Biomedical Engineering',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Landscape Architectural Studies',
+			value: 'Landscape Architectural Studies',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Project Management',
+			value: 'Project Management',
+			faculty: 'CDE',
+			restrictedWith: ['Civil Engineering']
+		},
+		{
+			label: 'Systems Engineering',
+			value: 'Systems Engineering',
+			faculty: 'CDE',
+			restrictedWith: ['Industrial and Systems Engineering']
+		},
+		{
+			label: 'Data Engineering',
+			value: 'Data Engineering',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Engineering Materials',
+			value: 'Engineering Materials',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Infrastructure Management and Finance',
+			value: 'Infrastructure Management and Finance',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Innovation and Design',
+			value: 'Innovation and Design',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+		{
+			label: 'Management of Technology',
+			value: 'Management of Technology',
+			faculty: 'CDE',
+			restrictedWith: []
+		},
+
+		// Faculty of Science (FOS)
+		{
+			label: 'Analytical Chemistry',
+			value: 'Analytical Chemistry',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Astronomy',
+			value: 'Astronomy',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Bioinformatics',
+			value: 'Bioinformatics',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Biophysics',
+			value: 'Biophysics',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Botany',
+			value: 'Botany',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Chemistry',
+			value: 'Chemistry',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Data Analytics',
+			value: 'Data Analytics',
+			faculty: 'FOS',
+			restrictedWith: [
+				'Business Analytics',
+				'Data Science and Analytics',
+				'Computer Science'
+			]
+		},
+		{
+			label: 'Environmental Biology',
+			value: 'Environmental Biology',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Environmental Chemistry',
+			value: 'Environmental Chemistry',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Food Science and Technology',
+			value: 'Food Science and Technology',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Forensic Science',
+			value: 'Forensic Science',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Geosciences',
+			value: 'Geosciences',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Life Sciences',
+			value: 'Life Sciences',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Mathematics',
+			value: 'Mathematics',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Meteorology and Climate Science',
+			value: 'Meteorology and Climate Science',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Nanoscience',
+			value: 'Nanoscience',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Nutrition',
+			value: 'Nutrition',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Pharmaceutical Science',
+			value: 'Pharmaceutical Science',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Physics',
+			value: 'Physics',
+			faculty: 'FOS',
+			restrictedWith: ['Physics', 'Applied Physics']
+		},
+		{
+			label: 'Physics in Technology',
+			value: 'Physics in Technology',
+			faculty: 'FOS',
+			restrictedWith: []
+		},
+		{
+			label: 'Statistics',
+			value: 'Statistics',
+			faculty: 'FOS',
+			restrictedWith: ['Data Science and Analytics', 'Statistics']
+		},
+		{
+			label: 'Quantitative Finance',
+			value: 'Quantitative Finance',
+			faculty: 'FOS',
+			restrictedWith: []
+		}
+	];
 
 	const restrictedFaculties = secondMajorRestrictions
 		.filter((secondMajor) =>
@@ -119,12 +829,6 @@ export default function ProfileSetUpThreeScreen() {
 			!secondMajor.restrictedWith.includes(primaryMajor)
 	);
 
-	const filteredMinorData = minors.filter((minor) => {
-		return minor.faculty === minorFacultyValue;
-	  });
-	  
-
-
 	const [fontsLoaded] = useFonts({
 		Lexend_300Light,
 		Lexend_400Regular,
@@ -141,14 +845,13 @@ export default function ProfileSetUpThreeScreen() {
 			setMajorError(true);
 		}
 
-		if (!minorFacultyValue) {
-		  setMinorFacultyError(true);
-		}
+		// if (!minorFacultyValue) {
+		//   setMinorFacultyError(true);
+		// }
 
-		if (!minorValue) {
-		  setMinorError(true);
-		}
-
+		// if (!minorValue) {
+		//   setMinorError(true);
+		// }
 		else {
 			setFacultyError(false);
 			setMajorError(false);
@@ -252,39 +955,20 @@ export default function ProfileSetUpThreeScreen() {
 					</>
 				)}
 
-				{choseMinor && majorValue && (
+				{isSelectedMinor && (
 					<>
-						<Text style={styles.minorFacultyTitleText}>
+						<Text style={styles.facultyTitleText}>
 							*Please select your minor's faculty
 						</Text>
 
 						<DropdownWithErrorHandling
-							data={facultyData}
-							value={minorFacultyValue}
+							data={filteredFaculty}
+							value={facultyValue}
 							placeholder="Select faculty*"
-							error={minorFacultyError}
-							setValue={setMinorFacultyValue}
-							setIsFocus={setIsMinorFacultyFocus}
-							setError={setMinorFacultyError}
-						/>
-					</>
-				)}
-
-				{minorFacultyValue && (
-					<>
-						<Text style={styles.majorTitleText}>
-							*Please select your minor
-						</Text>
-						<DropdownWithErrorHandling
-							data={filteredMinorData}
-							value={minorValue}
-							placeholder="Select minor*"
-							error={minorError}
-							setValue={setMinorValue}
-							setIsFocus={setIsMinorFocus}
-							setError={setMinorError}
-							isSearch={true}
-							searchPlaceholder="Search..."
+							error={facultyError}
+							setValue={setFacultyValue}
+							setIsFocus={setIsFacultyFocus}
+							setError={setFacultyError}
 						/>
 					</>
 				)}
@@ -343,12 +1027,6 @@ const styles = StyleSheet.create({
 		marginBottom: 24
 	},
 	facultyTitleText: {
-		fontFamily: 'Lexend_300Light',
-		fontSize: 16,
-		marginBottom: 24
-	},
-	minorFacultyTitleText: {
-		marginTop: 24,
 		fontFamily: 'Lexend_300Light',
 		fontSize: 16,
 		marginBottom: 24

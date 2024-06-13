@@ -22,17 +22,10 @@ import SplashScreen from './components/SplashScreen';
 import ProfileSetUpThreeScreen from './screens/ProfileSetUpThreeScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import LogoutDrawerContent from './components/LogoutDrawerContent';
-import DrawerHeader from './components/DrawerHeader';
-import { EventRegister } from 'react-native-event-listeners';
-import ThemeContext from './theme/ThemeContext';
-import Theme from './theme/Theme';
-import CoursePlannerScreen from './screens/CoursePlannerScreen';
-import { ProfileSetUpFourScreen } from './screens/ProfileSetUpFourScreen';
 
 const PublicStack = createStackNavigator();
 const PrivateStack = createStackNavigator();
 const PrivateDrawer = createDrawerNavigator();
-
 
 const PublicNavigator = () => (
 	<PublicStack.Navigator>
@@ -168,24 +161,6 @@ const PublicNavigator = () => (
 			}}
 		/>
 		<PublicStack.Screen
-			name="ProfileSetUpFourScreen"
-			component={ProfileSetUpFourScreen}
-			options={{
-				header: ({ navigation }) => (
-					<SafeAreaView style={styles.loginHeader}>
-						<View style={styles.loginBackBtnContainer}>
-							<HeaderBackButton
-								onPress={() => navigation.goBack()}
-								style={styles.loginBackBtn}
-								tintColor="#EF7C00"
-								labelVisible={false}
-							/>
-						</View>
-					</SafeAreaView>
-				)
-			}}
-		/>
-		<PublicStack.Screen
 			name="OnboardingScreen"
 			component={OnboardingScreen}
 			options={{
@@ -196,69 +171,22 @@ const PublicNavigator = () => (
 	</PublicStack.Navigator>
 );
 
-const PrivateNavigator = () => {
-	const [isDarkMode, setIsDarkMode] = useState(false);
-	const [userProfileDetails, setUserProfileDetails] = useState({ nickname: '' });
-
-	useEffect(() => {
-		const getUserProfileDetails = async () => {
-			const profileDetails = await SecureStore.getItemAsync('userprofiledetails');
-			if (profileDetails) {
-				setUserProfileDetails(JSON.parse(profileDetails));
-			}
-		};
-		getUserProfileDetails();
-	}, []);
-
-	const toggleTheme = async () => {
-	  setIsDarkMode(!isDarkMode);
-	  EventRegister.emit('ChangeTheme', !isDarkMode); // Emit the correct new state
-	  await SecureStore.setItemAsync('isDarkMode', JSON.stringify(isDarkMode));
-	};
-  
-	return (
-	  <ThemeContext.Provider value={isDarkMode ? Theme.dark : Theme.light}>
-		<PrivateDrawer.Navigator
-		  drawerContent={(props) => <LogoutDrawerContent {...props} userNickname={userProfileDetails.nickname} />}
-		  screenOptions={({ route, navigation }) => ({
-			drawerStyle: {
-				backgroundColor: isDarkMode ? "#202023" : "white"
-			},
-			drawerLabelStyle: {
-				color: isDarkMode ? "white" : "black"
-			},
-			header: () => (
-			  <DrawerHeader
-				navigation={navigation}
-				isHomeScreen={route.name === 'HomeScreen'}
-				toggleTheme={toggleTheme}
-				isDarkMode={isDarkMode}
-			  />
-			),
-			headerTransparent: true,
-		  })}
-		>
-		  <PrivateDrawer.Screen
+const PrivateNavigator = () => (
+	<PrivateDrawer.Navigator
+		drawerContent={(props) => <LogoutDrawerContent {...props} />}
+	>
+		<PrivateDrawer.Screen
 			name="HomeScreen"
 			component={HomeScreen}
-			options={{ swipeEnabled: true, title: 'Home' }}
-		  />
-		  <PrivateDrawer.Screen
-		  	name="CoursePlannerScreen"
-			component={CoursePlannerScreen}
-			options={{ swipeEnabled: true, title: 'Course planner' }}
-		  />
-		</PrivateDrawer.Navigator>
-	  </ThemeContext.Provider>
-	);
-  };
+			options={{ headerShown: false, swipeEnabled: true, title: 'Home' }}
+		/>
+	</PrivateDrawer.Navigator>
+);
 
 const App = () => {
-	
 	const authContext = useContext(AuthContext);
 	const [status, setStatus] = useState('loading');
 	const [showSplash, setShowSplash] = useState(true);
-	const [darkMode , setDarkMode] = useState(false);
 
 	const loadJWT = useCallback(async () => {
 		try {
@@ -285,13 +213,7 @@ const App = () => {
 
 	useEffect(() => {
 		loadJWT();
-		const listener = EventRegister.addEventListener('ChangeTheme', (data) => {
-			setDarkMode(data)
-		})
-		return () => {
-			EventRegister.removeAllListeners(listener);
-		}
-	}, [loadJWT, darkMode]);
+	}, [loadJWT]);
 
 	if (showSplash) {
 		return <SplashScreen onAnimationFinish={() => setShowSplash(false)} />;
@@ -303,13 +225,13 @@ const App = () => {
 
 	return (
 		<NavigationContainer>
-		  {authContext?.authState?.authenticated ? (
-			<PrivateNavigator />
-		  ) : (
-			<PublicNavigator />
-		  )}
+			{authContext?.authState?.authenticated ? (
+				<PrivateNavigator />
+			) : (
+				<PublicNavigator />
+			)}
 		</NavigationContainer>
-	  );
+	);
 };
 
 const styles = StyleSheet.create({

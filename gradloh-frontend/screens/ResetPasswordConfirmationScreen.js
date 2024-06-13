@@ -1,5 +1,4 @@
 import {
-	ActivityIndicator,
 	Platform,
 	Pressable,
 	ScrollView,
@@ -43,7 +42,6 @@ export default function ResetPasswordConfirmationScreen() {
 	const { publicAxios } = useContext(AxiosContext);
 
 	const [resendOTPTimer, setResendOTPTimer] = useState(0);
-	const [loading, setLoading] = useState(false);
 
 	const [resetOTP, setResetOTP] = useState('');
 	const [newPassword, setNewPassword] = useState('');
@@ -157,7 +155,6 @@ export default function ResetPasswordConfirmationScreen() {
 		setErrorMessages(newErrorMessages);
 
 		if (!hasError) {
-			setLoading(true);
 			try {
 				const response = await publicAxios.post('/resetpassword', {
 					email,
@@ -165,7 +162,6 @@ export default function ResetPasswordConfirmationScreen() {
 					newPassword,
 					confirmNewPassword
 				});
-				setLoading(false);
 				//response.data
 				navigation.dispatch(
 					CommonActions.reset({
@@ -182,7 +178,6 @@ export default function ResetPasswordConfirmationScreen() {
 					})
 				);
 			} catch (error) {
-				setLoading(false);
 				Toast.show({
 					type: 'warning',
 					text1: 'Error',
@@ -325,42 +320,22 @@ export default function ResetPasswordConfirmationScreen() {
 				)}
 				{Platform.OS === 'android' ? (
 					<TouchableNativeFeedback
-						onPress={loading ? null : handleConfirmResetPassword}
+						onPress={handleConfirmResetPassword}
 						background={TouchableNativeFeedback.Ripple(
 							'#fff',
 							false
 						)}
-						disabled={loading}
 					>
-						<View
-							style={[
-								styles.loginPressable,
-								loading && styles.disabledPressable
-							]}
-						>
-							{loading ? (
-								<ActivityIndicator size="small" color="#FFF" />
-							) : (
-								<Text style={styles.loginText}>
-									Submit
-								</Text>
-							)}
+						<View style={styles.loginPressable}>
+							<Text style={styles.loginText}>Submit</Text>
 						</View>
 					</TouchableNativeFeedback>
 				) : (
 					<TouchableOpacity
-						style={[
-							styles.loginPressable,
-							loading && styles.disabledPressable
-						]}
-						onPress={loading ? null : handleConfirmResetPassword}
-						disabled={loading}
+						style={styles.loginPressable}
+						onPress={handleConfirmResetPassword}
 					>
-						{loading ? (
-							<ActivityIndicator size="small" color="#FFF" />
-						) : (
-							<Text style={styles.loginText}>Submit</Text>
-						)}
+						<Text style={styles.loginText}>Submit</Text>
 					</TouchableOpacity>
 				)}
 				<Pressable

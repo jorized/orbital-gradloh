@@ -164,7 +164,8 @@ export default function LoginScreen() {
 					password
 				});
 				setLoading(false);
-				const { nickname, accessToken, refreshToken, completedOnboard } =
+
+				const { accessToken, refreshToken, completedOnboard } =
 					response.data;
 				if (!completedOnboard) {
 					authContext.setAuthState({
@@ -172,13 +173,12 @@ export default function LoginScreen() {
 						refreshToken
 					});
 					navigation.push('OnboardingScreen', {
-						nickname : nickname,
 						email: email,
 						accessToken: accessToken,
 						refreshToken: refreshToken
 					});
 				} else {
-					// Store user details and tokens in SecureStore
+					// Store tokens in SecureStore
 					await SecureStore.setItemAsync(
 						'token',
 						JSON.stringify({
@@ -186,13 +186,7 @@ export default function LoginScreen() {
 							refreshToken
 						})
 					);
-					await SecureStore.setItemAsync(
-						'userprofiledetails',
-						JSON.stringify({
-							nickname,
-							email
-						})
-					);
+
 					// Update state only after storing the token
 					authContext.setAuthState({
 						accessToken,
