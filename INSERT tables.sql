@@ -1,61 +1,28 @@
 -- INSERTING DATA --
 
--- Inserting dummy values into primary major requirements
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Data Science and Analytics", "Core", "CS1010S");
-
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Data Science and Analytics", "Core", "CS2030");
-
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Data Science and Analytics", "Core", "CS2040");
-
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Information Systems", "Core", "CS1010J");
-
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Information Systems", "Core", "CS2030");
-
-INSERT INTO primarymajorrequirements (primary_major, module_type, module_code)
-VALUES ("Information Systems", "Core", "CS2040");
-
-INSERT INTO primarymajorrequirements 
-VALUES("Information Systems", "GE", "HSH1000");
-
--- Inserting values into first minor
-INSERT INTO firstminorrequirements
-VALUES 
-	("Data Science and Analytics", "CS1010S"),
-     ("Data Science and Analytics", "CS2040");
-
 -- Inserting dummy values into folders table
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("e0968871", "Y1S1", "CS2040", TRUE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("e0968871", "Y1S1", "CS2030", TRUE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("e0968871", "Y1S1", "CS1010S", TRUE);
+-- editor note: insert into 'e0968871@u.nus.edu' from 'INSERT sample DSA primary major'. Fixed spelling error for 'eXXXXX81@u.nus.edu'
+INSERT INTO Folders
+VALUES ("eXXXXX81@u.nus.edu", 1, "CS1010J");
+INSERT INTO Folders
+VALUES ("eXXXXX81@u.nus.edu", 1, "CS2040");
+INSERT INTO Folders
+VALUES ("eXXXXX81@u.nus.edu", 1, "CS2030");
 
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX81", "Y1S1", "CS1010J", TRUE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX81", "Y1S1", "CS2040", TRUE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX81", "Y1S1", "CS2030", TRUE);
-
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX91", "Y1S1", "CS1010J", TRUE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX91", "Y1S1", "CS2040", FALSE);
-INSERT INTO folders (email, folder_name, module_code, completion_status)
-VALUES ("eXXXXX91", "Y1S1", "CS2030", TRUE);
-INSERT INTO folders
-VALUES ('eXXXXX91', 'Y1S2', 'HSH1000', TRUE);
-
+INSERT INTO Folders
+VALUES 
+	('eXXXXX91@u.nus.edu', 1, "CS1010J"),
+	('eXXXXX91@u.nus.edu', 1, "CS2040"),
+	('eXXXXX91@u.nus.edu', 1, "CS2030"),
+	('eXXXXX91@u.nus.edu', 2, 'HSH1000'),
+	('eXXXXX91@u.nus.edu', 3, 'DSA1101'),
+	("eXXXXX91@u.nus.edu", 7, "ST3131"),
+    ("eXXXXX91@u.nus.edu", 5, "ST2131"),
+    ("eXXXXX91@u.nus.edu", 6, "ST2132");
 
 -- Inserting dummy users
-INSERT INTO users 
-VALUES ("e0968871", 
+INSERT INTO Users 
+VALUES ("e0968871@u.nus.edu", 
 		"Y1S1", 
         "chris", 
         "password123", 
@@ -64,16 +31,16 @@ VALUES ("e0968871",
         12345,
         FALSE,
         FALSE,
-        "AY22/23",
+        "2022-2023",
         "Data Science and Analytics",
-        "Computer Science",
         NULL,
+        "Information Systems",
         NULL,
-        "Science",
+        "FOS",
         "USER");
         
 INSERT INTO Users 
-VALUES ("eXXXXX81", 
+VALUES ("eXXXXX81@u.nus.edu", 
 		"Y1S1", 
         "jordan", 
         "password123", 
@@ -82,17 +49,17 @@ VALUES ("eXXXXX81",
         12345,
         FALSE,
         FALSE,
-        "AY23/24",
+        "2023-2024",
         "Information Systems",
-        "Business",
+        "Data Science and Analytics",
         NULL,
         NULL,
-        "Computing",
+        "SOC",
         "USER");
         
 
 INSERT INTO Users 
-VALUES ("eXXXXX91", 
+VALUES ("eXXXXX91@u.nus.edu", 
 		"Y1S1", 
         "john", 
         "password123", 
@@ -101,19 +68,19 @@ VALUES ("eXXXXX91",
         12345,
         FALSE,
         FALSE,
-        "AY23/24",
+        "2023-2024",
         "Information Systems",
         NULL,
         "Data Science and Analytics",
         NULL,
-        "Computing",
+        "SOC",
         "USER");
 
-INSERT INTO combinations (primary_major)
+INSERT INTO Combinations (primary_major)
 VALUES ("Data Science and Analytics");
 
-INSERT INTO combinations (primary_major)
+INSERT INTO Combinations (primary_major)
 VALUES ("Information Systems");
 
-INSERT INTO combinations (primary_major, first_minor)
+INSERT INTO Combinations (primary_major, first_minor)
 VALUES ("Information Systems", "Data Science and Analytics");
