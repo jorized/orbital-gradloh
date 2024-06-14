@@ -2,11 +2,11 @@ import {
 	View,
 	Text,
 	StyleSheet,
-	TouchableOpacity,
+	Pressable,
 	Platform,
 	TouchableNativeFeedback,
-	ActivityIndicator,
-	LogBox
+	TouchableOpacity,
+	ActivityIndicator
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
@@ -15,21 +15,17 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import { forwardRef, useContext, useState } from 'react';
+import { forwardRef, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
-import SelectableButton from '../components/SelectableButton';
-import { AxiosContext } from '../contexts/AxiosContext';
+import DropdownWithErrorHandling from '../../components/Auth/DropdownWithErrorHandling';
+import { AuthContext } from '../../contexts/AuthContext';
+import { AxiosContext } from '../../contexts/AxiosContext';
 import Toast from 'react-native-toast-message';
-import { AuthContext } from '../contexts/AuthContext';
-import Faculties from '../assets/data/Faculties.json';
-import PrimaryMajors from '../assets/data/PrimaryMajors.json';
+import Faculties from '../../data/Faculties.json';
+import SecondaryMajors from '../../data/SecondaryMajors.json';
+import MinorsData from '../../data/MinorsData.json';
 
-LogBox.ignoreLogs([
-	'Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.'
-]);
-
-export default function ProfileSetUpTwoScreen() {
+export default function ProfileSetUpThreeScreen() {
 	const navigation = useNavigation();
 
 	const [loading, setLoading] = useState(false);
@@ -39,15 +35,17 @@ export default function ProfileSetUpTwoScreen() {
 
 	const [facultyValue, setFacultyValue] = useState('');
 	const [majorValue, setMajorValue] = useState('');
+	const [minorFacultyValue, setMinorFacultyValue] = useState('');
+	const [minorValue, setMinorValue] = useState('');
 	const [isFacultyFocus, setIsFacultyFocus] = useState(false);
 	const [isMajorFocus, setIsMajorFocus] = useState(false);
-	const [isSelectedSecondMajor, setIsSelectedSecondMajor] = useState(false);
-	const [isSelectedMinor, setIsSelectedMinor] = useState(false);
+	const [isMinorFacultyFocus, setIsMinorFacultyFocus] = useState(false);
+	const [isMinorFocus, setIsMinorFocus] = useState(false);
+
 	const [facultyError, setFacultyError] = useState(false);
 	const [majorError, setMajorError] = useState(false);
-
-	const route = useRoute();
-	const { nickname, email, password, enrolmentYear } = route.params || {};
+	const [minorFacultyError, setMinorFacultyError] = useState(false);
+	const [minorError, setMinorError] = useState(false);
 
 	const toastConfig = {
 		warning: ({ text1, text2, props }) => (
@@ -88,11 +86,40 @@ export default function ProfileSetUpTwoScreen() {
 		<Toast ref={ref} config={toastConfig} />
 	));
 
-	//Loading in data
-	const facultyData = Faculties;
-	const majorData = PrimaryMajors;
+	const route = useRoute();
+	const {
+		nickname,
+		email,
+		password,
+		enrolmentYear,
+		primaryMajor,
+		choseMinor,
+		homeFaculty
+	} = route.params || {};
 
-	const filteredMajorData = facultyValue ? majorData[facultyValue] : [];
+	const facultyData = Faculties;
+	const secondMajorRestrictions = SecondaryMajors;
+	const minors = MinorsData;
+
+	const restrictedFaculties = secondMajorRestrictions
+		.filter((secondMajor) =>
+			secondMajor.restrictedWith.includes(primaryMajor)
+		)
+		.map((secondMajor) => secondMajor.faculty);
+
+	const filteredFaculty = facultyData.filter(
+		(faculty) => !restrictedFaculties.includes(faculty.value)
+	);
+
+	const filteredMajorData = secondMajorRestrictions.filter(
+		(secondMajor) =>
+			secondMajor.faculty === facultyValue &&
+			!secondMajor.restrictedWith.includes(primaryMajor)
+	);
+
+	const filteredMinorData = minors.filter((minor) => {
+		return minor.faculty === minorFacultyValue;
+	});
 
 	const [fontsLoaded] = useFonts({
 		Lexend_300Light,
@@ -108,94 +135,75 @@ export default function ProfileSetUpTwoScreen() {
 
 		if (!majorValue) {
 			setMajorError(true);
-		} else {
+		}
+
+		if (choseMinor) {
+			if (!minorFacultyValue) {
+				setMinorFacultyError(true);
+			}
+	
+			if (!minorValue) {
+				setMinorError(true);
+			}
+		}
+
+ 		else {
 			setFacultyError(false);
 			setMajorError(false);
-			// *Redirecting to different pages based on options*
-			//If select second major, redirect to
-			if (isSelectedSecondMajor) {
-				navigation.push('ProfileSetUpThreeScreen', {
-					nickname: nickname,
-					email: email,
-					password: password,
-					enrolmentYear: enrolmentYear,
-					homeFaculty: facultyValue,
-					primaryMajor: majorValue,
-					choseSecondMajor: isSelectedSecondMajor,
-					choseMinor: isSelectedMinor
+			setMinorFacultyError(false);
+			setMinorError(false);
+			setLoading(true);
+			// Create the user account first
+			try {
+				const secondaryMajor = majorValue;
+				const firstMinor = minorValue;
+				const secondMinor = '';
+				const response = await publicAxios.post('/register', {
+					nickname,
+					email,
+					password,
+					enrolmentYear,
+					primaryMajor,
+					secondaryMajor,
+					firstMinor,
+					secondMinor,
+					homeFaculty
 				});
-			} else {
-				if (isSelectedMinor) {
-					//If only select minor
-					navigation.push('ProfileSetUpFourScreen', {
-						nickname: nickname,
-						email: email,
-						password: password,
-						enrolmentYear: enrolmentYear,
-						homeFaculty: facultyValue,
-						primaryMajor: majorValue,
-						choseSecondMajor: isSelectedSecondMajor,
-						choseMinor: isSelectedMinor
+				setLoading(false);
+
+				const { accessToken, refreshToken } = response.data;
+				//Navigate to onboarding screen
+				authContext.setAuthState({
+					accessToken,
+					refreshToken
+				});
+				navigation.push('OnboardingScreen', {
+					email: email,
+					accessToken: accessToken,
+					refreshToken: refreshToken
+				});
+			} catch (error) {
+				setLoading(false);
+				if (!error.response) {
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: 'Server is offline',
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
 					});
 				} else {
-					//If not go to onboarding
-					setLoading(true);
-					// Create the user account first
-					try {
-						const homeFaculty = facultyValue;
-						const primaryMajor = majorValue;
-						const secondaryMajor = '';
-						const firstMinor = '';
-						const secondMinor = '';
-						const response = await publicAxios.post('/register', {
-							nickname,
-							email,
-							password,
-							enrolmentYear,
-							primaryMajor,
-							secondaryMajor,
-							firstMinor,
-							secondMinor,
-							homeFaculty
-						});
-						setLoading(false);
-
-						const { accessToken, refreshToken } = response.data;
-						//Navigate to onboarding screen one
-						authContext.setAuthState({
-							accessToken,
-							refreshToken
-						});
-						navigation.push('OnboardingScreen', {
-							email,
-							accessToken: accessToken,
-							refreshToken: refreshToken
-						});
-					} catch (error) {
-						console.log(error);
-						setLoading(false);
-						if (!error.response) {
-							Toast.show({
-								type: 'warning',
-								text1: 'Error',
-								text2: 'Server is offline',
-								visibilityTime: 5000,
-								autoHide: true,
-								position: 'bottom',
-								bottomOffset: 40
-							});
-						} else {
-							Toast.show({
-								type: 'warning',
-								text1: 'Error',
-								text2: error.response.data.message,
-								visibilityTime: 5000,
-								autoHide: true,
-								position: 'bottom',
-								bottomOffset: 40
-							});
-						}
-					}
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: error.response.data.message,
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
+					});
 				}
 			}
 		}
@@ -210,11 +218,11 @@ export default function ProfileSetUpTwoScreen() {
 			<View style={styles.form}>
 				<Text style={styles.profileSetUpTitle}>Profile Setup</Text>
 				<Text style={styles.facultyTitleText}>
-					*Please select your faculty
+					*Please select your secondary major's faculty
 				</Text>
 
 				<DropdownWithErrorHandling
-					data={facultyData}
+					data={filteredFaculty}
 					value={facultyValue}
 					placeholder="Select faculty*"
 					error={facultyError}
@@ -226,7 +234,7 @@ export default function ProfileSetUpTwoScreen() {
 				{facultyValue && (
 					<>
 						<Text style={styles.majorTitleText}>
-							*Please select your primary major
+							*Please select your secondary major
 						</Text>
 						<DropdownWithErrorHandling
 							data={filteredMajorData}
@@ -242,24 +250,40 @@ export default function ProfileSetUpTwoScreen() {
 					</>
 				)}
 
-				{majorValue && (
+				{choseMinor && majorValue && (
 					<>
-						<Text style={styles.optionalTitleText}>
-							(Optional) Please select all that apply :
+						<Text style={styles.minorFacultyTitleText}>
+							*Please select your minor's faculty
 						</Text>
-						<Text style={styles.optionalText}>
-							I am currently taking a...
-						</Text>
-						<SelectableButton
-							label="Second Major"
-							isSelected={isSelectedSecondMajor}
-							setIsSelected={setIsSelectedSecondMajor}
+
+						<DropdownWithErrorHandling
+							data={facultyData}
+							value={minorFacultyValue}
+							placeholder="Select faculty*"
+							error={minorFacultyError}
+							setValue={setMinorFacultyValue}
+							setIsFocus={setIsMinorFacultyFocus}
+							setError={setMinorFacultyError}
 						/>
-						<SelectableButton
-                            label="Minor" 
-                            isSelected={isSelectedMinor} 
-                            setIsSelected={setIsSelectedMinor} 
-                        />
+					</>
+				)}
+
+				{minorFacultyValue && (
+					<>
+						<Text style={styles.majorTitleText}>
+							*Please select your minor
+						</Text>
+						<DropdownWithErrorHandling
+							data={filteredMinorData}
+							value={minorValue}
+							placeholder="Select minor*"
+							error={minorError}
+							setValue={setMinorValue}
+							setIsFocus={setIsMinorFocus}
+							setError={setMinorError}
+							isSearch={true}
+							searchPlaceholder="Search..."
+						/>
 					</>
 				)}
 			</View>
@@ -317,6 +341,12 @@ const styles = StyleSheet.create({
 		marginBottom: 24
 	},
 	facultyTitleText: {
+		fontFamily: 'Lexend_300Light',
+		fontSize: 16,
+		marginBottom: 24
+	},
+	minorFacultyTitleText: {
+		marginTop: 24,
 		fontFamily: 'Lexend_300Light',
 		fontSize: 16,
 		marginBottom: 24

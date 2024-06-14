@@ -10,11 +10,12 @@ import {
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
 import { useRoute } from '@react-navigation/native';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import * as SecureStore from 'expo-secure-store';
-import CustomDoneButton from '../components/CustomDoneButton';
-import CustomNextButton from '../components/CustomNextButton';
-import { AxiosContext } from '../contexts/AxiosContext';
+import CustomDoneButton from '../../components/Auth/CustomDoneButton';
+import CustomNextButton from '../../components/Auth/CustomNextButton';
+import { AxiosContext } from '../../contexts/AxiosContext';
+
 export default function OnboardingOneScreen() {
 	const route = useRoute();
 	const { nickname, email, accessToken, refreshToken } = route.params || {};
@@ -95,7 +96,7 @@ export default function OnboardingOneScreen() {
 						image: (
 							<View>
 								<LottieView
-									source={require('../assets/images/OnboardingOne.json')}
+									source={require('../../assets/images/OnboardingOne.json')}
 									autoPlay
 									style={styles.lottie}
 								/>
@@ -112,7 +113,7 @@ export default function OnboardingOneScreen() {
 						image: (
 							<View>
 								<LottieView
-									source={require('../assets/images/OnboardingTwo.json')}
+									source={require('../../assets/images/OnboardingTwo.json')}
 									autoPlay
 									style={styles.lottie}
 								/>
@@ -129,7 +130,7 @@ export default function OnboardingOneScreen() {
 						image: (
 							<View>
 								<LottieView
-									source={require('../assets/images/OnboardingThree.json')}
+									source={require('../../assets/images/OnboardingThree.json')}
 									autoPlay
 									style={styles.lottie}
 								/>
@@ -146,7 +147,7 @@ export default function OnboardingOneScreen() {
 						image: (
 							<View>
 								<LottieView
-									source={require('../assets/images/OnboardingFour.json')}
+									source={require('../../assets/images/OnboardingFour.json')}
 									autoPlay
 									style={styles.lottietwo}
 								/>
@@ -163,7 +164,7 @@ export default function OnboardingOneScreen() {
 						image: (
 							<View>
 								<LottieView
-									source={require('../assets/images/OnboardingFive.json')}
+									source={require('../../assets/images/OnboardingFive.json')}
 									autoPlay
 									style={styles.lottietwo}
 								/>

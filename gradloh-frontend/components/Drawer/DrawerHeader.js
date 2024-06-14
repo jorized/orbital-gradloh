@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Pressable, Animated, Text } from 'react-native';
-import Hamburger from '../components/Hamburger';
+import { View, StyleSheet, Pressable, Animated, Text, ImageBackground } from 'react-native';
+import Hamburger from '../Drawer/Hamburger';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import {
@@ -11,10 +11,11 @@ import {
 	Quicksand_600SemiBold,
 	Quicksand_700Bold,
   } from '@expo-google-fonts/quicksand';
-import ThemeContext from '../theme/ThemeContext';
+import ThemeContext from '../../contexts/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
+import { Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
 
 const DrawerHeader = ({
-  navigation,
   isHomeScreen,
   toggleTheme,
   isDarkMode
@@ -27,8 +28,12 @@ const DrawerHeader = ({
   const [isDarkModeButtons, setIsDarkModeButtons] = useState(isDarkMode);
 
   const [fontsLoaded] = useFonts({
-	Quicksand_700Bold
+	Quicksand_700Bold,
+  Lexend_700Bold,
+  Lexend_600SemiBold
 });
+
+const navigation = useNavigation();
 
 const theme = useContext(ThemeContext);
 
@@ -101,12 +106,12 @@ const theme = useContext(ThemeContext);
 
   return (
     <View style={styles.headerContainer}>
-      <Hamburger
-        onPress={() => navigation.openDrawer()}
-        isDarkMode={isDarkMode}
-      />
-	  <Text style={[styles.titleText, {color : theme.color}]}>Dashboard</Text>
-      {isHomeScreen && (
+        <Hamburger
+          onPress={() => navigation.openDrawer()}
+          isDarkMode={isDarkMode}
+        />
+	      <Text style={[styles.titleText, {color : theme.hamburgerColor}]}>Dashboard</Text>
+
         <Animated.View style={{ opacity, transform: [{ translateY }] }}>
           <Animated.View
             style={[
@@ -120,12 +125,12 @@ const theme = useContext(ThemeContext);
                   isDarkModeButtons ? 'moon' : 'sunny-outline'
                 }
                 size={24}
-                color={isDarkModeButtons ? '#000000' : 'white'}
+                color={isDarkModeButtons ? '#2F2F2F' : 'white'}
               />
             </Pressable>
           </Animated.View>
         </Animated.View>
-      )}
+
     </View>
   );
 };
@@ -136,20 +141,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingLeft: 5,
-    paddingTop: 30,
-    backgroundColor: 'transparent'
+    marginTop: 30,
+    backgroundColor: 'transparent',
   },
   titleText: {
     flex: 1,
     textAlign: 'left',
     fontSize: 26,
-    fontFamily: "Quicksand_700Bold",
-	marginLeft: -20,
+    fontFamily: "Lexend_600SemiBold",
+	  marginLeft: -20,
   },
   button: {
     marginRight: 20,
     width: 40,
-    height: 40,
+    padding: 8,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center'

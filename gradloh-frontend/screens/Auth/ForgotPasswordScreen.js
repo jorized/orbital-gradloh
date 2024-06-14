@@ -1,22 +1,15 @@
 import {
 	ActivityIndicator,
 	Platform,
-	Pressable,
 	ScrollView,
 	Text,
 	TouchableNativeFeedback,
 	TouchableOpacity,
 	View
 } from 'react-native';
-import { AuthContext } from '../contexts/AuthContext';
-import { AxiosContext } from '../contexts/AxiosContext';
-import React, {
-	useState,
-	useRef,
-	useContext,
-	forwardRef,
-	useEffect
-} from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
+import { AxiosContext } from '../../contexts/AxiosContext';
+import React, { useState, useRef, useContext, forwardRef } from 'react';
 import { KeyboardAccessoryNavigation } from 'react-native-keyboard-accessory';
 import { useFonts } from 'expo-font';
 import {
@@ -25,44 +18,23 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import FloatingLabelInput from '../components/FloatingLabelInput';
+import FloatingLabelInput from '../../components/Auth/FloatingLabelInput';
 import Toast from 'react-native-toast-message';
-import {
-	CommonActions,
-	useNavigation,
-	useRoute
-} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ResetPasswordConfirmationScreen() {
+export default function ForgotPasswordScreen() {
 	const navigation = useNavigation();
-
-	const route = useRoute();
-	const { email, showToast, toastMessage } = route.params || {};
 
 	const authContext = useContext(AuthContext);
 	const { publicAxios } = useContext(AxiosContext);
 
-	const [resendOTPTimer, setResendOTPTimer] = useState(0);
+	const [email, setEmail] = useState('');
+	const [errors, setErrors] = useState({ email: false });
+	const [errorMessages, setErrorMessages] = useState({ email: '' });
+	const [buttonsHidden, setButtonsHidden] = useState(false);
 	const [loading, setLoading] = useState(false);
 
-	const [resetOTP, setResetOTP] = useState('');
-	const [newPassword, setNewPassword] = useState('');
-	const [confirmNewPassword, setConfirmNewPassword] = useState('');
-	const [errors, setErrors] = useState({
-		resetOTP: false,
-		newPassword: false,
-		confirmNewPassword: false
-	});
-	const [errorMessages, setErrorMessages] = useState({
-		resetOTP: '',
-		newPassword: '',
-		confirmNewPassword: ''
-	});
-	const [buttonsHidden, setButtonsHidden] = useState(false);
-
-	const resetOTPRef = useRef(null);
-	const newPasswordRef = useRef(null);
-	const confirmNewPasswordRef = useRef(null);
+	const emailRef = useRef(null);
 
 	const [activeInputIndex, setActiveInputIndex] = useState(0);
 	const [nextFocusDisabled, setNextFocusDisabled] = useState(false);
@@ -70,33 +42,13 @@ export default function ResetPasswordConfirmationScreen() {
 
 	const inputs = [
 		{
-			ref: resetOTPRef,
-			keyboardType: 'default',
-			value: resetOTP,
-			onChangeText: setResetOTP,
-			label: 'OTP*',
-			error: errors.resetOTP,
-			errorMessage: errorMessages.resetOTP
-		},
-		{
-			ref: newPasswordRef,
-			keyboardType: 'default',
-			value: newPassword,
-			onChangeText: setNewPassword,
-			label: 'New password*',
-			isPassword: true,
-			error: errors.newPassword,
-			errorMessage: errorMessages.newPassword
-		},
-		{
-			ref: confirmNewPasswordRef,
-			keyboardType: 'default',
-			value: confirmNewPassword,
-			onChangeText: setConfirmNewPassword,
-			label: 'Confirm new password*',
-			isPassword: true,
-			error: errors.confirmNewPassword,
-			errorMessage: errorMessages.confirmNewPassword
+			ref: emailRef,
+			keyboardType: 'email-address',
+			value: email,
+			onChangeText: setEmail,
+			label: 'Email address*',
+			error: errors.email,
+			errorMessage: errorMessages.email
 		}
 	];
 
@@ -119,37 +71,17 @@ export default function ResetPasswordConfirmationScreen() {
 	};
 
 	const handleDone = () => {
-		resetOTPRef.current.blur();
-		newPasswordRef.current.blur();
-		confirmNewPasswordRef.current.blur();
+		emailRef.current.blur();
 	};
 
-	const handleConfirmResetPassword = async () => {
+	const handleResetPassword = async () => {
 		let hasError = false;
-		const newErrors = {
-			resetOTP: false,
-			newPassword: false,
-			confirmNewPassword: false
-		};
-		const newErrorMessages = {
-			resetOTP: '',
-			newPassword: '',
-			confirmNewPassword: ''
-		};
+		const newErrors = { email: false };
+		const newErrorMessages = { email: '' };
 
-		if (!resetOTP) {
-			newErrors.resetOTP = true;
-			newErrorMessages.resetOTP = 'This field is required';
-			hasError = true;
-		}
-		if (!newPassword) {
-			newErrors.newPassword = true;
-			newErrorMessages.newPassword = 'This field is required';
-			hasError = true;
-		}
-		if (!confirmNewPassword) {
-			newErrors.confirmNewPassword = true;
-			newErrorMessages.confirmNewPassword = 'This field is required';
+		if (!email) {
+			newErrors.email = true;
+			newErrorMessages.email = 'This field is required.';
 			hasError = true;
 		}
 
@@ -159,59 +91,40 @@ export default function ResetPasswordConfirmationScreen() {
 		if (!hasError) {
 			setLoading(true);
 			try {
-				const response = await publicAxios.post('/resetpassword', {
-					email,
-					resetOTP,
-					newPassword,
-					confirmNewPassword
+				const response = await publicAxios.post('/sendresetemail', {
+					email
 				});
 				setLoading(false);
-				//response.data
-				navigation.dispatch(
-					CommonActions.reset({
-						index: 1,
-						routes: [
-							{
-								name: 'LandingScreen',
-								params: {
-									showToast: true,
-									toastMessage: response.data.message
-								}
-							}
-						]
-					})
-				);
+				//If successful, pass the email response over to the next page
+				navigation.push('ResetPasswordConfirmationScreen', {
+					email,
+					showToast: true,
+					toastMessage: response.data.message
+				});
 			} catch (error) {
 				setLoading(false);
-				Toast.show({
-					type: 'warning',
-					text1: 'Error',
-					text2: error.response.data.message,
-					visibilityTime: 5000,
-					autoHide: true,
-					position: 'bottom',
-					bottomOffset: 40
-				});
+				if (!error.response) {
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: 'Server is offline',
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
+					});
+				} else {
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: error.response.data.message,
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
+					});
+				}
 			}
-		}
-	};
-
-	const handleResendOTP = async () => {
-		setResendOTPTimer(15); // Start 15 seconds countdown
-		try {
-			const response = await publicAxios.post('/sendresetemail', {
-				email
-			});
-		} catch (error) {
-			Toast.show({
-				type: 'warning',
-				text1: 'Error',
-				text2: error.response.data.message,
-				visibilityTime: 5000,
-				autoHide: true,
-				position: 'bottom',
-				bottomOffset: 40
-			});
 		}
 	};
 
@@ -261,31 +174,6 @@ export default function ResetPasswordConfirmationScreen() {
 		Lexend_700Bold
 	});
 
-	useEffect(() => {
-		if (showToast) {
-			Toast.show({
-				type: 'success',
-				text1: 'Success',
-				text2: toastMessage,
-				visibilityTime: 5000,
-				autoHide: true,
-				position: 'bottom',
-				bottomOffset: 40
-			});
-		}
-	}, [showToast, toastMessage]);
-
-	// useEffect for handling the timer
-	useEffect(() => {
-		let timer;
-		if (resendOTPTimer > 0) {
-			timer = setInterval(() => {
-				setResendOTPTimer((prevTimer) => prevTimer - 1);
-			}, 1000);
-		}
-		return () => clearInterval(timer);
-	}, [resendOTPTimer]);
-
 	if (!fontsLoaded) {
 		return <Text>Loading...</Text>;
 	}
@@ -293,8 +181,11 @@ export default function ResetPasswordConfirmationScreen() {
 	return (
 		<View style={styles.container}>
 			<ScrollView contentContainerStyle={styles.contentContainer}>
-				<Text style={styles.forgotPasswordTitleOne}>Reset</Text>
-				<Text style={styles.forgotPasswordTitleTwo}>New password</Text>
+				<Text style={styles.forgotPasswordTitleOne}>Forgot</Text>
+				<Text style={styles.forgotPasswordTitleTwo}>Password</Text>
+				<Text style={styles.forgotPasswordSubtitle}>
+					Enter your email address below to reset your password.
+				</Text>
 				{inputs.map(
 					(
 						{
@@ -325,7 +216,7 @@ export default function ResetPasswordConfirmationScreen() {
 				)}
 				{Platform.OS === 'android' ? (
 					<TouchableNativeFeedback
-						onPress={loading ? null : handleConfirmResetPassword}
+						onPress={loading ? null : handleResetPassword}
 						background={TouchableNativeFeedback.Ripple(
 							'#fff',
 							false
@@ -342,7 +233,7 @@ export default function ResetPasswordConfirmationScreen() {
 								<ActivityIndicator size="small" color="#FFF" />
 							) : (
 								<Text style={styles.loginText}>
-									Submit
+									Reset Password
 								</Text>
 							)}
 						</View>
@@ -353,27 +244,16 @@ export default function ResetPasswordConfirmationScreen() {
 							styles.loginPressable,
 							loading && styles.disabledPressable
 						]}
-						onPress={loading ? null : handleConfirmResetPassword}
+						onPress={loading ? null : handleResetPassword}
 						disabled={loading}
 					>
 						{loading ? (
 							<ActivityIndicator size="small" color="#FFF" />
 						) : (
-							<Text style={styles.loginText}>Submit</Text>
+							<Text style={styles.loginText}>Reset Password</Text>
 						)}
 					</TouchableOpacity>
 				)}
-				<Pressable
-					style={styles.resendOTPPressable}
-					onPress={handleResendOTP}
-					disabled={resendOTPTimer > 0}
-				>
-					<Text style={styles.resendOTPText}>
-						{resendOTPTimer > 0
-							? `OTP Resent. Please try again in ${resendOTPTimer} seconds`
-							: 'Resend OTP'}
-					</Text>
-				</Pressable>
 			</ScrollView>
 			{Platform.OS === 'ios' && (
 				<KeyboardAccessoryNavigation
@@ -466,12 +346,5 @@ const styles = {
 		fontSize: 18,
 		fontWeight: 'bold',
 		color: 'white'
-	},
-	resendOTPPressable: {
-		marginTop: 10
-	},
-	resendOTPText: {
-		fontFamily: 'Lexend_400Regular',
-		color: '#EF7C00'
 	}
 };

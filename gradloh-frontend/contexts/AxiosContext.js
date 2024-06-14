@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
+import { LoadingContext } from './LoadingContext'; // Import the Loading Context
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import * as SecureStore from 'expo-secure-store';
 
@@ -9,85 +10,105 @@ const authApiUrl = process.env.EXPO_PUBLIC_API_AUTH_URL;
 const publicApiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { Provider } = AxiosContext;
 
-
-
 const AxiosProvider = ({ children }) => {
-	const authContext = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const { setIsLoading } = useContext(LoadingContext); // Use the Loading Context
+  const requestQueue = [];
+  let isRefreshing = false;
 
-	//Those who are authenticated, use this route
-	const authAxios = axios.create({
-		baseURL: publicApiUrl
-	});
+  const processQueue = (error, token = null) => {
+    requestQueue.forEach(promise => {
+      if (error) {
+        promise.reject(error);
+      } else {
+        promise.resolve(token);
+      }
+    });
+    requestQueue.length = 0;
+  };
 
-	//Those who are not, use this route
-	const publicAxios = axios.create({
-		baseURL: authApiUrl
-	});
+      //Those who are not, use this route
+    const publicAxios = axios.create({
+      baseURL: authApiUrl
+    });
 
-	//Public routes always need a bearer token
-	authAxios.interceptors.request.use(
-		(config) => {
-			if (!config.headers.Authorization) {
-				config.headers.Authorization = `Bearer ${authContext.getAccessToken()}`;
-			}
+  const authAxios = axios.create({
+    baseURL: publicApiUrl,
+    headers: {
+      Authorization: `Bearer ${authContext.getAccessToken()}`,
+    },
+  });
 
-			return config;
-		},
-		(error) => {
-			console.log("COMES");
-			return Promise.reject(error);
-		}
-	);
+  authAxios.interceptors.response.use(null, async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status === 403 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      if (!isRefreshing) {
+        isRefreshing = true;
+        setIsLoading(true); // Show loading indicator
 
-	const refreshAuthLogic = (failedRequest) => {
-		const data = {
-			refreshToken: authContext.authState.refreshToken
-		};
-		const options = {
-			method: 'POST',
-			data,
-			url: authApiUrl + '/refresh'
-		};
+        const data = {
+          refreshToken: authContext.authState.refreshToken,
+        };
+        const options = {
+          method: 'POST',
+          data,
+          url: `${authApiUrl}/refresh`,
+        };
 
-		return axios(options)
-			.then(async (tokenRefreshResponse) => {
-				failedRequest.response.config.headers.Authorization =
-					'Bearer ' + tokenRefreshResponse.data.accessToken;
+        try {
+          const tokenRefreshResponse = await axios(options);
+          isRefreshing = false;
+          setIsLoading(false); // Hide loading indicator
 
-				authContext.setAuthState({
-					...authContext.authState,
-					accessToken: tokenRefreshResponse.data.accessToken
-				});
-				await SecureStore.setItemAsync(
-					'token',
-					JSON.stringify({
-						accessToken: tokenRefreshResponse.data.accessToken,
-						refreshToken: authContext.authState.refreshToken
-					})
-				)
-				return Promise.resolve();
-			})
-			.catch((e) => {
-				authContext.setAuthState({
-					accessToken: null,
-					refreshToken: null
-				});
-			});
-	};
+          authContext.setAuthState({
+            ...authContext.authState,
+            accessToken: tokenRefreshResponse.data.accessToken,
+          });
 
-	createAuthRefreshInterceptor(authAxios, refreshAuthLogic, {statusCodes: [403] });
+          await SecureStore.setItemAsync(
+            'token',
+            JSON.stringify({
+              accessToken: tokenRefreshResponse.data.accessToken,
+              refreshToken: authContext.authState.refreshToken,
+            })
+          );
 
+          processQueue(null, tokenRefreshResponse.data.accessToken);
 
-	return (
-		<Provider
-			value={{
-				authAxios,
-				publicAxios
-			}}
-		>
-			{children}
-		</Provider>
-	);
+          originalRequest.headers.Authorization =
+            'Bearer ' + tokenRefreshResponse.data.accessToken;
+
+          return axios(originalRequest);
+        } catch (e) {
+          isRefreshing = false;
+          setIsLoading(false); // Hide loading indicator
+          processQueue(e, null);
+          throw e;
+        }
+      }
+
+      const retryOriginalRequest = new Promise((resolve, reject) => {
+        requestQueue.push({ resolve, reject });
+      });
+
+      return retryOriginalRequest
+        .then(token => {
+          originalRequest.headers.Authorization = 'Bearer ' + token;
+          return axios(originalRequest);
+        })
+        .catch(err => {
+          return Promise.reject(err);
+        });
+    }
+    return Promise.reject(error);
+  });
+
+  return (
+    <Provider value={{ authAxios, publicAxios }}>
+      {children}
+    </Provider>
+  );
 };
 
 export { AxiosContext, AxiosProvider };

@@ -15,8 +15,8 @@ import {
 } from '@expo-google-fonts/lexend';
 import { useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
-import AcademicYear from '../assets/data/AcademicYears.json';
+import DropdownWithErrorHandling from '../../components/Auth/DropdownWithErrorHandling';
+import AcademicYear from '../../data/AcademicYears.json';
 
 export default function ProfileSetUpOneScreen() {
 	const navigation = useNavigation();
