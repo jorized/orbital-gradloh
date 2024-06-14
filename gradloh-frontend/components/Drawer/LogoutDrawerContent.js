@@ -3,13 +3,17 @@ import React, { useContext } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import {
 	DrawerContentScrollView,
+	DrawerItem,
 	DrawerItemList
 } from '@react-navigation/drawer';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
+import ThemeContext from '../../contexts/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 
 const LogoutDrawerContent = (props) => {
 	const authContext = useContext(AuthContext);
-	const { userNickname } = props;
+	const { userNickname, navigation } = props;
+	const theme = useContext(ThemeContext);
 
 	const handleLogout = () => {
 		Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -28,11 +32,13 @@ const LogoutDrawerContent = (props) => {
 	};
 
 	return (
-		<DrawerContentScrollView {...props}>
-			<View style={styles.userInfoSection}>
-				<Text style={styles.userNickname}>{userNickname}</Text>
+		<DrawerContentScrollView {...props} style={{backgroundColor: theme.backgroundColor}} contentContainerStyle={{ flex: 1 }}>
+			<View style={[styles.userInfoSection, {backgroundColor: theme.hamburgerColor}]}>
+				<Text style={[styles.userNickname, {color : theme.reverseColor}]}>{userNickname}</Text>
 			</View>
-			<DrawerItemList {...props} />
+			<View style={styles.drawerContent}>
+				<DrawerItemList {...props} />
+			</View>
 			<View style={styles.logoutContainer}>
 				<Button title="Logout" onPress={handleLogout} color="#ff6347" />
 			</View>
@@ -43,7 +49,6 @@ const LogoutDrawerContent = (props) => {
 const styles = StyleSheet.create({
 	userInfoSection: {
 		padding: 20,
-		backgroundColor: '#f4f4f4',
 		marginBottom: 10
 	},
 	userNickname: {
@@ -51,7 +56,10 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 	},
 	logoutContainer: {
-		margin: 20
+		margin: 20,
+	},
+	drawerContent: {
+		flex: 1,
 	}
 });
 

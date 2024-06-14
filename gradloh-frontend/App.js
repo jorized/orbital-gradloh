@@ -1,33 +1,38 @@
+/* SCREENS*/
+import LandingScreen from './screens/Auth/LandingScreen';
+import LoginScreen from './screens/Auth/LoginScreen';
+import RegisterScreen from './screens/Auth/RegisterScreen';
+import ForgotPasswordScreen from './screens/Auth/ForgotPasswordScreen';
+import ResetPasswordConfirmationScreen from './screens/Auth/ResetPasswordConfirmationScreen';
+import ProfileSetUpOneScreen from './screens/Auth/ProfileSetUpOneScreen';
+import ProfileSetUpTwoScreen from './screens/Auth/ProfileSetUpTwoScreen';
+import ProfileSetUpThreeScreen from './screens/Auth/ProfileSetUpThreeScreen';
+import ProfileSetUpFourScreen from './screens/Auth/ProfileSetUpFourScreen';
+import OnboardingScreen from './screens/Auth/OnboardingScreen';
+import HomeScreen from './screens/Home/HomeScreen';
+import CoursePlannerScreen from './screens/CoursePlanner/CoursePlannerScreen';
+
+/* OTHERS */
 import 'react-native-gesture-handler';
+import { useCallback, useContext, useState, useEffect } from 'react';
+import { SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { EventRegister } from 'react-native-event-listeners';
+import SplashScreen from './components/SplashScreen';
+import Spinner from './components/Spinner';
+import LogoutDrawerContent from './components/Drawer/LogoutDrawerContent';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
-import LandingScreen from './screens/LandingScreen';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
 import { HeaderBackButton } from '@react-navigation/elements';
-import { SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
-import ProfileSetUpOneScreen from './screens/ProfileSetUpOneScreen';
-import ProfileSetUpTwoScreen from './screens/ProfileSetUpTwoScreen';
-import { useCallback, useContext, useState, useEffect } from 'react';
 import { AuthContext, AuthProvider } from './contexts/AuthContext';
-import HomeScreen from './screens/HomeScreen';
-import Spinner from './components/Spinner';
-import * as SecureStore from 'expo-secure-store';
+import ThemeContext from './contexts/ThemeContext';
+import Theme from './misc/Theme';
 import { AxiosProvider } from './contexts/AxiosContext';
-import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import ResetPasswordConfirmationScreen from './screens/ResetPasswordConfirmationScreen';
-import LottieView from 'lottie-react-native';
-import SplashScreen from './components/SplashScreen';
-import ProfileSetUpThreeScreen from './screens/ProfileSetUpThreeScreen';
-import OnboardingScreen from './screens/OnboardingScreen';
-import LogoutDrawerContent from './components/LogoutDrawerContent';
-import DrawerHeader from './components/DrawerHeader';
-import { EventRegister } from 'react-native-event-listeners';
-import ThemeContext from './theme/ThemeContext';
-import Theme from './theme/Theme';
-import CoursePlannerScreen from './screens/CoursePlannerScreen';
-import { ProfileSetUpFourScreen } from './screens/ProfileSetUpFourScreen';
+import * as SecureStore from 'expo-secure-store';
+import { LoadingProvider } from './contexts/LoadingContext';
+import LoadingOverlay from './components/LoadingOverlay';
+import { Entypo, Ionicons } from '@expo/vector-icons';
+
 
 const PublicStack = createStackNavigator();
 const PrivateStack = createStackNavigator();
@@ -215,38 +220,72 @@ const PrivateNavigator = () => {
 	  EventRegister.emit('ChangeTheme', !isDarkMode); // Emit the correct new state
 	  await SecureStore.setItemAsync('isDarkMode', JSON.stringify(isDarkMode));
 	};
-  
 	return (
 	  <ThemeContext.Provider value={isDarkMode ? Theme.dark : Theme.light}>
 		<PrivateDrawer.Navigator
 		  drawerContent={(props) => <LogoutDrawerContent {...props} userNickname={userProfileDetails.nickname} />}
 		  screenOptions={({ route, navigation }) => ({
-			drawerStyle: {
-				backgroundColor: isDarkMode ? "#202023" : "white"
-			},
-			drawerLabelStyle: {
-				color: isDarkMode ? "white" : "black"
-			},
-			header: () => (
-			  <DrawerHeader
-				navigation={navigation}
-				isHomeScreen={route.name === 'HomeScreen'}
-				toggleTheme={toggleTheme}
-				isDarkMode={isDarkMode}
-			  />
-			),
-			headerTransparent: true,
+			headerShown: false,
+			drawerActiveTintColor: isDarkMode ? "#FFB67E" : "#EF7C00",
 		  })}
 		>
 		  <PrivateDrawer.Screen
 			name="HomeScreen"
-			component={HomeScreen}
-			options={{ swipeEnabled: true, title: 'Home' }}
-		  />
+			options={{ 
+				swipeEnabled: true, 
+				title: 'Home',
+				drawerIcon: ({focused, size}) => (
+					isDarkMode ?
+					<Ionicons
+					   name="home"
+					   size={size}
+					   color={focused ? '#FFB67E' : '#FFB67E' }
+					/> :
+					<Ionicons
+					   name="home"
+					   size={size}
+					   color={focused ? '#EF7C00' : '#EF7C00'}
+					/>
+				 ),
+				 drawerLabel: ({ focused }) => (
+					isDarkMode ?
+					<Text style={{ color: focused ? '#FFB67E' : '' }}>
+					  Home
+					</Text> :
+					<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>
+					  Home
+				  	</Text>
+				)
+			}}
+		  >
+			{props => <HomeScreen {...props} toggleTheme={toggleTheme} isDarkMode={isDarkMode} />}
+		  </PrivateDrawer.Screen>
 		  <PrivateDrawer.Screen
 		  	name="CoursePlannerScreen"
 			component={CoursePlannerScreen}
-			options={{ swipeEnabled: true, title: 'Course planner' }}
+			options={{ swipeEnabled: true, title: 'Course planner',
+				drawerIcon: ({focused, size}) => ( 
+					isDarkMode ? 
+					<Entypo
+					   name="folder"
+					   size={size}
+					   color={focused ? '#FFB67E' : '#FFB67E'}
+					/> : <Entypo
+					name="folder"
+					size={size}
+					color={focused ? '#EF7C00' : '#EF7C00'}
+				 />
+				 ),
+				 drawerLabel: ({ focused }) => (
+					isDarkMode ?
+					<Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>
+					  Course Planner
+					</Text> :
+					<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>
+					  Course Planner
+				  	</Text>
+				)
+			  }}
 		  />
 		</PrivateDrawer.Navigator>
 	  </ThemeContext.Provider>
@@ -327,8 +366,11 @@ const styles = StyleSheet.create({
 
 export default () => (
 	<AuthProvider>
-		<AxiosProvider>
-			<App />
-		</AxiosProvider>
+		<LoadingProvider>
+			<AxiosProvider>
+				<App />
+				<LoadingOverlay/>
+			</AxiosProvider>
+		</LoadingProvider>
 	</AuthProvider>
 );

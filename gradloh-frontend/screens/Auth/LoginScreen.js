@@ -1,44 +1,53 @@
+import React, {
+	useState,
+	useRef,
+	forwardRef,
+	useContext,
+	useEffect
+} from 'react';
 import {
-	ActivityIndicator,
-	Platform,
-	ScrollView,
+	View,
 	Text,
+	StyleSheet,
+	ScrollView,
+	Pressable,
+	Platform,
 	TouchableNativeFeedback,
 	TouchableOpacity,
-	View
+	ActivityIndicator
 } from 'react-native';
-import { AuthContext } from '../contexts/AuthContext';
-import { AxiosContext } from '../contexts/AxiosContext';
-import React, { useState, useRef, useContext, forwardRef } from 'react';
-import { KeyboardAccessoryNavigation } from 'react-native-keyboard-accessory';
 import { useFonts } from 'expo-font';
 import {
-	Lexend_300Light,
 	Lexend_400Regular,
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import FloatingLabelInput from '../components/FloatingLabelInput';
+import { KeyboardAccessoryNavigation } from 'react-native-keyboard-accessory';
+import FloatingLabelInput from '../../components/Auth/FloatingLabelInput';
 import Toast from 'react-native-toast-message';
-import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../../contexts/AuthContext';
+import { AxiosContext } from '../../contexts/AxiosContext';
+import * as SecureStore from 'expo-secure-store';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function ForgotPasswordScreen() {
+export default function LoginScreen() {
 	const navigation = useNavigation();
 
 	const authContext = useContext(AuthContext);
 	const { publicAxios } = useContext(AxiosContext);
 
 	const [email, setEmail] = useState('');
-	const [errors, setErrors] = useState({ email: false });
-	const [errorMessages, setErrorMessages] = useState({ email: '' });
+	const [password, setPassword] = useState('');
 	const [buttonsHidden, setButtonsHidden] = useState(false);
+	const [errors, setErrors] = useState({ email: false, password: false });
+	const [errorMessages, setErrorMessages] = useState({
+		email: '',
+		password: ''
+	});
 	const [loading, setLoading] = useState(false);
 
 	const emailRef = useRef(null);
-
-	const [activeInputIndex, setActiveInputIndex] = useState(0);
-	const [nextFocusDisabled, setNextFocusDisabled] = useState(false);
-	const [previousFocusDisabled, setPreviousFocusDisabled] = useState(false);
+	const passwordRef = useRef(null);
 
 	const inputs = [
 		{
@@ -49,84 +58,22 @@ export default function ForgotPasswordScreen() {
 			label: 'Email address*',
 			error: errors.email,
 			errorMessage: errorMessages.email
+		},
+		{
+			ref: passwordRef,
+			keyboardType: 'default',
+			value: password,
+			onChangeText: setPassword,
+			label: 'Password*',
+			isPassword: true,
+			error: errors.password,
+			errorMessage: errorMessages.password
 		}
 	];
 
-	const handleFocus = (index) => () => {
-		setActiveInputIndex(index);
-		setNextFocusDisabled(index === inputs.length - 1);
-		setPreviousFocusDisabled(index === 0);
-	};
-
-	const handleFocusNext = () => {
-		if (!nextFocusDisabled) {
-			inputs[activeInputIndex + 1].ref.current.focus();
-		}
-	};
-
-	const handleFocusPrevious = () => {
-		if (!previousFocusDisabled) {
-			inputs[activeInputIndex - 1].ref.current.focus();
-		}
-	};
-
-	const handleDone = () => {
-		emailRef.current.blur();
-	};
-
-	const handleResetPassword = async () => {
-		let hasError = false;
-		const newErrors = { email: false };
-		const newErrorMessages = { email: '' };
-
-		if (!email) {
-			newErrors.email = true;
-			newErrorMessages.email = 'This field is required.';
-			hasError = true;
-		}
-
-		setErrors(newErrors);
-		setErrorMessages(newErrorMessages);
-
-		if (!hasError) {
-			setLoading(true);
-			try {
-				const response = await publicAxios.post('/sendresetemail', {
-					email
-				});
-				setLoading(false);
-				//If successful, pass the email response over to the next page
-				navigation.push('ResetPasswordConfirmationScreen', {
-					email,
-					showToast: true,
-					toastMessage: response.data.message
-				});
-			} catch (error) {
-				setLoading(false);
-				if (!error.response) {
-					Toast.show({
-						type: 'warning',
-						text1: 'Error',
-						text2: 'Server is offline',
-						visibilityTime: 5000,
-						autoHide: true,
-						position: 'bottom',
-						bottomOffset: 40
-					});
-				} else {
-					Toast.show({
-						type: 'warning',
-						text1: 'Error',
-						text2: error.response.data.message,
-						visibilityTime: 5000,
-						autoHide: true,
-						position: 'bottom',
-						bottomOffset: 40
-					});
-				}
-			}
-		}
-	};
+	const [activeInputIndex, setActiveInputIndex] = useState(0);
+	const [nextFocusDisabled, setNextFocusDisabled] = useState(false);
+	const [previousFocusDisabled, setPreviousFocusDisabled] = useState(false);
 
 	const toastConfig = {
 		warning: ({ text1, text2, props }) => (
@@ -167,8 +114,120 @@ export default function ForgotPasswordScreen() {
 		<Toast ref={ref} config={toastConfig} />
 	));
 
+	const handleFocus = (index) => () => {
+		setActiveInputIndex(index);
+		setNextFocusDisabled(index === inputs.length - 1);
+		setPreviousFocusDisabled(index === 0);
+	};
+
+	const handleFocusNext = () => {
+		if (!nextFocusDisabled) {
+			inputs[activeInputIndex + 1].ref.current.focus();
+		}
+	};
+
+	const handleFocusPrevious = () => {
+		if (!previousFocusDisabled) {
+			inputs[activeInputIndex - 1].ref.current.focus();
+		}
+	};
+
+	const handleDone = () => {
+		inputs.forEach((input) => input.ref.current.blur());
+	};
+
+	const handleSignIn = async () => {
+		let hasError = false;
+		const newErrors = { email: false, password: false };
+		const newErrorMessages = { email: '', password: '' };
+
+		if (!email) {
+			newErrors.email = true;
+			newErrorMessages.email = 'This field is required.';
+			hasError = true;
+		}
+
+		if (!password) {
+			newErrors.password = true;
+			newErrorMessages.password = 'This field is required.';
+			hasError = true;
+		}
+
+		setErrors(newErrors);
+		setErrorMessages(newErrorMessages);
+
+		if (!hasError) {
+			setLoading(true);
+			try {
+				const response = await publicAxios.post('/login', {
+					email,
+					password
+				});
+				setLoading(false);
+				const { nickname, accessToken, refreshToken, completedOnboard } =
+					response.data;
+				if (!completedOnboard) {
+					authContext.setAuthState({
+						accessToken,
+						refreshToken
+					});
+					navigation.push('OnboardingScreen', {
+						nickname : nickname,
+						email: email,
+						accessToken: accessToken,
+						refreshToken: refreshToken
+					});
+				} else {
+					// Store user details and tokens in SecureStore
+					await SecureStore.setItemAsync(
+						'token',
+						JSON.stringify({
+							accessToken,
+							refreshToken
+						})
+					);
+					await SecureStore.setItemAsync(
+						'userprofiledetails',
+						JSON.stringify({
+							nickname,
+							email
+						})
+					);
+					// Update state only after storing the token
+					authContext.setAuthState({
+						accessToken,
+						refreshToken,
+						authenticated: true
+					});
+				}
+			} catch (error) {
+				setLoading(false);
+				if (!error.response) {
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: 'Server is offline',
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
+					});
+				} else {
+					Toast.show({
+						type: 'warning',
+						text1: 'Error',
+						text2: error.response.data.message,
+						visibilityTime: 5000,
+						autoHide: true,
+						position: 'bottom',
+						bottomOffset: 40
+					});
+				}
+			}
+		}
+	};
+
 	const [fontsLoaded] = useFonts({
-		Lexend_300Light,
 		Lexend_400Regular,
 		Lexend_600SemiBold,
 		Lexend_700Bold
@@ -181,11 +240,7 @@ export default function ForgotPasswordScreen() {
 	return (
 		<View style={styles.container}>
 			<ScrollView contentContainerStyle={styles.contentContainer}>
-				<Text style={styles.forgotPasswordTitleOne}>Forgot</Text>
-				<Text style={styles.forgotPasswordTitleTwo}>Password</Text>
-				<Text style={styles.forgotPasswordSubtitle}>
-					Enter your email address below to reset your password.
-				</Text>
+				<Text style={styles.loginTitle}>Sign in</Text>
 				{inputs.map(
 					(
 						{
@@ -214,9 +269,16 @@ export default function ForgotPasswordScreen() {
 						/>
 					)
 				)}
+				<Pressable
+					onPress={() => navigation.push('ForgotPasswordScreen')}
+				>
+					<Text style={styles.forgotPasswordText}>
+						Forgot password?
+					</Text>
+				</Pressable>
 				{Platform.OS === 'android' ? (
 					<TouchableNativeFeedback
-						onPress={loading ? null : handleResetPassword}
+						onPress={loading ? null : handleSignIn}
 						background={TouchableNativeFeedback.Ripple(
 							'#fff',
 							false
@@ -232,9 +294,7 @@ export default function ForgotPasswordScreen() {
 							{loading ? (
 								<ActivityIndicator size="small" color="#FFF" />
 							) : (
-								<Text style={styles.loginText}>
-									Reset Password
-								</Text>
+								<Text style={styles.loginText}>Sign in</Text>
 							)}
 						</View>
 					</TouchableNativeFeedback>
@@ -244,13 +304,13 @@ export default function ForgotPasswordScreen() {
 							styles.loginPressable,
 							loading && styles.disabledPressable
 						]}
-						onPress={loading ? null : handleResetPassword}
+						onPress={loading ? null : handleSignIn}
 						disabled={loading}
 					>
 						{loading ? (
 							<ActivityIndicator size="small" color="#FFF" />
 						) : (
-							<Text style={styles.loginText}>Reset Password</Text>
+							<Text style={styles.loginText}>Sign in</Text>
 						)}
 					</TouchableOpacity>
 				)}
@@ -273,7 +333,7 @@ export default function ForgotPasswordScreen() {
 	);
 }
 
-const styles = {
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: 'white'
@@ -281,19 +341,10 @@ const styles = {
 	contentContainer: {
 		padding: 36
 	},
-	forgotPasswordTitleOne: {
-		fontFamily: 'Lexend_600SemiBold',
-		color: '#2C2C2E',
-		fontSize: 40
-	},
-	forgotPasswordTitleTwo: {
+	loginTitle: {
 		fontFamily: 'Lexend_600SemiBold',
 		color: '#2C2C2E',
 		fontSize: 40,
-		marginBottom: 24
-	},
-	forgotPasswordSubtitle: {
-		fontFamily: 'Lexend_300Light',
 		marginBottom: 24
 	},
 	loginPressable: {
@@ -306,6 +357,10 @@ const styles = {
 		textAlign: 'center',
 		color: 'white',
 		fontSize: 20,
+		fontFamily: 'Lexend_400Regular'
+	},
+	forgotPasswordText: {
+		color: '#EF7C00',
 		fontFamily: 'Lexend_400Regular'
 	},
 	toastContainer: {
@@ -347,4 +402,4 @@ const styles = {
 		fontWeight: 'bold',
 		color: 'white'
 	}
-};
+});

@@ -18,9 +18,6 @@ public class User implements UserDetails {
     @Column(name = "email", length = 255)
     private String email;
 
-    @Column(name = "folder_id", length = 255)
-    private String folderId;
-
     @Column(name = "nickname", length = 45, nullable = false)
     private String nickname;
 

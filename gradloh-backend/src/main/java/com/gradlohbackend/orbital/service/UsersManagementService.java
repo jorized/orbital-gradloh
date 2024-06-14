@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class UsersManagementService {
             resp.setNickname(registrationRequest.getNickname());
             resp.setEmail(registrationRequest.getEmail());
             resp.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+
             resp.setMessage("Registration valid.");
             resp.setStatusCode(200); // 201 Created
         } catch (Exception e) {
@@ -87,7 +89,6 @@ public class UsersManagementService {
         try {
             User ourUser = new User();
             ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setFolderId("Y1S1");
             ourUser.setNickname(registrationRequest.getNickname());
             ourUser.setPassword(registrationRequest.getPassword());
             ourUser.setRole(User.Role.USER);
@@ -122,10 +123,10 @@ public class UsersManagementService {
         ReqRes response = new ReqRes();
         try {
             // Attempt to authenticate the user.
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+
+            Authentication testauth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(), loginRequest.getPassword()));
 
-            // Retrieve the user details from the database.
             var userOptional = ourUserDetailsService.findUserByEmail(loginRequest.getEmail());
 
             if (userOptional.isEmpty()) {
@@ -136,12 +137,13 @@ public class UsersManagementService {
 
             var user = userOptional.get();
             user.setRefreshToken(jwtUtils.generateRefreshToken(user));
-            User userResult = usersRepo.save(user);
 
-            response.setNickname(userResult.getNickname());
+            usersRepo.updateRefreshToken(jwtUtils.generateRefreshToken(user), loginRequest.getEmail());
+
+            response.setNickname(user.getNickname());
             response.setAccessToken(jwtUtils.generateAccessToken(user));
-            response.setRefreshToken(userResult.getRefreshToken());
-            response.setCompletedOnboard(userResult.getCompletedOnboard());
+            response.setRefreshToken(user.getRefreshToken());
+            response.setCompletedOnboard(user.getCompletedOnboard());
             response.setStatusCode(HttpStatus.OK.value()); // 200
             response.setMessage("Successfully Logged In");
         } catch (AuthenticationException e) {
@@ -159,7 +161,7 @@ public class UsersManagementService {
     public ReqRes updateOnboard(ReqRes onboardRequest) {
         ReqRes response = new ReqRes();
         try {
-            // Retrieve the user details from the database.
+
             var userOptional = ourUserDetailsService.findUserByEmail(onboardRequest.getEmail());
 
             if (userOptional.isEmpty()) {
@@ -326,7 +328,9 @@ public class UsersManagementService {
                         //Else, reset new password
                         var encodedNewPassword = passwordEncoder.encode(resetPasswordRequest.getNewPassword());
                         user.setPassword(encodedNewPassword);
-                        usersRepo.save(user);
+
+                        User userresult = usersRepo.save(user);
+
                         response.setStatusCode(HttpStatus.OK.value()); // 200
                         response.setMessage("Password has successfully been reset.");
                         return response;
@@ -374,6 +378,7 @@ public class UsersManagementService {
             response.setMessage("Successfully refreshed token.");
         } catch (ExpiredJwtException e) { //If token is expired
             response.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+            System.out.println("RESPONSETOKENEXPIRED");
             response.setMessage("Token expired. Please login again or use a refresh token.");
         } catch (Exception e) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());

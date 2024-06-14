@@ -1,14 +1,16 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import ThemeContext from '../../contexts/ThemeContext';
 
 const Hamburger = ({ onPress, isDarkMode }) => {
+	const theme = useContext(ThemeContext);
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.touchable}>
 			<View style={styles.hamburgerContainer}>
-				<View style={isDarkMode ? styles.darkTopLine : styles.lightTopLine} />
-				<View style={isDarkMode ? styles.darkMiddleLine : styles.lightMiddleLine} />
-				<View style={isDarkMode ? styles.darkLowerLine : styles.lightLowerLine} />
+				<View style={[styles.topLine, {backgroundColor: theme.hamburgerColor}]} />
+				<View style={[styles.middleLine, {backgroundColor: theme.hamburgerColor}]} />
+				<View style={[styles.lowerLine, {backgroundColor: theme.hamburgerColor}]} />
 			</View>
 		</TouchableOpacity>
 	);
@@ -33,34 +35,16 @@ const styles = StyleSheet.create({
 		marginLeft: -40,
 
 	},
-	darkTopLine: {
+	topLine: {
 		width: 15,
 		height: 2,
-		backgroundColor: '#FFB67E'
 	},
-	darkMiddleLine: {
+	middleLine: {
 		width: 20,
 		height: 2,
-		backgroundColor: '#FFB67E'
 	},
-	darkLowerLine: {
+	lowerLine: {
 		width: 7,
 		height: 2,
-		backgroundColor: '#FFB67E'
 	},
-	lightTopLine: {
-		width: 15,
-		height: 2,
-		backgroundColor: '#EF7C00'
-	},
-	lightMiddleLine: {
-		width: 20,
-		height: 2,
-		backgroundColor: '#EF7C00'
-	},
-	lightLowerLine: {
-		width: 7,
-		height: 2,
-		backgroundColor: '#EF7C00'
-	}
 });

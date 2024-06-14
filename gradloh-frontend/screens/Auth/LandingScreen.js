@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, forwardRef, useState } from 'react';
+import React, { useEffect, forwardRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -67,6 +67,7 @@ export default function LandingScreen() {
 	));
 
 	useEffect(() => {
+		//fetchDataAndUploadToAlgolia();
 		if (showToast) {
 			Toast.show({
 				type: 'success',
@@ -89,7 +90,7 @@ export default function LandingScreen() {
 			<View style={styles.imageContainer}>
 				<Image
 					style={styles.landingImg}
-					source={require('../assets/images/GradLohLanding.png')}
+					source={require('../../assets/images/GradLohLanding.png')}
 				/>
 			</View>
 			<View style={styles.buttonContainer}>
@@ -99,7 +100,7 @@ export default function LandingScreen() {
 				>
 					<Image
 						style={styles.emailIcon}
-						source={require('../assets/images/emailicon.png')}
+						source={require('../../assets/images/emailicon.png')}
 					/>
 					<Text style={styles.registerText}>Sign up with email</Text>
 				</Pressable>

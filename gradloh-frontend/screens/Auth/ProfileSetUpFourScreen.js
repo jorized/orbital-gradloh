@@ -1,14 +1,14 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { forwardRef, useContext, useState } from 'react';
 import { ScrollView, View, Text, TouchableNativeFeedback, ActivityIndicator, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import DropdownWithErrorHandling from '../components/DropdownWithErrorHandling';
+import DropdownWithErrorHandling from '../../components/Auth/DropdownWithErrorHandling';
 import Toast from 'react-native-toast-message';
-import Faculties from '../assets/data/Faculties.json';
-import MinorsData from '../assets/data/MinorsData.json';
-import { AxiosContext } from '../contexts/AxiosContext';
-import { AuthContext } from '../contexts/AuthContext';
+import Faculties from '../../data/Faculties.json';
+import MinorsData from '../../data/MinorsData.json';
+import { AxiosContext } from '../../contexts/AxiosContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
-export const ProfileSetUpFourScreen = () => {
+export default function ProfileSetUpFourScreen() {
 
     const navigation = useNavigation();
 
