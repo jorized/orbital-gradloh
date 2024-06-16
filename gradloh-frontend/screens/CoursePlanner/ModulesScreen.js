@@ -16,10 +16,15 @@ import { Highlight } from '../../components/AlgoliaSearch/Highlight';
 import algoliasearch from 'algoliasearch/lite';
 import ThemeContext from '../../contexts/ThemeContext';
 import Hit from '../../components/AlgoliaSearch/Hit';
+import DrawerHeader from '../../components/Drawer/DrawerHeader';
+import { HeaderBackButton } from '@react-navigation/elements';
 
 const searchClient = algoliasearch(process.env.EXPO_PUBLIC_ALGOLIA_APP_ID, process.env.EXPO_PUBLIC_ALGOLIA_SEARCH_API_KEY);
 
-export default function ModulesScreen() {
+export default function ModulesScreen({ route, navigation }) {
+
+  const { headerName, semIndex, folderName, currentModsInFolder } = route.params;
+
   const [isModalOpen, setModalOpen] = useState(false);
   
   const listRef = useRef(null);
@@ -31,7 +36,20 @@ export default function ModulesScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, {backgroundColor: theme.backgroundColor}]}>
+
       <View style={styles.container}>
+          <View style = {styles.headerContainer}>
+            <View style = {styles.headerFlexContainer}>
+                <HeaderBackButton
+                                style={styles.headerbackBtnStyle}
+                                onPress={() => navigation.goBack()}
+                                tintColor={theme.hamburgerColor}
+                                labelVisible={false}
+                            />
+                <Text style={[styles.titleText, {color : theme.hamburgerColor}]}>{headerName}</Text>
+              </View>
+          </View>
+
         <InstantSearch searchClient={searchClient} indexName="nus_mods_data" future={{preserveSharedStateOnUnmount: true}}>
           <Configure highlightPreTag="<mark>" highlightPostTag="</mark>" />
           <View style={styles.searchContainer}>
@@ -42,7 +60,7 @@ export default function ModulesScreen() {
               onChange={scrollToTop}
             />
           </View>
-          <InfiniteHits ref={listRef} hitComponent={Hit} />
+          <InfiniteHits ref={listRef} hitComponent={Hit} folderName={folderName} semIndex = {semIndex}/>
         </InstantSearch>
       </View>
     </SafeAreaView>
@@ -62,5 +80,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14
+  },
+  headerFlexContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 5,
+  },
+  headerbackBtnStyle: {
+      marginLeft: 10
+  },
+  titleText: {
+    fontSize: 26,
+    fontFamily: "Lexend_600SemiBold",
+    marginLeft: 10,
   },
 });

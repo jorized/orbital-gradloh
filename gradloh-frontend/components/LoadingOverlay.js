@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { LoadingContext } from '../contexts/LoadingContext';
+import ThemeContext from '../contexts/ThemeContext';
 
 
 const LoadingOverlay = () => {
@@ -12,7 +13,7 @@ const LoadingOverlay = () => {
 
   return (
     <View style={styles.overlay}>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <ActivityIndicator size="small" color="#fff" />
     </View>
   );
 };

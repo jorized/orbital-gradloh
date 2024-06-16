@@ -4,6 +4,7 @@ import { AuthContext } from './AuthContext';
 import { LoadingContext } from './LoadingContext'; // Import the Loading Context
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import * as SecureStore from 'expo-secure-store';
+import { Alert } from 'react-native';
 
 const AxiosContext = createContext();
 const authApiUrl = process.env.EXPO_PUBLIC_API_AUTH_URL;
@@ -81,6 +82,22 @@ const AxiosProvider = ({ children }) => {
 
           return axios(originalRequest);
         } catch (e) {
+          //If refresh token has expired
+          if (e.response.data.message === "Token expired. Please login again or use a refresh token.") {
+            Alert.alert(
+              "Your session has expired",
+              "Please log in again.",
+              [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    authContext.logout();
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          } 
           isRefreshing = false;
           setIsLoading(false); // Hide loading indicator
           processQueue(e, null);
@@ -101,6 +118,7 @@ const AxiosProvider = ({ children }) => {
           return Promise.reject(err);
         });
     }
+    
     return Promise.reject(error);
   });
 

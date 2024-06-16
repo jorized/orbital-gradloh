@@ -1,7 +1,8 @@
 import React, { forwardRef, useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, ActivityIndicator, Text } from 'react-native';
+import { StyleSheet, View, FlatList, ActivityIndicator, Text, TouchableOpacity, Modal } from 'react-native';
 import { useInfiniteHits, useInstantSearch } from 'react-instantsearch-core';
 import ThemeContext from '../../contexts/ThemeContext';
+
 
 export const InfiniteHits = forwardRef(({ hitComponent: Hit, ...props }, ref) => {
   const { hits, isLastPage, showMore, results } = useInfiniteHits({
@@ -12,6 +13,8 @@ export const InfiniteHits = forwardRef(({ hitComponent: Hit, ...props }, ref) =>
   const { status } = useInstantSearch();
   const [totalHits, setTotalHits] = useState(0);
   const theme = useContext(ThemeContext);
+
+
 
   useEffect(() => {
     if (results) {
@@ -42,9 +45,17 @@ export const InfiniteHits = forwardRef(({ hitComponent: Hit, ...props }, ref) =>
         }}
         onEndReachedThreshold={0.5} // This triggers showMore when the user has scrolled halfway through the list
         renderItem={({ item }) => (
-          <View style={[styles.item]}>
-            <Hit hit={item} />
-          </View>
+
+            <View style={[styles.item]}>
+              <View style = {styles.hitContainer}>
+                <Hit hit={item} folderName = {props.folderName} semIndex = {props.semIndex}/>
+
+              </View>
+
+
+            </View>
+
+
         )}
         ListFooterComponent={() => !isLastPage && <ActivityIndicator style={styles.loading} size="small" color={theme.color} />}
       />
@@ -60,7 +71,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   item: {
-    padding: 18,
+    padding: 30,
   },
   loading: {
     paddingVertical: 20,
@@ -71,4 +82,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#bbb",
   },
+  hitContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  }
 });

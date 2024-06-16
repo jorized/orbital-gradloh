@@ -7,6 +7,7 @@ import * as Animatable from 'react-native-animatable'
 import { Entypo } from '@expo/vector-icons';
 import { AxiosContext } from '../../contexts/AxiosContext';
 import * as SecureStore from 'expo-secure-store';
+import { EventRegister } from 'react-native-event-listeners';
 
 export default function FolderScreen({ headerName, navigation }) {
 
@@ -24,8 +25,7 @@ export default function FolderScreen({ headerName, navigation }) {
     const [numOfModsInEachFolder, setNumOfModsInEachFolder] = useState({});
     const [currentSemester, setCurrentSemester] = useState(0);
 
-    useEffect(() => {
-
+    const fetchAndAnimate = () => {
         publicAxios.authAxios.get('/allfolderdetails', {
             params: { email: email }
         }).then(response => {
@@ -41,6 +41,19 @@ export default function FolderScreen({ headerName, navigation }) {
               })
               return () => unsubscribe;
         })
+    }
+
+    useEffect(() => {
+        fetchAndAnimate();
+        const listener = EventRegister.addEventListener('folderInserted', (data) => {
+            // Handle the event and update state as needed
+            fetchAndAnimate(); // Re-fetch data or update state as needed
+        });
+    
+        return () => {
+            EventRegister.removeEventListener(listener);
+        };
+
 
     }, [])
 

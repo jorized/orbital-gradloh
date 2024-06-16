@@ -111,7 +111,6 @@ export default function LandingScreen() {
 				>
 					<Text style={styles.loginText}>Sign in</Text>
 				</Pressable>
-				<Button title= "Go to courseplanner" onPress={() => navigation.push('CoursePlannerScreen')}/>
 			</View>
 			<CustomToast />
 		</View>

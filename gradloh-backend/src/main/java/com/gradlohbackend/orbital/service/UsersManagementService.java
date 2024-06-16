@@ -364,7 +364,6 @@ public class UsersManagementService {
             response.setMessage("Successfully refreshed token.");
         } catch (ExpiredJwtException e) { //If token is expired
             response.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-            System.out.println("RESPONSETOKENEXPIRED");
             response.setMessage("Token expired. Please login again or use a refresh token.");
         } catch (Exception e) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());

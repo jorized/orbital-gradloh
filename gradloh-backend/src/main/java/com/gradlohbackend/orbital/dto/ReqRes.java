@@ -49,6 +49,10 @@ public class ReqRes {
     private int currentSemester;
     private Map<String, Integer> numOfModsInEachFolder;
     private List<String> modsInSpecificFolder;
+    private List<String> modsUpTillCurrentSem;
+    private List<String> modsForEveryFolder;
+    private List<String> modsForPrevFolderToCurrFolder;
     private Byte folderName;
+    private String moduleCode;
 
 }

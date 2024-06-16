@@ -28,4 +28,25 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
     @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName = :folderName")
     @Cacheable(value = "moduleCodesOfSpecificFolder", key = "#email.concat('-').concat(#folderName)")
     List<String> findModuleCodesByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
+
+    @Query(value = "SELECT f.module_code " +
+            "FROM Folders AS f " +
+            "INNER JOIN Users AS u USING(email) " +
+            "WHERE email = :email AND " +
+            "folder_name <= " +
+            "CASE WHEN MONTH(CURRENT_DATE()) >= 8 THEN (YEAR(CURRENT_DATE()) - CAST(LEFT(enrolment_year, 4) AS UNSIGNED)) * 2 + 1 " +
+            "ELSE (YEAR(CURRENT_DATE()) - CAST(LEFT(enrolment_year, 4) AS UNSIGNED)) * 2 END " +
+            "ORDER BY folder_name",
+            nativeQuery = true)
+    @Cacheable(value = "modulesUpTillCurrentSem", key="#email")
+    List<String> findModulesUpTillCurrentSemByEmail(@Param("email") String email);
+
+    @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName IN (1, 2, 3, 4, 5, 6, 7, 8)")
+    @Cacheable(value = "everyfoldermodules", key="#email")
+    List<String> findEveryFoldersModulesByEmail(@Param("email") String email);
+
+    @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName <= :folderName")
+    @Cacheable(value = "previousfoldermodules", key = "#email.concat('-').concat(#folderName)")
+    List<String> findPrevToCurrFoldersModulesByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
+
 }

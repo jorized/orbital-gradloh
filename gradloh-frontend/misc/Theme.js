@@ -11,7 +11,8 @@ const Theme = {
         bottomSheetCardColor : "white",
         activeDrawerItemColor: "#EF7C00",
         inactiveDrawerItemColor: "gray",
-        separatorComponentBorderColor : "#ddd"
+        separatorComponentBorderColor : "#ddd",
+        floatingButtonBgColor: "rgba(239, 124, 0, .5)"
     },
     dark: {
         theme: 'dark',
@@ -25,7 +26,8 @@ const Theme = {
         bottomSheetCardColor : "#282828",
         activeDrawerItemColor: "#FFB67E",
         inactiveDrawerItemColor: "white",
-        separatorComponentBorderColor: "#ddd"
+        separatorComponentBorderColor: "#ddd",
+        floatingButtonBgColor : "rgba(255, 182, 126, .5)"
     }
 }
 
