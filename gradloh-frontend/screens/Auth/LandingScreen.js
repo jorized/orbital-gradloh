@@ -5,7 +5,8 @@ import {
 	StyleSheet,
 	Image,
 	Pressable,
-	TouchableOpacity
+	TouchableOpacity,
+	Button
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
@@ -110,6 +111,7 @@ export default function LandingScreen() {
 				>
 					<Text style={styles.loginText}>Sign in</Text>
 				</Pressable>
+				<Button title= "Go to courseplanner" onPress={() => navigation.push('CoursePlannerScreen')}/>
 			</View>
 			<CustomToast />
 		</View>
@@ -128,9 +130,8 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		padding: 36,
-		backgroundColor: '#FFAF1D',
 		borderTopLeftRadius: 20,
-		borderTopRightRadius: 20
+		borderTopRightRadius: 20,
 	},
 	landingImg: {
 		width: 250,

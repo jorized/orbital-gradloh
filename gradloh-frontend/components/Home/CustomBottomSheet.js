@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useContext, useCallback } from "react";
+import React, { useRef, useEffect, useContext, useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useSharedValue,
@@ -14,14 +14,87 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Quicksand_600SemiBold, Quicksand_700Bold } from "@expo-google-fonts/quicksand";
 import { Lexend_300Light, Lexend_600SemiBold, Lexend_700Bold } from "@expo-google-fonts/lexend";
+import { AxiosContext } from "../../contexts/AxiosContext";
+import * as SecureStore from 'expo-secure-store';
 
 export default function CustomBottomSheet() {
+
+  const [status, setStatus] = useState("");
+
+  const [ccOrCHSTitle, setCCOrCHSTitle] = useState("");
+
+  const [completedCoreMods, setCompletedCoreMods] = useState("");
+  const [corePercentage, setCorePercentage] = useState(0);
+
+  const [completedCCOrCHSMods, setCompletedCCOrCHSMods] = useState("");
+  const [chsPercentage, setCHSPercentage] = useState(0);
+
+
+
+  const publicAxios = useContext(AxiosContext);
+  const userProfileDetails = SecureStore.getItem('userprofiledetails');
+  const email = JSON.parse(userProfileDetails).email;
   const theme = useContext(ThemeContext);
   const scale = useSharedValue(0);
   const translateY = useSharedValue(SCREEN_HEIGHT);
 
+  useEffect(() => {
+    publicAxios.authAxios.get('/userprogressdetails', {
+      params: { email: email }
+    }).then(response => {
+      const data = response.data;
+      setStatus(data.progressionStatus);
+      //If CHS Student
+      if (data.homeFaculty === "CHS") {
+        setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
+        setCorePercentage((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
+
+        setCCOrCHSTitle("CHS modules")
+        setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
+        setCHSPercentage((data.completedCHSModules / 13) * 100);
+      } else {
+
+      }
+
+    }).catch(error => {
+      console.log(error);
+    })
+
+    scale.value = withTiming(1, { duration: 0 });
+    translateY.value = withTiming(SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT, {
+      duration: 500,
+    });
+
+    // Cleanup function to reset values when unfocused
+    return () => {
+      scale.value = 0;
+      translateY.value = SCREEN_HEIGHT;
+    };
+  }, [])
+
   useFocusEffect(
     useCallback(() => {
+      publicAxios.authAxios.get('/userprogressdetails', {
+        params: { email: email }
+      }).then(response => {
+        const data = response.data;
+        setStatus(data.progressionStatus);
+        //If CHS Student
+        if (data.homeFaculty === "CHS") {
+          setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
+          setCorePercentage((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
+
+          setCCOrCHSTitle("CHS modules")
+          setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
+          setCHSPercentage((data.completedCHSModules / 13) * 100);
+        } else {
+
+        }
+
+      }).catch(error => {
+        console.log(error);
+      })
+
       scale.value = withTiming(1, { duration: 0 });
       translateY.value = withTiming(SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT, {
         duration: 500,
@@ -94,18 +167,22 @@ export default function CustomBottomSheet() {
           <Text style = {[styles.titleText, {color: theme.color}]}>
             Details
           </Text>
+          <View style = {styles.statusContainer}>
+            <Text style = {[styles.statusText, {color : theme.color}]}>Status : {status}</Text>
+            {status === "On Track" ? <AntDesign name="checkcircleo" size={24} color="#00D26A" /> :  <AntDesign name="exclamationcircleo" size={24} color="#FCA90C" />}
+          </View>
         </View>
         <ScrollView style = {styles.contentContainer}>
           <BottomSheetCard
             iconName="pushpino" // Replace with the desired icon name
-            title="Core"
-            marks={"Completed 5 / 6"}
-            percentage={62}/>
+            title="Core modules"
+            marks={completedCoreMods}
+            percentage={corePercentage}/>
                     <BottomSheetCard
             iconName="pushpino" // Replace with the desired icon name
-            title="CC"
-            marks={"Completed 5 / 6"}
-            percentage={62}/>
+            title={ccOrCHSTitle}
+            marks={completedCCOrCHSMods}
+            percentage={chsPercentage}/>
                     <BottomSheetCard
             iconName="pushpino" // Replace with the desired icon name
             title="UE"
@@ -125,6 +202,9 @@ const styles = StyleSheet.create({
   },
 
   titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 20,
   },
 
@@ -132,6 +212,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Lexend_700Bold",
   },
+
+  statusContainer: {
+    flexDirection: "row"
+  },
+
+  statusText: {
+    fontSize: 20,
+    fontFamily: "Lexend_700Bold",
+    marginRight: 10
+  }
   
 
 

@@ -37,7 +37,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export default function HomeScreen({ toggleTheme }) {
+export default function HomeScreen({ toggleTheme, headerName }) {
 	const theme = useContext(ThemeContext);
 	const [isVisible, setIsVisible] = useState(true);
 	const [isOpen, setOpen] = useState(false);
@@ -119,7 +119,7 @@ export default function HomeScreen({ toggleTheme }) {
 	return (
 		<GestureHandlerRootView style={[styles.container, {backgroundColor: theme.backgroundColor}]}>
 			<SafeAreaProvider>
-				<DrawerHeader toggleTheme={toggleTheme} />
+				<DrawerHeader toggleTheme={toggleTheme} headerName={headerName}/>
 				<ProgressChart
 					toggleSheet={toggleSheet}
 					accent={selectedGradient}

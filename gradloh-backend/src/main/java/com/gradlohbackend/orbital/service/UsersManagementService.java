@@ -1,8 +1,11 @@
 package com.gradlohbackend.orbital.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gradlohbackend.orbital.dto.ReqRes;
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.repository.UsersRepo;
+import com.gradlohbackend.orbital.repository.UsersRepoCustom;
+import com.gradlohbackend.orbital.repository.UsersRepoCustomImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -95,7 +98,6 @@ public class UsersManagementService {
             ourUser.setRefreshToken(jwtUtils.generateRefreshToken(ourUser));
             ourUser.setCompletedOnboard(false);
             ourUser.setCompletedTutorial(false);
-            ourUser.setIsDarkMode(false);
             ourUser.setEnrolmentYear(registrationRequest.getEnrolmentYear());
             ourUser.setPrimaryMajor(registrationRequest.getPrimaryMajor());
             ourUser.setSecondaryMajor(registrationRequest.getSecondaryMajor());
@@ -186,7 +188,7 @@ public class UsersManagementService {
     public ReqRes getProgressDetails(ReqRes userProgressDetailsRequest) {
         ReqRes response = new ReqRes();
         try {
-            // Retrieve the user details from the database.
+
             var userOptional = ourUserDetailsService.findUserByEmail(userProgressDetailsRequest.getEmail());
 
             if (userOptional.isEmpty()) {
@@ -195,46 +197,30 @@ public class UsersManagementService {
                 return response;
             }
 
-            response.setTotalCore(ourUserDetailsService.getTotalCoreModsCount(userProgressDetailsRequest.getEmail()));
-            response.setTotalCoreCompleted(ourUserDetailsService.getCompletedCoreModsCount(userProgressDetailsRequest.getEmail()));
-            response.setTotalGe(ourUserDetailsService.getTotalGeModsCount(userProgressDetailsRequest.getEmail()));
-            response.setTotalGeCompleted(ourUserDetailsService.getCompletedGeModsCount(userProgressDetailsRequest.getEmail()));
-            response.setStatusCode(HttpStatus.OK.value()); // 200
+            //Set Pie and Status percentage
+            response.setCompletedModulesPercentage(usersRepo.findCompletedModulesPercentageByEmail(userProgressDetailsRequest.getEmail()));
+            response.setProgressionStatus(usersRepo.findProgressionStatusByEmail(userProgressDetailsRequest.getEmail()));
 
-            response.setMessage("Successfully retrieved progress details.");
-        }  catch (Exception e) {
-            // Handle general exceptions, possibly logging them.
-            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
-            response.setMessage("An internal error occurred.");
-        }
-        return response;
-    }
+            // If CHS student
+            if ("FOS".equals(userOptional.get().getHomeFaculty()) || "FASS".equals(userOptional.get().getHomeFaculty())) {
+                // If DSA student
+                if ("Data Science and Analytics".equals(userOptional.get().getPrimaryMajor())) {
+                    response.setCompletedCoreModules(usersRepo.findCompletedDSACoreModsByEmail(userProgressDetailsRequest.getEmail()));
+                }
 
-    //Update dark mode
-    public ReqRes updateDarkMode(ReqRes darkModeRequest) {
-        ReqRes response = new ReqRes();
-        try {
-            // Retrieve the user details from the database.
-            var userOptional = ourUserDetailsService.findUserByEmail(darkModeRequest.getEmail());
-
-            if (userOptional.isEmpty()) {
-                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
-                response.setMessage("Email does not exist.");
-                return response;
+                response.setCompletedCHSModules(usersRepo.findCompletedCHSModulesByEmail(userProgressDetailsRequest.getEmail()));
+                response.setHomeFaculty("CHS");
             }
 
-            var user = userOptional.get();
-            user.setIsDarkMode(darkModeRequest.getIsDarkMode());
-            usersRepo.save(user);
             response.setStatusCode(HttpStatus.OK.value()); // 200
-            response.setMessage("Updated dark mode.");
-        }  catch (Exception e) {
-            // Handle general exceptions, possibly logging them.
+            response.setMessage("Successfully retrieved progress details.");
+        } catch (Exception e) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             response.setMessage("An internal error occurred.");
         }
         return response;
     }
+
 
     //Sending email w otp
     public ReqRes sendResetEmail(ReqRes sendResetEmailRequest) {

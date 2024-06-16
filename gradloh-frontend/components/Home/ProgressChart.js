@@ -38,9 +38,7 @@ export default function ProgressChart(props) {
       params: { email: email }
     })
       .then(response => {
-        const totalMods = response.data.totalGe + response.data.totalCore;
-        const totalModsCompleted = response.data.totalGeCompleted + response.data.totalCoreCompleted;
-        const completedModsPercentage = (totalModsCompleted / totalMods) * 100;
+        const completedModsPercentage = response.data.completedModulesPercentage;
         const newData = [{ x: 1, y: completedModsPercentage }, { x: 2, y: 100 - completedModsPercentage }];
 
         setState({ data: newData, percent: completedModsPercentage });
@@ -61,9 +59,7 @@ export default function ProgressChart(props) {
         params: { email: email }
       })
         .then(response => {
-          const totalMods = response.data.totalGe + response.data.totalCore;
-          const totalModsCompleted = response.data.totalGeCompleted + response.data.totalCoreCompleted;
-          const completedModsPercentage = (totalModsCompleted / totalMods) * 100;
+          const completedModsPercentage = response.data.completedModulesPercentage;
           const newData = [{ x: 1, y: completedModsPercentage }, { x: 2, y: 100 - completedModsPercentage }];
 
           setState({ data: newData, percent: completedModsPercentage });

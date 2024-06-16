@@ -10,7 +10,9 @@ import ProfileSetUpThreeScreen from './screens/Auth/ProfileSetUpThreeScreen';
 import ProfileSetUpFourScreen from './screens/Auth/ProfileSetUpFourScreen';
 import OnboardingScreen from './screens/Auth/OnboardingScreen';
 import HomeScreen from './screens/Home/HomeScreen';
-import CoursePlannerScreen from './screens/CoursePlanner/CoursePlannerScreen';
+import FolderScreen from './screens/CoursePlanner/FolderScreen';
+import FolderDetailsScreen from './screens/CoursePlanner/FolderDetailsScreen';
+import ModulesScreen from './screens/CoursePlanner/ModulesScreen';
 
 /* OTHERS */
 import 'react-native-gesture-handler';
@@ -34,8 +36,10 @@ import LoadingOverlay from './components/LoadingOverlay';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 
 
+
+
 const PublicStack = createStackNavigator();
-const PrivateStack = createStackNavigator();
+const FolderStack = createStackNavigator();
 const PrivateDrawer = createDrawerNavigator();
 
 
@@ -204,22 +208,23 @@ const PublicNavigator = () => (
 const PrivateNavigator = () => {
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [userProfileDetails, setUserProfileDetails] = useState({ nickname: '' });
-
+  
 	useEffect(() => {
-		const getUserProfileDetails = async () => {
-			const profileDetails = await SecureStore.getItemAsync('userprofiledetails');
-			if (profileDetails) {
-				setUserProfileDetails(JSON.parse(profileDetails));
-			}
-		};
-		getUserProfileDetails();
+	  const getUserProfileDetails = async () => {
+		const profileDetails = await SecureStore.getItemAsync('userprofiledetails');
+		if (profileDetails) {
+		  setUserProfileDetails(JSON.parse(profileDetails));
+		}
+	  };
+	  getUserProfileDetails();
 	}, []);
-
+  
 	const toggleTheme = async () => {
 	  setIsDarkMode(!isDarkMode);
-	  EventRegister.emit('ChangeTheme', !isDarkMode); // Emit the correct new state
+	  EventRegister.emit('ChangeTheme', !isDarkMode);
 	  await SecureStore.setItemAsync('isDarkMode', JSON.stringify(isDarkMode));
 	};
+  
 	return (
 	  <ThemeContext.Provider value={isDarkMode ? Theme.dark : Theme.light}>
 		<PrivateDrawer.Navigator
@@ -230,67 +235,52 @@ const PrivateNavigator = () => {
 		  })}
 		>
 		  <PrivateDrawer.Screen
-			name="HomeScreen"
+			name="Dashboard"
 			options={{ 
 				swipeEnabled: true, 
-				title: 'Home',
-				drawerIcon: ({focused, size}) => (
-					isDarkMode ?
-					<Ionicons
-					   name="home"
-					   size={size}
-					   color={focused ? '#FFB67E' : '#FFB67E' }
-					/> :
-					<Ionicons
-					   name="home"
-					   size={size}
-					   color={focused ? '#EF7C00' : '#EF7C00'}
-					/>
-				 ),
-				 drawerLabel: ({ focused }) => (
-					isDarkMode ?
-					<Text style={{ color: focused ? '#FFB67E' : '' }}>
-					  Home
-					</Text> :
-					<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>
-					  Home
-				  	</Text>
+				drawerIcon: ({ focused, size }) => (
+				  isDarkMode ?
+				  <Ionicons name="home" size={size} color={focused ? '#FFB67E' : '#FFB67E'} /> :
+				  <Ionicons name="home" size={size} color={focused ? '#EF7C00' : '#EF7C00'} />
+				),
+				drawerLabel: ({ focused }) => (
+				  isDarkMode ?
+				  <Text style={{ color: focused ? '#FFB67E' : '' }}>Dashboard</Text> :
+				  <Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>Dashboard</Text>
 				)
 			}}
 		  >
-			{props => <HomeScreen {...props} toggleTheme={toggleTheme} isDarkMode={isDarkMode} />}
+			{props => <HomeScreen {...props} toggleTheme={toggleTheme} isDarkMode={isDarkMode} headerName={"Dashboard"}/>}
 		  </PrivateDrawer.Screen>
 		  <PrivateDrawer.Screen
-		  	name="CoursePlannerScreen"
-			component={CoursePlannerScreen}
-			options={{ swipeEnabled: true, title: 'Course planner',
-				drawerIcon: ({focused, size}) => ( 
-					isDarkMode ? 
-					<Entypo
-					   name="folder"
-					   size={size}
-					   color={focused ? '#FFB67E' : '#FFB67E'}
-					/> : <Entypo
-					name="folder"
-					size={size}
-					color={focused ? '#EF7C00' : '#EF7C00'}
-				 />
-				 ),
-				 drawerLabel: ({ focused }) => (
-					isDarkMode ?
-					<Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>
-					  Course Planner
-					</Text> :
-					<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>
-					  Course Planner
-				  	</Text>
-				)
-			  }}
+			name="FolderStack"
+			component={FolderStackNavigator}
+			options={{ 
+			  swipeEnabled: true, 
+			  drawerIcon: ({ focused, size }) => (
+				isDarkMode ? 
+				<Entypo name="folder" size={size} color={focused ? '#FFB67E' : '#FFB67E'} /> : 
+				<Entypo name="folder" size={size} color={focused ? '#EF7C00' : '#EF7C00'} />
+			  ),
+			  drawerLabel: ({ focused }) => (
+				isDarkMode ?
+				<Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>Semesters</Text> :
+				<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>Semesters</Text>
+			  )
+			}}
 		  />
 		</PrivateDrawer.Navigator>
 	  </ThemeContext.Provider>
 	);
-  };
+};
+const FolderStackNavigator = () => (
+	<FolderStack.Navigator>
+		<FolderStack.Screen name="FolderScreen" options = {{headerShown: false}}>
+			{props => <FolderScreen {...props} headerName={"Semesters"} />}
+		</FolderStack.Screen>
+		<FolderStack.Screen name="FolderDetailsScreen" component = {FolderDetailsScreen} options = {{headerShown: false}}/>
+	</FolderStack.Navigator>
+);
 
 const App = () => {
 	

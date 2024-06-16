@@ -2,7 +2,7 @@ const Theme = {
     light: {
         theme: 'light',
         color: 'black',
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#F4F4F4',
         bottomSheetColor : '#EC7F00',
         reverseColor : "white",
         hamburgerColor : "#EF7C00",
