@@ -12,13 +12,14 @@ import {
 	Quicksand_700Bold,
   } from '@expo-google-fonts/quicksand';
 import ThemeContext from '../../contexts/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
 
 const DrawerHeader = ({
   isHomeScreen,
   toggleTheme,
-  isDarkMode
+  isDarkMode,
+  headerName
 }) => {
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
@@ -34,6 +35,7 @@ const DrawerHeader = ({
 });
 
 const navigation = useNavigation();
+const route = useRoute();
 
 const theme = useContext(ThemeContext);
 
@@ -110,8 +112,9 @@ const theme = useContext(ThemeContext);
           onPress={() => navigation.openDrawer()}
           isDarkMode={isDarkMode}
         />
-	      <Text style={[styles.titleText, {color : theme.hamburgerColor}]}>Dashboard</Text>
+	      <Text style={[styles.titleText, {color : theme.hamburgerColor}]}>{headerName}</Text>
 
+        {route.name === "Dashboard" && (
         <Animated.View style={{ opacity, transform: [{ translateY }] }}>
           <Animated.View
             style={[
@@ -129,7 +132,7 @@ const theme = useContext(ThemeContext);
               />
             </Pressable>
           </Animated.View>
-        </Animated.View>
+        </Animated.View>)}
 
     </View>
   );

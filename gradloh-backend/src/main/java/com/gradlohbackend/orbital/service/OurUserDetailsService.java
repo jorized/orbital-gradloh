@@ -3,7 +3,6 @@ package com.gradlohbackend.orbital.service;
 
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.repository.UsersRepo;
-import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OurUserDetailsService implements UserDetailsService {
+
+    public static int counter = 0;
 
 
     @Autowired
@@ -42,24 +42,6 @@ public class OurUserDetailsService implements UserDetailsService {
         return usersRepo.findByEmail(email);
     }
 
-    @Cacheable(value = "completedCoreModsCount", key="#email")
-    public Long getCompletedCoreModsCount(String email) {
-        return usersRepo.findCompletedCoreModsByEmail(email);
-    }
-    @Cacheable(value = "totalCoreModsCount", key="#email")
-    public Long getTotalCoreModsCount(String email) {
-        return usersRepo.findTotalCoreModsByEmail(email);
-    }
-
-    @Cacheable(value = "completedGeModsCount", key="#email")
-    public Long getCompletedGeModsCount(String email) {
-        return usersRepo.findCompletedGeModsByEmail(email);
-    }
-
-    @Cacheable(value = "totalGeModsCount", key="#email")
-    public Long getTotalGeModsCount(String email) {
-        return usersRepo.findTotalGeModsByEmail(email);
-    }
 
 
 }

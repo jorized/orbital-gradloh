@@ -12,6 +12,6 @@ public class FirstMinorRequirement {
     @Column(name = "first_minor", length = 45)
     private String firstMinor;
 
-    @Column(name = "module_code", length = 7)
+    @Column(name = "module_code", length = 8)
     private String moduleCode;
 }

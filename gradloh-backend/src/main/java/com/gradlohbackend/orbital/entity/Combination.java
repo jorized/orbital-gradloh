@@ -21,6 +21,4 @@ public class Combination {
     @Column(name = "second_minor", length = 45)
     private String secondMinor;
 
-    @Column(name="total_mcs_required", length = 7)
-    private String totalMcsRequired;
 }

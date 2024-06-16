@@ -84,16 +84,6 @@ public class UserManagementController {
                 .body(reqRes);
     }
 
-    @PostMapping("/updatedarkmode")
-    public ResponseEntity<ReqRes> updateDarkMode(@RequestBody ReqRes req) {
-
-        var reqRes = usersManagementService.updateDarkMode(req);
-
-        // Return the response with the appropriate status code
-        return ResponseEntity.status(reqRes.getStatusCode())
-                .body(reqRes);
-    }
-
     @GetMapping("/userprogressdetails")
     public ResponseEntity<ReqRes> getUserProgressDetails(@RequestParam String email) {
 
@@ -108,6 +98,7 @@ public class UserManagementController {
         return ResponseEntity.status(reqRes.getStatusCode())
                 .body(reqRes);
     }
+
 
 
     //For admin only routes (those that begin with /admin, require admin JWT)

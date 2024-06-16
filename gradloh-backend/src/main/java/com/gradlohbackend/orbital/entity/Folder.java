@@ -2,27 +2,23 @@ package com.gradlohbackend.orbital.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
+@Entity(name = "Folders")
 @Table(name = "Folders")
+@IdClass(FolderId.class)
 @Data
 public class Folder {
 
     @Id
-    @Column(name = "email", length = 8, nullable = false)
+    @Column(name = "email")
     private String email;
 
-    @Enumerated(EnumType.STRING)
+    @Id
     @Column(name = "folder_name", nullable = false)
-    private FolderName folderName;
+    private Byte folderName;
 
-    @Column(name = "module_code", length = 7, nullable = false)
+    @Id
+    @Column(name = "module_code", length = 8, nullable = false)
     private String moduleCode;
 
-    @Column(name = "completion_status", nullable = false)
-    private Boolean completionStatus;
-
-    public enum FolderName {
-        Y1S1, Y1S2, Y2S1, Y2S2, Y3S1, Y3S2, Y4S1, Y4S2
-    }
 
 }

@@ -12,14 +12,12 @@ public class PrimaryMajorRequirement {
     @Column(name = "primary_major", length = 45)
     private String primaryMajor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "module_type")
-    private ModuleType moduleType;
+    @Column(name = "module_type", length = 45)
+    private String moduleType;
 
-    @Column(name = "module_code", length = 7)
+    @Id
+    @Column(name = "module_code", length = 8)
     private String moduleCode;
 
-    public enum ModuleType {
-        Core, GE
-    }
+
 }

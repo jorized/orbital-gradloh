@@ -14,3 +14,30 @@ export const TEXT_INPUT_HEIGHT = Platform.OS == "android" ? SCREEN_HEIGHT * 0.4 
 
 
 export const LOGIN_VIEW_HEIGHT = TEXT_INPUT_HEIGHT
+
+//Folders screen
+export const Animations = [
+    "fadeIn",
+    "fadeInUp",
+    "fadeInDown",
+    "fadeInDownBig",
+    "fadeInUpBig",
+    "fadeInLeft",
+    "fadeInLeftBig",
+    "fadeInRight",
+    "fadeInRightBig",
+  
+    "flipInX",
+    "flipInY",
+   
+    "slideInDown",
+    "slideInUp",
+    "slideInLeft",
+    "slideInRight",
+    
+    "zoomIn",
+    "zoomInDown",
+    "zoomInUp",
+    "zoomInLeft",
+    "zoomInRight",
+  ]

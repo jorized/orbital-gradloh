@@ -12,6 +12,10 @@ public class SecondaryMajorRequirement {
     @Column(name = "secondary_major", length = 45)
     private String secondaryMajor;
 
-    @Column(name = "module_code", length = 7)
+    @Column(name = "module_type", length = 20)
+    private String moduleType;
+
+    @Id
+    @Column(name = "module_code", length = 8)
     private String moduleCode;
 }

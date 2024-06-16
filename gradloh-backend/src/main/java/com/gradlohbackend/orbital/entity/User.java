@@ -15,19 +15,19 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @Column(name = "email", length = 255)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "nickname", length = 45, nullable = false)
     private String nickname;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "refresh_token", length = 255)
+    @Column(name = "refresh_token")
     private String refreshToken;
 
-    @Column(name = "reset_otp", length = 255)
+    @Column(name = "reset_otp")
     private String resetOtp;
 
     @Column(name = "reset_otp_exp")
@@ -39,10 +39,7 @@ public class User implements UserDetails {
     @Column(name = "completed_tutorial")
     private Boolean completedTutorial;
 
-    @Column(name = "is_dark_mode")
-    private Boolean isDarkMode;
-
-    @Column(name = "enrolment_year", length = 7)
+    @Column(name = "enrolment_year", length = 9)
     private String enrolmentYear;
 
     @Column(name = "primary_major", length = 45, nullable = false)
