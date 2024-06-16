@@ -279,6 +279,7 @@ const FolderStackNavigator = () => (
 			{props => <FolderScreen {...props} headerName={"Semesters"} />}
 		</FolderStack.Screen>
 		<FolderStack.Screen name="FolderDetailsScreen" component = {FolderDetailsScreen} options = {{headerShown: false}}/>
+		<FolderStack.Screen name="ModulesScreen" component = {ModulesScreen} options = {{headerShown: false}}/>
 	</FolderStack.Navigator>
 );
 
