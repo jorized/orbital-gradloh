@@ -5,8 +5,10 @@ import com.gradlohbackend.orbital.entity.FolderId;
 import com.gradlohbackend.orbital.entity.User;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,5 +50,14 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
     @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName <= :folderName")
     @Cacheable(value = "previousfoldermodules", key = "#email.concat('-').concat(#folderName)")
     List<String> findPrevToCurrFoldersModulesByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Folders f WHERE f.email = :email AND f.folderName = :folderName AND f.moduleCode = :moduleCode")
+    void deleteModuleFromFolderByEmailAndFolderNameAndModuleCode(
+            @Param("email") String email,
+            @Param("folderName") Byte folderName,
+            @Param("moduleCode") String moduleCode
+    );
 
 }

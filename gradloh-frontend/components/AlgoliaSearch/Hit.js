@@ -37,7 +37,7 @@ export default function Hit({ hit, folderName, semIndex }) {
 
     fetchData();
 
-    const listener = EventRegister.addEventListener('folderInserted', (data) => {
+    const listener = EventRegister.addEventListener('updateScreens', (data) => {
       // Handle the event and update state as needed
       fetchData(); // Re-fetch data or update state as needed
     });
@@ -64,7 +64,7 @@ export default function Hit({ hit, folderName, semIndex }) {
         <Text style={styles.addedText}>Added</Text>
       ) : (
         <TouchableOpacity onPress={() => changeModalVisible(true)}>
-          <AntDesign name="plus" size={18} color="black" />
+          <AntDesign name="plus" size={18} color={theme.color} />
         </TouchableOpacity>
       )}
       <Modal transparent={true} animationType='fade' visible={isModalVisible} onRequestClose={() => changeModalVisible(false)}>

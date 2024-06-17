@@ -18,7 +18,8 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "googleMapsApiKey": "AIzaSyDgBRfAVm0e6I2V8awqh6GKHLsTdFDw5WE"
       },
       "package": "com.jorized.gradlohfrontend"
     },

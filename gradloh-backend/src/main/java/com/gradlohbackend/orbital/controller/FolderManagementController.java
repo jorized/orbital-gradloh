@@ -98,4 +98,16 @@ public class FolderManagementController {
         return ResponseEntity.status(reqRes.getStatusCode())
                 .body(reqRes);
     }
+
+    @DeleteMapping("/deletemodfromfolder")
+    public ResponseEntity<ReqRes> deleteFolder(@RequestParam String email, @RequestParam Byte folderName, @RequestParam String moduleCode) {
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        req.setFolderName(folderName);
+        req.setModuleCode(moduleCode);
+        var reqRes = foldersManagementService.deleteModFromFolder(req);
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
 }

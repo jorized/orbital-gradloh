@@ -53,6 +53,7 @@
     "react-native-gesture-handler": "^2.16.2",
     "react-native-keyboard-accessory": "^0.1.16",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-maps": "1.14.0",
     "react-native-material-ripple": "^0.9.1",
     "react-native-onboarding-swiper": "^1.2.0",
     "react-native-progress-wheel": "^2.1.0",

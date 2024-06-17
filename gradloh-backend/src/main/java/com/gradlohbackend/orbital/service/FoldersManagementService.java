@@ -160,4 +160,24 @@ public class FoldersManagementService {
 
         return resp;
     }
+
+    public ReqRes deleteModFromFolder(ReqRes deleteModFromFolderRequest) {
+        ReqRes resp = new ReqRes();
+
+        try {
+            foldersRepo.deleteModuleFromFolderByEmailAndFolderNameAndModuleCode(
+                    deleteModFromFolderRequest.getEmail(),
+                    deleteModFromFolderRequest.getFolderName(),
+                    deleteModFromFolderRequest.getModuleCode()
+            );
+            redissonClient.getKeys().flushall();
+            resp.setMessage("Module deleted from folder successfully.");
+            resp.setStatusCode(201);
+
+        } catch (Exception e) {
+            resp.setStatusCode(500); // 500 Internal Server Error
+        }
+
+        return resp;
+    }
 }

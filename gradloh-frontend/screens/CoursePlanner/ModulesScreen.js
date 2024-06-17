@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -18,6 +17,7 @@ import ThemeContext from '../../contexts/ThemeContext';
 import Hit from '../../components/AlgoliaSearch/Hit';
 import DrawerHeader from '../../components/Drawer/DrawerHeader';
 import { HeaderBackButton } from '@react-navigation/elements';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const searchClient = algoliasearch(process.env.EXPO_PUBLIC_ALGOLIA_APP_ID, process.env.EXPO_PUBLIC_ALGOLIA_SEARCH_API_KEY);
 
@@ -35,38 +35,39 @@ export default function ModulesScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={[styles.safe, {backgroundColor: theme.backgroundColor}]}>
+    <SafeAreaProvider>
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.backgroundColor }]}>
 
-      <View style={styles.container}>
-          <View style = {styles.headerContainer}>
-            <View style = {styles.headerFlexContainer}>
-                <HeaderBackButton
-                                style={styles.headerbackBtnStyle}
-                                onPress={() => navigation.goBack()}
-                                tintColor={theme.hamburgerColor}
-                                labelVisible={false}
-                            />
-                <Text style={[styles.titleText, {color : theme.hamburgerColor}]}>{headerName}</Text>
-              </View>
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <View style={styles.headerFlexContainer}>
+              <HeaderBackButton
+                style={styles.headerbackBtnStyle}
+                onPress={() => navigation.goBack()}
+                tintColor={theme.hamburgerColor}
+                labelVisible={false}
+              />
+              <Text style={[styles.titleText, { color: theme.hamburgerColor }]}>{headerName}</Text>
+            </View>
           </View>
 
-        <InstantSearch searchClient={searchClient} indexName="nus_mods_data" future={{preserveSharedStateOnUnmount: true}}>
-          <Configure highlightPreTag="<mark>" highlightPostTag="</mark>" />
-          <View style={styles.searchContainer}>
-            <SearchBox onChange={scrollToTop} />
-            <Filters
-              isModalOpen={isModalOpen}
-              onToggleModal={() => setModalOpen(!isModalOpen)}
-              onChange={scrollToTop}
-            />
-          </View>
-          <InfiniteHits ref={listRef} hitComponent={Hit} folderName={folderName} semIndex = {semIndex}/>
-        </InstantSearch>
-      </View>
-    </SafeAreaView>
+          <InstantSearch searchClient={searchClient} indexName="nus_mods_data" future={{ preserveSharedStateOnUnmount: true }}>
+            <Configure highlightPreTag="<mark>" highlightPostTag="</mark>" />
+            <View style={styles.searchContainer}>
+              <SearchBox onChange={scrollToTop} />
+              <Filters
+                isModalOpen={isModalOpen}
+                onToggleModal={() => setModalOpen(!isModalOpen)}
+                onChange={scrollToTop}
+              />
+            </View>
+            <InfiniteHits ref={listRef} hitComponent={Hit} folderName={folderName} semIndex={semIndex} />
+          </InstantSearch>
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
-
 
 const styles = StyleSheet.create({
   safe: {
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14
+    paddingHorizontal: 14,
   },
   headerFlexContainer: {
     flexDirection: "row",
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   headerbackBtnStyle: {
-      marginLeft: 10
+    marginLeft: 10,
   },
   titleText: {
     fontSize: 26,
