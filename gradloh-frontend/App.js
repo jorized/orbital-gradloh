@@ -34,6 +34,7 @@ import * as SecureStore from 'expo-secure-store';
 import { LoadingProvider } from './contexts/LoadingContext';
 import LoadingOverlay from './components/LoadingOverlay';
 import { Entypo, Ionicons } from '@expo/vector-icons';
+import ModuleDetailsScreen from './screens/CoursePlanner/ModuleDetailsScreen';
 
 
 
@@ -280,6 +281,7 @@ const FolderStackNavigator = () => (
 		</FolderStack.Screen>
 		<FolderStack.Screen name="FolderDetailsScreen" component = {FolderDetailsScreen} options = {{headerShown: false}}/>
 		<FolderStack.Screen name="ModulesScreen" component = {ModulesScreen} options = {{headerShown: false}}/>
+		<FolderStack.Screen name="ModuleDetailsScreen" component = {ModuleDetailsScreen} options = {{headerShown: false}}/>
 	</FolderStack.Navigator>
 );
 

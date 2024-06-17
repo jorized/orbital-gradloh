@@ -4,11 +4,14 @@ import axios from 'axios';
 import { AxiosContext } from "../../contexts/AxiosContext";
 import * as SecureStore from 'expo-secure-store';
 import { EventRegister } from "react-native-event-listeners";
+import { useNavigation } from "@react-navigation/native";
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT_MODAL = 500;
 
 export default function SimpleModal({ currentItem, folderName, changeModalVisible, semIndex }) {
+
+    const navigation = useNavigation();
 
     const publicAxios = useContext(AxiosContext);
 
@@ -60,6 +63,11 @@ export default function SimpleModal({ currentItem, folderName, changeModalVisibl
     
         return checkNode(prereqTree);
     };
+
+    const handleDetails = () => {
+        closeModal(false, 'Cancel');
+        navigation.navigate("ModuleDetailsScreen", { headerName: "Module details", moduleCode : moduleDetails.moduleCode })
+    }
   
   //Checks the prerequisites and compare from the sem that they are adding into, with the previous sems before this
   const handleAdd = () => {
@@ -84,10 +92,7 @@ export default function SimpleModal({ currentItem, folderName, changeModalVisibl
                     text: "OK",
                     onPress: () => {
                       closeModal(false);  // Close the modal
-                      EventRegister.emit('folderInserted', {
-                        folderName,
-                        moduleCode
-                      });  // Re-render the current screen
+                      EventRegister.emit('updateScreens'); 
                     }
                   }
                 ]
@@ -156,7 +161,7 @@ export default function SimpleModal({ currentItem, folderName, changeModalVisibl
                     <TouchableOpacity style={styles.cancelBtn} onPress={() => closeModal(false, 'Cancel')}>
                         <Text>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.detailsBtn}>
+                    <TouchableOpacity style={styles.detailsBtn} onPress={handleDetails}>
                         <Text>Details</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>

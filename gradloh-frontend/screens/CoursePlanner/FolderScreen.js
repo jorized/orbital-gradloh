@@ -45,7 +45,7 @@ export default function FolderScreen({ headerName, navigation }) {
 
     useEffect(() => {
         fetchAndAnimate();
-        const listener = EventRegister.addEventListener('folderInserted', (data) => {
+        const listener = EventRegister.addEventListener('updateScreens', (data) => {
             // Handle the event and update state as needed
             fetchAndAnimate(); // Re-fetch data or update state as needed
         });

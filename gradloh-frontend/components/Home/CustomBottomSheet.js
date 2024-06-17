@@ -47,11 +47,20 @@ export default function CustomBottomSheet() {
       //If CHS Student
       if (data.homeFaculty === "CHS") {
         setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
-        setCorePercentage((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
-
+        const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
+        if (completedCorePercentage > 100) {
+          setCorePercentage(100);
+        } else {
+          setCorePercentage(completedCorePercentage);
+        }
+        const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
         setCCOrCHSTitle("CHS modules")
         setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
-        setCHSPercentage((data.completedCHSModules / 13) * 100);
+        if (completedCHSPercentage > 100) {
+          setCHSPercentage(100);
+        } else {
+          setCHSPercentage(completedCHSPercentage);
+        }
       } else {
 
       }
@@ -82,11 +91,20 @@ export default function CustomBottomSheet() {
         //If CHS Student
         if (data.homeFaculty === "CHS") {
           setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
-          setCorePercentage((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
-
+          const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
+          if (completedCorePercentage > 100) {
+            setCorePercentage(100);
+          } else {
+            setCorePercentage(completedCorePercentage);
+          }
+          const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
           setCCOrCHSTitle("CHS modules")
           setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
-          setCHSPercentage((data.completedCHSModules / 13) * 100);
+          if (completedCHSPercentage > 100) {
+            setCHSPercentage(100);
+          } else {
+            setCHSPercentage(completedCHSPercentage);
+          }
         } else {
 
         }

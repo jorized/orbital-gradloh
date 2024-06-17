@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Pressable, Animated, Text, ImageBackground } from 'react-native';
+import { View, StyleSheet, Pressable, Animated, Text, ImageBackground, SafeAreaView } from 'react-native';
 import Hamburger from '../Drawer/Hamburger';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
@@ -107,7 +107,7 @@ const theme = useContext(ThemeContext);
 }
 
   return (
-    <View style={styles.headerContainer}>
+    <SafeAreaView style={styles.headerContainer}>
         <Hamburger
           onPress={() => navigation.openDrawer()}
           isDarkMode={isDarkMode}
@@ -134,7 +134,7 @@ const theme = useContext(ThemeContext);
           </Animated.View>
         </Animated.View>)}
 
-    </View>
+    </SafeAreaView>
   );
 };
 
