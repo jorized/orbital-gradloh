@@ -60,4 +60,19 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
             @Param("moduleCode") String moduleCode
     );
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Folders f WHERE f.email = ?1")
+    void deleteFoldersByEmail(String email);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO Folders (email, folder_name, module_code) " +
+            "SELECT u.email, s.folder_name, s.module_code " +
+            "FROM Users u " +
+            "INNER JOIN SingleMajorSamplePlan s ON u.primary_major = s.primary_major " +
+            "WHERE u.email = ?1 AND " +
+            "CAST(SUBSTRING(u.email, LOCATE('@', u.email) - 1, 1) AS UNSIGNED) % 2 = 1", nativeQuery = true)
+    void insertSingleMajorSamplePlanByEmail(String email);
+
 }

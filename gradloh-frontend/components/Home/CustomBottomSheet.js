@@ -1,12 +1,6 @@
-import React, { useRef, useEffect, useContext, useCallback, useState } from "react";
+import React, { useEffect, useContext, useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-} from "react-native-reanimated";
-import { SCREEN_HEIGHT, LOGIN_VIEW_HEIGHT, BOTTOM_SHEET_MARGIN } from "../../misc/consts";
+import { SCREEN_HEIGHT, LOGIN_VIEW_HEIGHT } from "../../misc/consts";
 import ThemeContext from "../../contexts/ThemeContext";
 import { AntDesign } from '@expo/vector-icons';
 import BottomSheetCard from "./BottomSheetCard";
@@ -29,14 +23,10 @@ export default function CustomBottomSheet() {
   const [completedCCOrCHSMods, setCompletedCCOrCHSMods] = useState("");
   const [chsPercentage, setCHSPercentage] = useState(0);
 
-
-
   const publicAxios = useContext(AxiosContext);
   const userProfileDetails = SecureStore.getItem('userprofiledetails');
   const email = JSON.parse(userProfileDetails).email;
   const theme = useContext(ThemeContext);
-  const scale = useSharedValue(0);
-  const translateY = useSharedValue(SCREEN_HEIGHT);
 
   useEffect(() => {
     publicAxios.authAxios.get('/userprogressdetails', {
@@ -61,24 +51,11 @@ export default function CustomBottomSheet() {
         } else {
           setCHSPercentage(completedCHSPercentage);
         }
-      } else {
-
       }
 
     }).catch(error => {
       console.log(error);
     })
-
-    scale.value = withTiming(1, { duration: 0 });
-    translateY.value = withTiming(SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT, {
-      duration: 500,
-    });
-
-    // Cleanup function to reset values when unfocused
-    return () => {
-      scale.value = 0;
-      translateY.value = SCREEN_HEIGHT;
-    };
   }, [])
 
   useFocusEffect(
@@ -105,40 +82,13 @@ export default function CustomBottomSheet() {
           } else {
             setCHSPercentage(completedCHSPercentage);
           }
-        } else {
-
         }
 
       }).catch(error => {
         console.log(error);
       })
-
-      scale.value = withTiming(1, { duration: 0 });
-      translateY.value = withTiming(SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT, {
-        duration: 500,
-      });
-
-      // Cleanup function to reset values when unfocused
-      return () => {
-        scale.value = 0;
-        translateY.value = SCREEN_HEIGHT;
-      };
-    }, [scale, translateY])
+    }, [email, publicAxios])
   );
-
-
-
-  const translateYStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  const innerLoginYStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: interpolate(scale.value, [0, 1], [LOGIN_VIEW_HEIGHT, 0]),
-      },
-    ],
-  }));
 
   const [fontsLoaded] = useFonts({
     Quicksand_700Bold,
@@ -153,64 +103,60 @@ export default function CustomBottomSheet() {
   }
 
   return (
-
-    <Animated.View
-    style={[
-      {
-        ...StyleSheet.absoluteFill,
-      },
-      translateYStyle,
-    ]}
-  >
-    <Animated.View
+    <View
       style={[
         {
-          height: LOGIN_VIEW_HEIGHT,
-          backgroundColor: theme.bottomSheetBgColor,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          
-          elevation: 5,
+          ...StyleSheet.absoluteFill,
+          transform: [{ translateY: SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT }],
         },
-        innerLoginYStyle,
       ]}
     >
-      <View style = {styles.cardContainer} >
-        <View style = {styles.titleContainer}>
-          <Text style = {[styles.titleText, {color: theme.color}]}>
-            Details
-          </Text>
-          <View style = {styles.statusContainer}>
-            <Text style = {[styles.statusText, {color : theme.color}]}>Status : {status}</Text>
-            {status === "On Track" ? <AntDesign name="checkcircleo" size={24} color="#00D26A" /> :  <AntDesign name="exclamationcircleo" size={24} color="#FCA90C" />}
+      <View
+        style={[
+          {
+            height: LOGIN_VIEW_HEIGHT,
+            backgroundColor: theme.bottomSheetBgColor,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          },
+        ]}
+      >
+        <View style={styles.cardContainer}>
+          <View style={styles.titleContainer}>
+            <Text style={[styles.titleText, { color: theme.color }]}>
+              Details
+            </Text>
+            <View style={styles.statusContainer}>
+              <Text style={[styles.statusText, { color: theme.color }]}>Status : {status}</Text>
+              {status === "On Track" ? <AntDesign name="checkcircleo" size={24} color="#00D26A" /> : <AntDesign name="exclamationcircleo" size={24} color="#FCA90C" />}
+            </View>
           </View>
+          <ScrollView style={styles.contentContainer}>
+            <BottomSheetCard
+              iconName="pushpino"
+              title="Core modules"
+              marks={completedCoreMods}
+              percentage={corePercentage} />
+            <BottomSheetCard
+              iconName="pushpino"
+              title={ccOrCHSTitle}
+              marks={completedCCOrCHSMods}
+              percentage={chsPercentage} />
+            <BottomSheetCard
+              iconName="pushpino"
+              title="UE"
+              marks={"Completed 5 / 6"}
+              percentage={62} />
+          </ScrollView>
         </View>
-        <ScrollView style = {styles.contentContainer}>
-          <BottomSheetCard
-            iconName="pushpino" // Replace with the desired icon name
-            title="Core modules"
-            marks={completedCoreMods}
-            percentage={corePercentage}/>
-                    <BottomSheetCard
-            iconName="pushpino" // Replace with the desired icon name
-            title={ccOrCHSTitle}
-            marks={completedCCOrCHSMods}
-            percentage={chsPercentage}/>
-                    <BottomSheetCard
-            iconName="pushpino" // Replace with the desired icon name
-            title="UE"
-            marks={"Completed 5 / 6"}
-            percentage={62}/>
-        </ScrollView>
-
       </View>
-    </Animated.View>
-  </Animated.View>
+    </View>
   );
 }
 
@@ -240,7 +186,4 @@ const styles = StyleSheet.create({
     fontFamily: "Lexend_700Bold",
     marginRight: 10
   }
-  
-
-
 });

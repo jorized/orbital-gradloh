@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DrawerHeader from '../../components/Drawer/DrawerHeader'
 import ThemeContext from '../../contexts/ThemeContext';
@@ -8,8 +8,11 @@ import { Entypo } from '@expo/vector-icons';
 import { AxiosContext } from '../../contexts/AxiosContext';
 import * as SecureStore from 'expo-secure-store';
 import { EventRegister } from 'react-native-event-listeners';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import TutorialToolTip from '../../components/TutorialToolTip';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function FolderScreen({ headerName, navigation }) {
+export default function FolderScreen({ headerName, navigation, route }) {
 
     const publicAxios = useContext(AxiosContext);
 
@@ -24,6 +27,8 @@ export default function FolderScreen({ headerName, navigation }) {
     const [loading, setLoading] = useState(true);
     const [numOfModsInEachFolder, setNumOfModsInEachFolder] = useState({});
     const [currentSemester, setCurrentSemester] = useState(0);
+
+    const [showTooltip3, setShowTooltip3] = useState(false);
 
     const fetchAndAnimate = () => {
         publicAxios.authAxios.get('/allfolderdetails', {
@@ -44,6 +49,9 @@ export default function FolderScreen({ headerName, navigation }) {
     }
 
     useEffect(() => {
+        if (route.params?.startTutorial) {
+            setShowTooltip3(true);
+        }
         fetchAndAnimate();
         const listener = EventRegister.addEventListener('updateScreens', (data) => {
             // Handle the event and update state as needed
@@ -55,7 +63,33 @@ export default function FolderScreen({ headerName, navigation }) {
         };
 
 
-    }, [])
+    }, [route.params])
+
+    useFocusEffect(
+        useCallback(() => {
+            if (route.params?.startTutorial) {
+                setShowTooltip3(true);
+            }
+            fetchAndAnimate();
+            const listener = EventRegister.addEventListener('updateScreens', (data) => {
+                // Handle the event and update state as needed
+                fetchAndAnimate(); // Re-fetch data or update state as needed
+            });
+        
+            return () => {
+                EventRegister.removeEventListener(listener);
+            };
+        }, [route.params])
+      );
+
+
+    const handleCloseToolTipThree = () => {
+        setShowTooltip3(false);
+        navigation.navigate("FolderStack", {
+            screen: 'FolderDetailsScreen',
+            params: { startTutorial: true, headerName : "Y1S1", semIndex: 1 }
+          });
+    }
 
     const semesterMapping = [
         "Y1S1", "Y1S2", "Y2S1", "Y2S2", "Y3S1", "Y3S2", "Y4S1", "Y4S2"
@@ -94,8 +128,19 @@ export default function FolderScreen({ headerName, navigation }) {
 
     return (
         <View style={[styles.container, {backgroundColor: theme.backgroundColor}]}>
+            <Tooltip isVisible={showTooltip3} placement="bottom" onClose={() => {}}
+                    content = {
+                        <TutorialToolTip
+                            title="Semesters"
+                            text='Here, you can see up to 8 semesters in your course plan, showing the current semester according to your enrolment year, and with each folder (semester) showing the number of modules within them.'
+                            buttonText="Next"
+                            onPress={handleCloseToolTipThree}
+                      />
+                    }
+            ></Tooltip>
             <DrawerHeader headerName={headerName}/>
-            {loading ? <ActivityIndicator size="small" color={theme.hamburgerColor} /> : 
+            {loading ? <ActivityIndicator size="small" color={theme.hamburgerColor} /> : <>
+
             <Animatable.View
                 ref={viewRef}
                 easing={'ease-in-out'}
@@ -109,7 +154,7 @@ export default function FolderScreen({ headerName, navigation }) {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 }}
                 />
-            </Animatable.View>}
+            </Animatable.View></>}
         </View>
     )
 }

@@ -27,6 +27,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { EventRegister } from 'react-native-event-listeners';
 import { EvilIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import TutorialToolTip from '../../components/TutorialToolTip';
 
 export default function FolderDetailsScreen({ route, navigation }) {
 	const { headerName, semIndex } = route.params;
@@ -44,6 +46,8 @@ export default function FolderDetailsScreen({ route, navigation }) {
 	const optionValueOne = useSharedValue(170);
 	const optionValueTwo = useSharedValue(210);
 	const optionValueThree = useSharedValue(250);
+
+	const [showTooltip4, setShowTooltip4] = useState(false);
 
 	const [loading, setLoading] = useState(true);
 	const [moduleDetails, setModuleDetails] = useState([]);
@@ -228,6 +232,9 @@ export default function FolderDetailsScreen({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+		if (route.params?.startTutorial) {
+            setShowTooltip4(true);
+        }
       // Reset all shared values to their initial states
       listItemX.value = -Dimensions.get("window").width - 40;
       animatedPlus.value = '-45deg';
@@ -246,8 +253,16 @@ export default function FolderDetailsScreen({ route, navigation }) {
       return () => {
         EventRegister.removeEventListener(listener);
       };
-    }, [])
+    }, [route.params])
   );
+
+  const handleCloseToolTipFour = () => {
+	setShowTooltip4(false);
+	navigation.navigate("FolderStack", {
+		screen: 'ModulesScreen',
+		params: { startTutorial: true, headerName: 'Modules', semIndex: 1, folderName: "Y1S1" }
+	  });
+	}
 
 	return (
 		<View
@@ -256,6 +271,16 @@ export default function FolderDetailsScreen({ route, navigation }) {
 				{ backgroundColor: theme.backgroundColor }
 			]}
 		>
+			<Tooltip isVisible={showTooltip4} placement="center" onClose={() => {}}
+				content = {
+				<TutorialToolTip
+					title="Folder details"
+					text='Within each folder, you can see the modules that you have added, along with a preview for every single one of them. You can also either choose to View, Add or Delete them accordingly. However, take note that you can only add up to 8 modules in a folder, and sometimes adding or deleting certain modules may require certain conditions to be fulfilled. '
+					buttonText="Next"
+					onPress={handleCloseToolTipFour}
+				/>
+			}
+            ></Tooltip>
 			<AnimatedDrawerHeader />
 			<View style={styles.headerContainer}>
 				<View style={styles.headerFlexContainer}>

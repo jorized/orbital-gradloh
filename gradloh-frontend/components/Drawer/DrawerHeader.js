@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingLeft: 5,
-    marginTop: 30,
+    marginTop: 20,
     backgroundColor: 'transparent',
   },
   titleText: {

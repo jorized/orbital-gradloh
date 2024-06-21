@@ -35,6 +35,7 @@ import { LoadingProvider } from './contexts/LoadingContext';
 import LoadingOverlay from './components/LoadingOverlay';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import ModuleDetailsScreen from './screens/CoursePlanner/ModuleDetailsScreen';
+import SettingsScreen from './screens/Settings/SettingsScreen';
 
 
 
@@ -246,7 +247,7 @@ const PrivateNavigator = () => {
 				),
 				drawerLabel: ({ focused }) => (
 				  isDarkMode ?
-				  <Text style={{ color: focused ? '#FFB67E' : '' }}>Dashboard</Text> :
+				  <Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>Dashboard</Text> :
 				  <Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>Dashboard</Text>
 				)
 			}}
@@ -270,20 +271,42 @@ const PrivateNavigator = () => {
 			  )
 			}}
 		  />
+		  <PrivateDrawer.Screen
+			name="Settings"
+			options={{ 
+				swipeEnabled: true, 
+				drawerIcon: ({ focused, size }) => (
+				  isDarkMode ?
+				  <Ionicons name="settings-sharp" size={size} color={focused ? '#FFB67E' : '#FFB67E'} /> :
+				  <Ionicons name="settings-sharp" size={size} color={focused ? '#EF7C00' : '#EF7C00'} />
+				),
+				drawerLabel: ({ focused }) => (
+				  isDarkMode ?
+				  <Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>Settings</Text> :
+				  <Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>Settings</Text>
+				)
+			}}
+		  >
+			{props => <SettingsScreen {...props} toggleTheme={toggleTheme} isDarkMode={isDarkMode} headerName={"Settings"}/>}
+		  </PrivateDrawer.Screen>
 		</PrivateDrawer.Navigator>
 	  </ThemeContext.Provider>
 	);
 };
-const FolderStackNavigator = () => (
+const FolderStackNavigator = ({ route }) => {
+
+	const initialParams = route?.params || {};
+	
+	return (
 	<FolderStack.Navigator>
-		<FolderStack.Screen name="FolderScreen" options = {{headerShown: false}}>
+		<FolderStack.Screen name="FolderScreen" options = {{headerShown: false}} initialParams={initialParams}>
 			{props => <FolderScreen {...props} headerName={"Semesters"} />}
 		</FolderStack.Screen>
-		<FolderStack.Screen name="FolderDetailsScreen" component = {FolderDetailsScreen} options = {{headerShown: false}}/>
-		<FolderStack.Screen name="ModulesScreen" component = {ModulesScreen} options = {{headerShown: false}}/>
-		<FolderStack.Screen name="ModuleDetailsScreen" component = {ModuleDetailsScreen} options = {{headerShown: false}}/>
-	</FolderStack.Navigator>
-);
+		<FolderStack.Screen name="FolderDetailsScreen" component = {FolderDetailsScreen} options = {{headerShown: false}} initialParams={initialParams}/>
+		<FolderStack.Screen name="ModulesScreen" component = {ModulesScreen} options = {{headerShown: false}} initialParams={initialParams}/>
+		<FolderStack.Screen name="ModuleDetailsScreen" component = {ModuleDetailsScreen} options = {{headerShown: false}} initialParams={initialParams}/>
+	</FolderStack.Navigator>)
+};
 
 const App = () => {
 	

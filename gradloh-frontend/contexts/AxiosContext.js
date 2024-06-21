@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import { LoadingContext } from './LoadingContext'; // Import the Loading Context
@@ -14,6 +14,7 @@ const { Provider } = AxiosContext;
 const AxiosProvider = ({ children }) => {
   const authContext = useContext(AuthContext);
   const { setIsLoading } = useContext(LoadingContext); // Use the Loading Context
+  const [isRefreshed, setIsRefreshed] = useState(false);
   const requestQueue = [];
   let isRefreshing = false;
 
@@ -28,10 +29,9 @@ const AxiosProvider = ({ children }) => {
     requestQueue.length = 0;
   };
 
-      //Those who are not, use this route
-    const publicAxios = axios.create({
-      baseURL: authApiUrl
-    });
+  const publicAxios = axios.create({
+    baseURL: authApiUrl,
+  });
 
   const authAxios = axios.create({
     baseURL: publicApiUrl,
@@ -42,8 +42,9 @@ const AxiosProvider = ({ children }) => {
 
   authAxios.interceptors.response.use(null, async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 403 && !originalRequest._retry) {
+    if (error.response && error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       if (!isRefreshing) {
         isRefreshing = true;
         setIsLoading(true); // Show loading indicator
@@ -80,28 +81,27 @@ const AxiosProvider = ({ children }) => {
           originalRequest.headers.Authorization =
             'Bearer ' + tokenRefreshResponse.data.accessToken;
 
-          return axios(originalRequest);
+          return authAxios(originalRequest);
         } catch (e) {
-          //If refresh token has expired
-          if (e.response.data.message === "Token expired. Please login again or use a refresh token.") {
-            Alert.alert(
-              "Your session has expired",
-              "Please log in again.",
-              [
-                {
-                  text: "OK",
-                  onPress: () => {
-                    authContext.logout();
-                  },
-                },
-              ],
-              { cancelable: false }
-            );
-          } 
+          if (e.response && e.response.data.message === "Token expired. Please login again or use a refresh token.") {
+            // Alert.alert(
+            //   "Your session has expired",
+            //   "Please log in again.",
+            //   [
+            //     {
+            //       text: "OK",
+            //       onPress: () => {
+            //         authContext.logout();
+            //       },
+            //     },
+            //   ],
+            //   { cancelable: false }
+            // );
+            authContext.logout();
+          }
           isRefreshing = false;
           setIsLoading(false); // Hide loading indicator
           processQueue(e, null);
-          throw e;
         }
       }
 
@@ -112,13 +112,13 @@ const AxiosProvider = ({ children }) => {
       return retryOriginalRequest
         .then(token => {
           originalRequest.headers.Authorization = 'Bearer ' + token;
-          return axios(originalRequest);
+          return authAxios(originalRequest);
         })
         .catch(err => {
           return Promise.reject(err);
         });
     }
-    
+
     return Promise.reject(error);
   });
 

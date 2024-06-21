@@ -7,6 +7,7 @@ import com.gradlohbackend.orbital.repository.UsersRepo;
 import com.gradlohbackend.orbital.repository.UsersRepoCustom;
 import com.gradlohbackend.orbital.repository.UsersRepoCustomImpl;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +33,8 @@ public class UsersManagementService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private OurUserDetailsService ourUserDetailsService;
+    @Autowired
+    private RedissonClient redissonClient;
 
     private EmailService emailService;
 
@@ -344,6 +347,31 @@ public class UsersManagementService {
         return response;
     }
 
+    public ReqRes updateNickname(ReqRes updateNicknameRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = ourUserDetailsService.findUserByEmail(updateNicknameRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Invalid email address.");
+                return response;
+            }
+
+            usersRepo.updateNicknameByEmail(updateNicknameRequest.getEmail(), updateNicknameRequest.getNickname());
+            redissonClient.getKeys().flushall();
+            response.setNickname(updateNicknameRequest.getNickname());
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+            response.setMessage("Nickname has successfully been updated.");
+
+        } catch (Exception e) {
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
     //Getting new access token through refresh token
     public ReqRes refreshToken(ReqRes refreshTokenRequest) {
         ReqRes response = new ReqRes();
@@ -356,7 +384,7 @@ public class UsersManagementService {
                 response.setMessage("User not found.");
                 return response;
             }
-            System.out.println("COMES HEREE JWT");
+
             User user = userOpt.get();
 
             response.setAccessToken(jwtUtils.generateAccessToken(user));
@@ -429,36 +457,8 @@ public class UsersManagementService {
         return reqRes;
     }
 
-    public ReqRes updateUser(Integer userId, User updatedUser) {
-        ReqRes reqRes = new ReqRes();
-        try {
-            Optional<User> userOptional = usersRepo.findById(userId);
-            if (userOptional.isPresent()) {
-                User existingUser = userOptional.get();
-                existingUser.setEmail(updatedUser.getEmail());
-                existingUser.setNickname(updatedUser.getNickname());
-                existingUser.setRole(updatedUser.getRole());
 
-                // Check if password is present in the request
-                if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                    // Encode the password and update it
-                    existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-                }
 
-                User savedUser = usersRepo.save(existingUser);
-                reqRes.setUser(savedUser);
-                reqRes.setStatusCode(200);
-                reqRes.setMessage("User updated successfully");
-            } else {
-                reqRes.setStatusCode(404);
-                reqRes.setMessage("User not found for update");
-            }
-        } catch (Exception e) {
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred while updating user: " + e.getMessage());
-        }
-        return reqRes;
-    }
 
 
     public ReqRes getMyInfo(String email){

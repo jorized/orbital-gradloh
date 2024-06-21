@@ -16,6 +16,12 @@ public interface UsersRepo extends JpaRepository<User, Integer>, UsersRepoCustom
 
     Optional<User> findByEmail(String email);
 
+    //Update user nickname
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.nickname = :nickname WHERE u.email = :email")
+    int updateNicknameByEmail(@Param("email") String email, @Param("nickname") String nickname);
+
 
     //Updating refresh token
     @Modifying
