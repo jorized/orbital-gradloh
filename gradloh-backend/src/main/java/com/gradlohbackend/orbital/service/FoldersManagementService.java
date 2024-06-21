@@ -142,42 +142,92 @@ public class FoldersManagementService {
     }
 
     public ReqRes addModIntoSpecificFolder(ReqRes addModIntoSpecificFolderRequest) {
-        ReqRes resp = new ReqRes();
+        ReqRes response = new ReqRes();
 
         try {
+            var userOptional = ourUserDetailsService.findUserByEmail(addModIntoSpecificFolderRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
             Folder addedFolder = new Folder();
             addedFolder.setEmail(addModIntoSpecificFolderRequest.getEmail());
             addedFolder.setFolderName(addModIntoSpecificFolderRequest.getFolderName());
             addedFolder.setModuleCode(addModIntoSpecificFolderRequest.getModuleCode());
             foldersRepo.save(addedFolder);
             redissonClient.getKeys().flushall();
-            resp.setMessage("Module added into folder successfully.");
-            resp.setStatusCode(201);
+            response.setMessage("Module added into folder successfully.");
+            response.setStatusCode(201);
 
         } catch (Exception e) {
-            resp.setStatusCode(500); // 500 Internal Server Error
+            response.setStatusCode(500); // 500 Internal Server Error
         }
 
-        return resp;
+        return response;
     }
 
     public ReqRes deleteModFromFolder(ReqRes deleteModFromFolderRequest) {
-        ReqRes resp = new ReqRes();
+        ReqRes response = new ReqRes();
 
         try {
+
+            var userOptional = ourUserDetailsService.findUserByEmail(deleteModFromFolderRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
             foldersRepo.deleteModuleFromFolderByEmailAndFolderNameAndModuleCode(
                     deleteModFromFolderRequest.getEmail(),
                     deleteModFromFolderRequest.getFolderName(),
                     deleteModFromFolderRequest.getModuleCode()
             );
+
             redissonClient.getKeys().flushall();
-            resp.setMessage("Module deleted from folder successfully.");
-            resp.setStatusCode(201);
+            response.setMessage("Module deleted from folder successfully.");
+            response.setStatusCode(201);
 
         } catch (Exception e) {
-            resp.setStatusCode(500); // 500 Internal Server Error
+            response.setStatusCode(500); // 500 Internal Server Error
         }
 
-        return resp;
+        return response;
+    }
+
+    public ReqRes insertSamplePlan(ReqRes insertSamplePlanRequest) {
+        ReqRes response = new ReqRes();
+
+        try {
+
+            var userOptional = ourUserDetailsService.findUserByEmail(insertSamplePlanRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            //Load in the sample plans for the users. Additional plans for additional academic disciplines.
+            if (!userOptional.get().getPrimaryMajor().isEmpty()) {
+                //Delete folders then insert sample plan
+                foldersRepo.deleteFoldersByEmail(insertSamplePlanRequest.getEmail());
+                foldersRepo.insertSingleMajorSamplePlanByEmail(insertSamplePlanRequest.getEmail());
+            }
+
+            redissonClient.getKeys().flushall();
+            response.setMessage("Sample plan loaded successfully.");
+            response.setStatusCode(201);
+
+
+        } catch (Exception e) {
+            response.setStatusCode(500);
+        }
+
+        return response;
     }
 }

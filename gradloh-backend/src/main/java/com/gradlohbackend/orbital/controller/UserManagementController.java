@@ -99,6 +99,14 @@ public class UserManagementController {
                 .body(reqRes);
     }
 
+    @PutMapping("/updatenickname")
+    public ResponseEntity<ReqRes> updateUserNickname(@RequestBody ReqRes req){
+        var reqRes = usersManagementService.updateNickname(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
 
 
     //For admin only routes (those that begin with /admin, require admin JWT)
@@ -113,10 +121,7 @@ public class UserManagementController {
 
     }
 
-    @PutMapping("/admin/update/{userId}")
-    public ResponseEntity<ReqRes> updateUser(@PathVariable Integer userId, @RequestBody User reqres){
-        return ResponseEntity.ok(usersManagementService.updateUser(userId, reqres));
-    }
+
 
     @GetMapping("/adminuser/get-profile")
     public ResponseEntity<ReqRes> getMyProfile(){

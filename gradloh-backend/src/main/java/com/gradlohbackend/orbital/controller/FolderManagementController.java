@@ -110,4 +110,13 @@ public class FolderManagementController {
         return ResponseEntity.status(reqRes.getStatusCode())
                 .body(reqRes);
     }
+
+    @PostMapping("/loadsampleplan")
+    public ResponseEntity<ReqRes> loadSamplePlan(@RequestBody ReqRes req){
+        var reqRes = foldersManagementService.insertSamplePlan(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
 }

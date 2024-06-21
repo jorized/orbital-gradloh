@@ -3,11 +3,13 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import ThemeContext from '../../contexts/ThemeContext';
 import { HeaderBackButton } from '@react-navigation/elements';
-import GoogleMapView from '../../components/GoogleMapView';
 import axios from 'axios';
 import { useFonts } from 'expo-font';
 import { Lexend_100Thin, Lexend_200ExtraLight, Lexend_300Light, Lexend_400Regular, Lexend_500Medium, Lexend_600SemiBold, Lexend_700Bold, Lexend_800ExtraBold, Lexend_900Black } from '@expo-google-fonts/lexend';
 import Semester from '../../components/CoursePlanner/Semester';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import TutorialToolTip from '../../components/TutorialToolTip';
+import { CommonActions } from '@react-navigation/native';
 
 export default function ModuleDetailsScreen({ route, navigation }) {
     const theme = useContext(ThemeContext);
@@ -15,8 +17,9 @@ export default function ModuleDetailsScreen({ route, navigation }) {
     const [loading, setLoading] = useState(true);
     const [moduleDetails, setModuleDetails] = useState({});
     const [totalWorkload, setTotalWorkload] = useState(0);
+    const [showTooltip6, setShowTooltip6] = useState(false);
 
-    let [fontsLoaded] = useFonts({
+    const [fontsLoaded] = useFonts({
         Lexend_100Thin,
         Lexend_200ExtraLight,
         Lexend_300Light,
@@ -26,50 +29,78 @@ export default function ModuleDetailsScreen({ route, navigation }) {
         Lexend_700Bold,
         Lexend_800ExtraBold,
         Lexend_900Black,
-      });
+    });
 
     const WorkloadDisplay = ({ workload }) => {
-    const labelColors = ['#0a63ad', '#5f892d', '#5d4a43', '#b26a00', '#cd0015']
-    const colors = ['#BBDEFB', '#DCEDC8', '#D7CCC8', '#FFE0B2', '#FFCDD2'];
-    const labels = ['Lec', 'Tut', 'Lab', 'Project', 'Preparation'];
+        const labelColors = ['#0a63ad', '#5f892d', '#5d4a43', '#b26a00', '#cd0015'];
+        const colors = ['#BBDEFB', '#DCEDC8', '#D7CCC8', '#FFE0B2', '#FFCDD2'];
+        const labels = ['Lec', 'Tut', 'Lab', 'Project', 'Preparation'];
 
-    return (
-        <View style={styles.workloadContainer}>
-            {workload.map((value, index) => {
-                if (value > 0) {
-                    return (
-                        <View key={index} style={styles.workloadSegmentContainer}>
-                            <Text style={[styles.label, { color: labelColors[index] }]}>{labels[index]}</Text>
-                            <View style={styles.segmentRow}>
-                                {Array.from({ length: value }).map((_, i) => (
-                                    <View key={i} style={[styles.segment, { backgroundColor: colors[index] }]} />
-                                ))}
+        return (
+            <View style={styles.workloadContainer}>
+                {workload.map((value, index) => {
+                    if (value > 0) {
+                        return (
+                            <View key={index} style={styles.workloadSegmentContainer}>
+                                <Text style={[styles.label, { color: labelColors[index] }]}>{labels[index]}</Text>
+                                <View style={styles.segmentRow}>
+                                    {Array.from({ length: value }).map((_, i) => (
+                                        <View key={i} style={[styles.segment, { backgroundColor: colors[index] }]} />
+                                    ))}
+                                </View>
                             </View>
-                        </View>
-                    );
-                }
-                return null;
-            })}
-        </View>
+                        );
+                    }
+                    return null;
+                })}
+            </View>
         );
     };
-    
 
     useEffect(() => {
+        if (route.params?.startTutorial) {
+            setShowTooltip6(true);
+        }
+        setLoading(true);
         axios.get(`https://api.nusmods.com/v2/2023-2024/modules/${moduleCode}.json`)
             .then(response => {
                 setModuleDetails(response.data);
-                setTotalWorkload(response.data.workload.reduce((accumulator, currentValue) => accumulator + currentValue, 0))
+                setTotalWorkload(response.data.workload.reduce((accumulator, currentValue) => accumulator + currentValue, 0));
                 setLoading(false);
             })
             .catch(err => {
                 console.log(err);
                 setLoading(false);
             });
-    }, []);
+    }, [moduleCode, route.params]);
+
+
+    const handleCloseToolTipSix = () => {
+        setShowTooltip6(false);
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Dashboard', params: { beforeWeGetStartedToolTip: true } }],
+            })
+        );
+    };
+
+    // if (!fontsLoaded) {
+    //     return <ActivityIndicator size="small" color={theme.hamburgerColor} />;
+    // }
 
     return (
         <SafeAreaProvider>
+            <Tooltip isVisible={showTooltip6} placement="center" onClose={() => { }}
+                content={
+                    <TutorialToolTip
+                        title="Module details"
+                        text="Lastly, the module details screen provides a plethora of information, similar to NUSMods, providing useful information such as the module's pre-requisites and preclusions (if any), as well as showing the past semester's timetable for the module, with an added feature of showing the classes' venues, as well as its respective locations."
+                        buttonText="Next"
+                        onPress={handleCloseToolTipSix}
+                    />
+                }
+            ></Tooltip>
             <SafeAreaView style={[styles.safe, { backgroundColor: theme.backgroundColor }]}>
                 <View style={styles.container}>
                     {/* Header */}
@@ -99,24 +130,24 @@ export default function ModuleDetailsScreen({ route, navigation }) {
                             <Text style={[styles.moduleTitleText, { color: theme.color }]}>
                                 {moduleDetails.title}
                             </Text>
-                            <View style={[styles.depFacUnitsContainer, { color : theme.color}]}>
-                                <Text style={[styles.departmentText, { color : theme.color}]}>{moduleDetails.department} - </Text>
-                                <Text style={[styles.facultyText, { color : theme.color}]}>{moduleDetails.faculty} - </Text>
-                                <Text style={[styles.moduleCreditText, { color : theme.color}]}>{moduleDetails.moduleCredit} Credits</Text>
+                            <View style={[styles.depFacUnitsContainer, { color: theme.color }]}>
+                                <Text style={[styles.departmentText, { color: theme.color }]}>{moduleDetails.department} - </Text>
+                                <Text style={[styles.facultyText, { color: theme.color }]}>{moduleDetails.faculty} - </Text>
+                                <Text style={[styles.moduleCreditText, { color: theme.color }]}>{moduleDetails.moduleCredit} Credits</Text>
                             </View>
-                            <View style = {styles.breakLine}></View>
-                            <Text style = {[styles.descriptionText, { color : theme.color} ]}>{moduleDetails.description}</Text>
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Pre-requisites</Text>
-                            <Text style = {[styles.preReqText, { color : theme.color}]}>{moduleDetails.prerequisite ? moduleDetails.prerequisite : "None"}</Text>
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Preclusions</Text>
-                            <Text style = {[styles.preReqText, { color : theme.color}]}>{moduleDetails.preclusion ? moduleDetails.preclusion : "None"}</Text>
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Grading Basis</Text>
-                            <Text style = {[styles.preReqText, { color : theme.color}]}>{moduleDetails.gradingBasisDescription ? moduleDetails.gradingBasisDescription : "None"}</Text>
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Workload (Per week/sem)</Text>
-                            <Text style = {[styles.preReqText, { color : theme.color}]}>{totalWorkload} Hrs</Text>
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Workload breakdown</Text>
+                            <View style={styles.breakLine}></View>
+                            <Text style={[styles.descriptionText, { color: theme.color }]}>{moduleDetails.description}</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Pre-requisites</Text>
+                            <Text style={[styles.preReqText, { color: theme.color }]}>{moduleDetails.prerequisite ? moduleDetails.prerequisite : "None"}</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Preclusions</Text>
+                            <Text style={[styles.preReqText, { color: theme.color }]}>{moduleDetails.preclusion ? moduleDetails.preclusion : "None"}</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Grading Basis</Text>
+                            <Text style={[styles.preReqText, { color: theme.color }]}>{moduleDetails.gradingBasisDescription ? moduleDetails.gradingBasisDescription : "None"}</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Workload (Per week/sem)</Text>
+                            <Text style={[styles.preReqText, { color: theme.color }]}>{totalWorkload} Hrs</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Workload breakdown</Text>
                             <WorkloadDisplay workload={moduleDetails.workload} />
-                            <Text style = {[styles.preReqTitle, { color : theme.color}]}>Past timetable details</Text>
+                            <Text style={[styles.preReqTitle, { color: theme.color }]}>Past timetable details</Text>
                             {moduleDetails.semesterData.map((semester, index) => (
                                 <Semester key={index} semesterData={semester} />
                             ))}
@@ -144,6 +175,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingLeft: 5,
+        marginTop: 10
     },
     headerbackBtnStyle: {
         marginLeft: 10,
@@ -207,12 +239,10 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     workloadContainer: {
-
         alignItems: 'flex-start',
         marginTop: 10,
     },
     workloadSegmentContainer: {
-
         marginRight: 8,
     },
     label: {

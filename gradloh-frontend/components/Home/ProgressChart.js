@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Pressable, ActivityIndicator, Text } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Pressable, ActivityIndicator, Text, Button, Platform } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AxiosContext } from '../../contexts/AxiosContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import * as SecureStore from 'expo-secure-store';
@@ -10,6 +10,8 @@ import ThemeContext from '../../contexts/ThemeContext';
 import { useFonts } from 'expo-font';
 import { Quicksand_600SemiBold, Quicksand_700Bold } from '@expo-google-fonts/quicksand';
 import { Lexend_300Light, Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import TutorialToolTip from '../TutorialToolTip';
 
 const { width } = Dimensions.get('window');
 
@@ -19,10 +21,12 @@ export default function ProgressChart(props) {
   const authContext = useContext(AuthContext);
   const userProfileDetails = SecureStore.getItem('userprofiledetails');
   const email = JSON.parse(userProfileDetails).email;
-  const { toggleSheet, accent } = props;
+  const { toggleSheet, accent, clickedProgressChartTutorial } = props;
+  const navigation = useNavigation();
 
   const [state, setState] = useState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
   const [stats, setStats] = useState(null);
+  const [showTip, setTip] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Quicksand_700Bold,
@@ -32,7 +36,18 @@ export default function ProgressChart(props) {
     Lexend_700Bold
   });
 
+  const handleToolTip = () => {
+    setTip(false);
+    navigation.navigate('Dashboard', {clickedProgressChartTutorial: false, clickedStatusTutorial: true, clickedBottomSheetTutorial: false})
+  }
+
   useEffect(() => {
+
+    if (clickedProgressChartTutorial) {
+      setTip(clickedProgressChartTutorial);
+    } else {
+      setTip(false);
+    }
     
     publicAxios.authAxios.get('/userprogressdetails', {
       params: { email: email }
@@ -50,11 +65,17 @@ export default function ProgressChart(props) {
     return () => {
       setState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
     };
-  }, [])
+  }, [clickedProgressChartTutorial])
 
 
   useFocusEffect(
+
     useCallback(() => {
+      if (clickedProgressChartTutorial) {
+        setTip(clickedProgressChartTutorial);
+      } else {
+        setTip(false);
+      }
       publicAxios.authAxios.get('/userprogressdetails', {
         params: { email: email }
       })
@@ -71,7 +92,7 @@ export default function ProgressChart(props) {
       return () => {
         setState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
       };
-    }, [])
+    }, [clickedProgressChartTutorial])
   );
 
   if (!fontsLoaded) {
@@ -79,6 +100,7 @@ export default function ProgressChart(props) {
   }
 
   return (
+
       <Svg viewBox="0 0 400 400" style={ [styles.pieContainer ] } >
         <Defs>
           <LinearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -156,6 +178,7 @@ export default function ProgressChart(props) {
           )}
         </VictoryAnimation>
       </Svg>
+
   );
 }
 

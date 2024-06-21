@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -18,12 +18,16 @@ import Hit from '../../components/AlgoliaSearch/Hit';
 import DrawerHeader from '../../components/Drawer/DrawerHeader';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import TutorialToolTip from '../../components/TutorialToolTip';
 
 const searchClient = algoliasearch(process.env.EXPO_PUBLIC_ALGOLIA_APP_ID, process.env.EXPO_PUBLIC_ALGOLIA_SEARCH_API_KEY);
 
 export default function ModulesScreen({ route, navigation }) {
 
   const { headerName, semIndex, folderName, currentModsInFolder } = route.params;
+
+  const [showTooltip5, setShowTooltip5] = useState(false);
 
   const [isModalOpen, setModalOpen] = useState(false);
   
@@ -34,10 +38,31 @@ export default function ModulesScreen({ route, navigation }) {
     listRef.current?.scrollToOffset({ animated: false, offset: 0 });
   }
 
+  useEffect(() => {
+    if (route.params?.startTutorial) {
+      setShowTooltip5(true);
+    }
+  }, [route.params])
+
+  const handleCloseToolTipFive = () => {
+    setShowTooltip5(false);
+    navigation.navigate('ModuleDetailsScreen', { headerName: "Module details", moduleCode : "CS2040", startTutorial: true })
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={[styles.safe, { backgroundColor: theme.backgroundColor }]}>
 
+			<Tooltip isVisible={showTooltip5} placement="bottom" onClose={() => {}}
+				content = {
+				<TutorialToolTip
+					title="List of modules"
+					text='In the modules screen, you can choose up to 9000+ modules, ranging from different faculties, to be added into your respective folders. The filter feature contains a range of options for you to filter the modules from, such as its grading basis description as well as the number of credits each module is worth. Take note that those modules which are already within your folders will be indicated with an "Added" text instead of the "+" icon.'
+					buttonText="Next"
+					onPress={handleCloseToolTipFive}
+				/>
+			}
+            ></Tooltip>
         <View style={styles.container}>
           <View style={styles.headerContainer}>
             <View style={styles.headerFlexContainer}>

@@ -9,10 +9,12 @@ import {
 import { AuthContext } from '../../contexts/AuthContext';
 import ThemeContext from '../../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
 
 const LogoutDrawerContent = (props) => {
 	const authContext = useContext(AuthContext);
-	const { userNickname, navigation } = props;
+	const userProfileDetails = SecureStore.getItem('userprofiledetails');
+	const userNickname = JSON.parse(userProfileDetails).nickname;
 	const theme = useContext(ThemeContext);
 
 	const handleLogout = () => {
