@@ -17,18 +17,18 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
 
     Optional<Folder> findByEmail(String email);
 
-    @Query(value = "SELECT f.folder_name " +
-            "FROM Folders f " +
-            "INNER JOIN Users u USING(email) " +
-            "WHERE email = :email AND " +
-            "folder_name = CASE WHEN MONTH(CURRENT_DATE()) >= 8 THEN (YEAR(CURRENT_DATE()) - CAST(LEFT(u.enrolment_year, 4) AS UNSIGNED)) * 2 + 1 " +
-            "ELSE (YEAR(CURRENT_DATE()) - CAST(LEFT(u.enrolment_year, 4) AS UNSIGNED)) * 2 END " +
+    @Query(value = "SELECT CASE " +
+            "WHEN MONTH(CURRENT_DATE()) >= 8 THEN (YEAR(CURRENT_DATE()) - CAST(LEFT(u.enrolment_year, 4) AS UNSIGNED)) * 2 + 1 " +
+            "ELSE (YEAR(CURRENT_DATE()) - CAST(LEFT(u.enrolment_year, 4) AS UNSIGNED)) * 2 END AS current_semester " +
+            "FROM Users u " +
+            "WHERE u.email = :email " +
             "LIMIT 1", nativeQuery = true)
     @Cacheable(value = "currentSemester", key="#email")
-    int findCurrentSemesterByEmail(@Param("email") String email);
+    Integer findCurrentSemesterByEmail(@Param("email") String email);
+
 
     @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName = :folderName")
-    @Cacheable(value = "moduleCodesOfSpecificFolder", key = "#email.concat('-').concat(#folderName)")
+    @Cacheable(value = "moduleCodesOfSpecificFolder", key = "#email")
     List<String> findModuleCodesByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
 
     @Query(value = "SELECT f.module_code " +
@@ -48,7 +48,7 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
     List<String> findEveryFoldersModulesByEmail(@Param("email") String email);
 
     @Query("SELECT f.moduleCode FROM Folders f WHERE f.email = :email AND f.folderName <= :folderName")
-    @Cacheable(value = "previousfoldermodules", key = "#email.concat('-').concat(#folderName)")
+    @Cacheable(value = "previousfoldermodules", key = "#email")
     List<String> findPrevToCurrFoldersModulesByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
 
     @Modifying
@@ -71,8 +71,7 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
             "SELECT u.email, s.folder_name, s.module_code " +
             "FROM Users u " +
             "INNER JOIN SingleMajorSamplePlan s ON u.primary_major = s.primary_major " +
-            "WHERE u.email = ?1 AND " +
-            "CAST(SUBSTRING(u.email, LOCATE('@', u.email) - 1, 1) AS UNSIGNED) % 2 = 1", nativeQuery = true)
+            "WHERE u.email = ?1 ", nativeQuery = true)
     void insertSingleMajorSamplePlanByEmail(String email);
 
 }

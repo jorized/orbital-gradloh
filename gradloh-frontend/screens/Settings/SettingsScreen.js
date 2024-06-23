@@ -68,6 +68,7 @@ export default function SettingsScreen({ toggleTheme, headerName }) {
     publicAxios.authAxios.post('/loadsampleplan', {
       email
     }).then((response) => {
+      console.log(response.data);
       setIsLoading(false);
       Alert.alert("Success", "Your sample plan has successfully been loaded");
     }).catch((error) => {

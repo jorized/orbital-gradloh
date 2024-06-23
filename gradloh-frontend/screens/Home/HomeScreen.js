@@ -6,7 +6,8 @@ import {
   Text,
   Pressable,
   Button,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import ThemeContext from '../../contexts/ThemeContext';
 import CustomBottomSheet from '../../components/Home/CustomBottomSheet';
@@ -36,11 +37,20 @@ import * as SecureStore from 'expo-secure-store';
 import DrawerHeader from '../../components/Drawer/DrawerHeader';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import TutorialToolTip from '../../components/TutorialToolTip';
+import { AxiosContext } from '../../contexts/AxiosContext';
+import { LoadingContext } from '../../contexts/LoadingContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export default function HomeScreen({ toggleTheme, headerName, route }) {
+export default function HomeScreen({ toggleTheme, headerName, route, refreshChart }) {
 
+  const userProfileDetails = SecureStore.getItem('userprofiledetails');
+  const email = JSON.parse(userProfileDetails).email;
+
+  const authContext = useContext(AuthContext);
+  const publicAxios = useContext(AxiosContext);
+  const { setIsLoading } = useContext(LoadingContext);
   const navigation = useNavigation();
   const theme = useContext(ThemeContext);
   const [isVisible, setIsVisible] = useState(true);
@@ -56,9 +66,29 @@ export default function HomeScreen({ toggleTheme, headerName, route }) {
   const offset = useSharedValue(0);
 
   useEffect(() => {
+    if (authContext?.authState?.firstTimeUser) {
+      authContext.setAuthState((prevState) => ({
+        ...prevState,
+        firstTimeUser: false
+      }));
+      Alert.alert(
+        "Notice",
+        "Welcome to GradLoh! Do you want to proceed with the basic tutorial?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => handleLoadSamplePlan()
+          },
+          { text: "Proceed", onPress: () => navigation.navigate("Dashboard", {startTutorial: true}) }
+        ],
+        { cancelable: false }
+      );
+    }
 
     if (route.params) {
-        const { startTutorial, beforeWeGetStartedToolTip } = route.params;
+        const { startTutorial, beforeWeGetStartedToolTip, cameFromOnboarding } = route.params;
+
 
         if (startTutorial) {
             setShowTooltip1(true);
@@ -96,6 +126,46 @@ export default function HomeScreen({ toggleTheme, headerName, route }) {
     }
   };
 
+  const handleLoadSamplePlan = () => {
+    Alert.alert(
+      "Notice",
+      "Do you want to load in the sample plan for your curriculum?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { text: "Get started", onPress: () => loadSamplePlan() }
+      ],
+      { cancelable: false }
+    );
+  }
+
+  const loadSamplePlan = () => {
+    setBWGSTooltip(false);
+    setIsLoading(true);
+    publicAxios.authAxios.post('/loadsampleplan', {
+      email
+    }).then((response) => {
+      setIsLoading(false);
+      Alert.alert(
+        "Success",
+        "Your sample plan has successfully been loaded",
+        [
+            {
+                text: "OK",
+                onPress: () => {
+                  navigation.navigate("Dashboard", {refreshChart: true});
+                }
+            }
+        ]
+    );
+    }).catch((error) => {
+      console.log("COMES " + error)
+    });
+  }
+
+
   const handlePick = (colorIndex) => {
     const selectedGradient = GRADIENT_COLORS[colorIndex];
     setSelectedGradient(selectedGradient);
@@ -125,9 +195,6 @@ export default function HomeScreen({ toggleTheme, headerName, route }) {
 
   }
 
-  const handleLoadSampleStudyPlan = () => {
-	console.log("HI")
-  }
 
   const pan = Gesture.Pan()
     .onChange((event) => {
@@ -163,7 +230,7 @@ export default function HomeScreen({ toggleTheme, headerName, route }) {
 							<Text style={[styles.title, {color : theme.hamburgerColor}]}>Before we get started</Text>
 							<Text style={[styles.text, {color : theme.color}]}>And that's it for the basic tutorial. Now, before we get started, would you like to load in the sample study plan for your academic discipline? Note that this will reset your existing study plan, if you already have one.</Text>
 							<View style = {styles.toolTipButtonContainer}>
-							<TouchableOpacity style={[styles.button, {backgroundColor: theme.hamburgerColor}]} onPress={handleLoadSampleStudyPlan}>
+							<TouchableOpacity style={[styles.button, {backgroundColor: theme.hamburgerColor}]} onPress={loadSamplePlan}>
 								<Text style={[styles.buttonText, {color : theme.reverseColor}]}>Yes</Text>
 							</TouchableOpacity>
 							<TouchableOpacity style={[styles.button, {backgroundColor: theme.hamburgerColor}]} onPress={handleCloseBWGSToolTip}>
@@ -194,6 +261,7 @@ export default function HomeScreen({ toggleTheme, headerName, route }) {
           <ProgressChart
             toggleSheet={toggleSheet}
             accent={selectedGradient}
+            refreshChart = {refreshChart}
           />
         </Tooltip>
 		<Tooltip isVisible={showTooltip2} placement="center" onClose={() => {}}

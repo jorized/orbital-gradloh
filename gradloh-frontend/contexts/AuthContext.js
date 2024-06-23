@@ -4,6 +4,8 @@ const AuthContext = createContext(null);
 const { Provider } = AuthContext;
 
 const AuthProvider = ({ children }) => {
+
+
 	const [authState, setAuthState] = useState({
 		accessToken: null,
 		refreshToken: null,
@@ -11,13 +13,15 @@ const AuthProvider = ({ children }) => {
 	});
 
 	const logout = async () => {
+
 		await SecureStore.deleteItemAsync('token');
 		await SecureStore.deleteItemAsync('userdetails');
 		await SecureStore.deleteItemAsync('selectedGradient');
 		setAuthState({
 			accessToken: null,
 			refreshToken: null,
-			authenticated: false
+			authenticated: false,
+			firstTimeUser: false
 		});
 	};
 
@@ -25,13 +29,14 @@ const AuthProvider = ({ children }) => {
 		return authState.accessToken;
 	};
 
+
 	return (
 		<Provider
 			value={{
 				authState,
 				getAccessToken,
 				setAuthState,
-				logout
+				logout,
 			}}
 		>
 			{children}

@@ -10,12 +10,15 @@ import { AuthContext } from '../../contexts/AuthContext';
 import ThemeContext from '../../contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
+import { AxiosContext } from '../../contexts/AxiosContext';
 
 const LogoutDrawerContent = (props) => {
 	const authContext = useContext(AuthContext);
 	const userProfileDetails = SecureStore.getItem('userprofiledetails');
 	const userNickname = JSON.parse(userProfileDetails).nickname;
+	const email = JSON.parse(userProfileDetails).email;
 	const theme = useContext(ThemeContext);
+	const { publicAxios } = useContext(AxiosContext);
 
 	const handleLogout = () => {
 		Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -26,12 +29,18 @@ const LogoutDrawerContent = (props) => {
 			},
 			{
 				text: 'Yes',
-				onPress: () => {
-					authContext.logout(); //Logout
-				}
+                onPress: async () => {
+                    try {
+                        await publicAxios.post('/logout', { email }); // Clears cache
+                        authContext.logout(); // Logout
+                    } catch (error) {
+                        console.log(error.response);
+                    }
+                }
 			}
 		]);
 	};
+
 
 	return (
 		<DrawerContentScrollView {...props} style={{backgroundColor: theme.backgroundColor}} contentContainerStyle={{ flex: 1 }}>
