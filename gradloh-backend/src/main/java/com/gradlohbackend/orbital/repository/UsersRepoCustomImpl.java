@@ -48,20 +48,29 @@ public class UsersRepoCustomImpl implements UsersRepoCustom {
 
         Object[] result = (Object[]) query.getSingleResult();
         Map<String, Integer> resultMap = new HashMap<>();
-        resultMap.put("totalModulesCompleted", ((Number) result[0]).intValue());
-        resultMap.put("totalModulesRequired", ((Number) result[1]).intValue());
+
+        if (result != null) {
+            Integer totalModulesCompleted = result[0] != null ? ((Number) result[0]).intValue() : 0; // Default to 0 if null
+            Integer totalModulesRequired = result[1] != null ? ((Number) result[1]).intValue() : 0; // Default to 0 if null
+
+            resultMap.put("totalModulesCompleted", totalModulesCompleted);
+            resultMap.put("totalModulesRequired", totalModulesRequired);
+        } else {
+            resultMap.put("totalModulesCompleted", 0); // Default value
+            resultMap.put("totalModulesRequired", 0); // Default value
+        }
+
         return resultMap;
     }
 
     @Cacheable(value = "numberOfModulesInEachFolder", key = "#email")
     public Map<String, Integer> findNumberOfModulesInEachFolderByEmail(String email) {
         Query query = entityManager.createNativeQuery(
-                        "SELECT " +
-                                "folder_name, COUNT(*) as count " +
-                                "FROM Folders " +
-                                "WHERE email = :email " +
-                                "GROUP BY folder_name " +
-                                "HAVING folder_name BETWEEN 1 AND 8")
+                        "SELECT folders.folder_name, COALESCE(COUNT(F.email), 0) AS count " +
+                                "FROM (SELECT 1 AS folder_name UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8) AS folders " +
+                                "LEFT JOIN Folders F ON folders.folder_name = F.folder_name AND F.email = :email " +
+                                "GROUP BY folders.folder_name " +
+                                "ORDER BY folders.folder_name")
                 .setParameter("email", email);
 
         @SuppressWarnings("unchecked")
@@ -72,4 +81,5 @@ public class UsersRepoCustomImpl implements UsersRepoCustom {
         }
         return resultMap;
     }
+
 }

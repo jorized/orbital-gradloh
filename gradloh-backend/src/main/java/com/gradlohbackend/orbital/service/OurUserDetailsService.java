@@ -42,6 +42,9 @@ public class OurUserDetailsService implements UserDetailsService {
         return usersRepo.findByEmail(email);
     }
 
-
+    public int getCompletedCHSModules(String email) {
+        Integer result = usersRepo.findCompletedCHSModulesByEmail(email);
+        return result != null ? result : 0;
+    }
 
 }

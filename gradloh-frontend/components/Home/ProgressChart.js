@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, Pressable, ActivityIndicator, Text, Button, Platform } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AxiosContext } from '../../contexts/AxiosContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import * as SecureStore from 'expo-secure-store';
@@ -23,6 +23,7 @@ export default function ProgressChart(props) {
   const email = JSON.parse(userProfileDetails).email;
   const { toggleSheet, accent, clickedProgressChartTutorial } = props;
   const navigation = useNavigation();
+  const route = useRoute();
 
   const [state, setState] = useState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
   const [stats, setStats] = useState(null);
@@ -42,13 +43,10 @@ export default function ProgressChart(props) {
   }
 
   useEffect(() => {
-
     if (clickedProgressChartTutorial) {
       setTip(clickedProgressChartTutorial);
-    } else {
-      setTip(false);
-    }
-    
+    } 
+    setTip(false);
     publicAxios.authAxios.get('/userprogressdetails', {
       params: { email: email }
     })
@@ -60,12 +58,12 @@ export default function ProgressChart(props) {
         setStats(response.data);
       })
       .catch(error => {
-        console.log(error);
+        console.log(error.response.data);
       });
     return () => {
       setState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
     };
-  }, [clickedProgressChartTutorial])
+  }, [clickedProgressChartTutorial, route.params?.refreshChart])
 
 
   useFocusEffect(
@@ -73,9 +71,9 @@ export default function ProgressChart(props) {
     useCallback(() => {
       if (clickedProgressChartTutorial) {
         setTip(clickedProgressChartTutorial);
-      } else {
-        setTip(false);
-      }
+      } 
+      setTip(false);
+      
       publicAxios.authAxios.get('/userprogressdetails', {
         params: { email: email }
       })
@@ -92,7 +90,7 @@ export default function ProgressChart(props) {
       return () => {
         setState({ data: [{ x: 1, y: 0 }, { x: 2, y: 100 }], percent: 0 });
       };
-    }, [clickedProgressChartTutorial])
+    }, [clickedProgressChartTutorial, route.params?.refreshChart])
   );
 
   if (!fontsLoaded) {

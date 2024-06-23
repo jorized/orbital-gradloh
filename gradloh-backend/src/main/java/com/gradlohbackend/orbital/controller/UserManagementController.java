@@ -73,6 +73,15 @@ public class UserManagementController {
                 .body(reqRes);
     }
 
+    @PostMapping("/auth/logout")
+    public ResponseEntity<ReqRes> logout(@RequestBody ReqRes req){
+        var reqRes = usersManagementService.logout(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
     //Normal routes (require either user/admin JWT)
     @PostMapping("/updateonboarding")
     public ResponseEntity<ReqRes> updateOnboarding(@RequestBody ReqRes req) {

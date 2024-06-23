@@ -1,5 +1,6 @@
 package com.gradlohbackend.orbital.service;
 
+import com.gradlohbackend.orbital.config.RedissonConfig;
 import com.gradlohbackend.orbital.dto.ReqRes;
 import com.gradlohbackend.orbital.entity.Folder;
 import com.gradlohbackend.orbital.entity.User;
@@ -20,6 +21,8 @@ public class FoldersManagementService {
     private OurUserDetailsService ourUserDetailsService;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private RedissonConfig redissonConfig;
 
     public ReqRes getAllFolderDetails(ReqRes allFolderDetailsRequest) {
         ReqRes response = new ReqRes();
@@ -34,6 +37,8 @@ public class FoldersManagementService {
 
             response.setCurrentSemester(foldersRepo.findCurrentSemesterByEmail(allFolderDetailsRequest.getEmail()));
             response.setNumOfModsInEachFolder(usersRepo.findNumberOfModulesInEachFolderByEmail(allFolderDetailsRequest.getEmail()));
+
+
             response.setStatusCode(HttpStatus.OK.value()); // 200
             response.setMessage("Successfully retrieved all folder details.");
 
@@ -158,7 +163,7 @@ public class FoldersManagementService {
             addedFolder.setFolderName(addModIntoSpecificFolderRequest.getFolderName());
             addedFolder.setModuleCode(addModIntoSpecificFolderRequest.getModuleCode());
             foldersRepo.save(addedFolder);
-            redissonClient.getKeys().flushall();
+            redissonConfig.removeSpecificUserCache(addModIntoSpecificFolderRequest.getEmail());
             response.setMessage("Module added into folder successfully.");
             response.setStatusCode(201);
 
@@ -188,7 +193,7 @@ public class FoldersManagementService {
                     deleteModFromFolderRequest.getModuleCode()
             );
 
-            redissonClient.getKeys().flushall();
+            redissonConfig.removeSpecificUserCache(deleteModFromFolderRequest.getEmail());
             response.setMessage("Module deleted from folder successfully.");
             response.setStatusCode(201);
 
@@ -219,7 +224,7 @@ public class FoldersManagementService {
                 foldersRepo.insertSingleMajorSamplePlanByEmail(insertSamplePlanRequest.getEmail());
             }
 
-            redissonClient.getKeys().flushall();
+            redissonConfig.removeSpecificUserCache(insertSamplePlanRequest.getEmail());
             response.setMessage("Sample plan loaded successfully.");
             response.setStatusCode(201);
 

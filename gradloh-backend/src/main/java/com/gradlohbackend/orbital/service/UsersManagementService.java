@@ -1,12 +1,14 @@
 package com.gradlohbackend.orbital.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gradlohbackend.orbital.config.RedissonConfig;
 import com.gradlohbackend.orbital.dto.ReqRes;
 import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.repository.UsersRepo;
 import com.gradlohbackend.orbital.repository.UsersRepoCustom;
 import com.gradlohbackend.orbital.repository.UsersRepoCustomImpl;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,8 @@ public class UsersManagementService {
     private OurUserDetailsService ourUserDetailsService;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private RedissonConfig redissonConfig;
 
     private EmailService emailService;
 
@@ -163,6 +168,30 @@ public class UsersManagementService {
         return response;
     }
 
+
+    public ReqRes logout(ReqRes logoutRequest) {
+        ReqRes response = new ReqRes();
+        try {
+
+            var userOptional = ourUserDetailsService.findUserByEmail(logoutRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND.value()); // 404
+                response.setMessage("Invalid email or password.");
+                return response;
+            }
+
+            redissonConfig.removeSpecificUserCache(logoutRequest.getEmail());
+            response.setStatusCode(HttpStatus.OK.value()); // 200
+            response.setMessage("Successfully logged out");
+        } catch (Exception e) {
+            // Handle general exceptions, possibly logging them.
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
     public ReqRes updateOnboard(ReqRes onboardRequest) {
         ReqRes response = new ReqRes();
         try {
@@ -208,16 +237,20 @@ public class UsersManagementService {
             if ("FOS".equals(userOptional.get().getHomeFaculty()) || "FASS".equals(userOptional.get().getHomeFaculty())) {
                 // If DSA student
                 if ("Data Science and Analytics".equals(userOptional.get().getPrimaryMajor())) {
+
                     response.setCompletedCoreModules(usersRepo.findCompletedDSACoreModsByEmail(userProgressDetailsRequest.getEmail()));
                 }
 
-                response.setCompletedCHSModules(usersRepo.findCompletedCHSModulesByEmail(userProgressDetailsRequest.getEmail()));
+                response.setCompletedCHSModules(ourUserDetailsService.getCompletedCHSModules(userProgressDetailsRequest.getEmail()));
                 response.setHomeFaculty("CHS");
+
             }
 
             response.setStatusCode(HttpStatus.OK.value()); // 200
             response.setMessage("Successfully retrieved progress details.");
+
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             response.setMessage("An internal error occurred.");
         }
@@ -360,7 +393,7 @@ public class UsersManagementService {
             }
 
             usersRepo.updateNicknameByEmail(updateNicknameRequest.getEmail(), updateNicknameRequest.getNickname());
-            redissonClient.getKeys().flushall();
+            redissonConfig.removeSpecificUserCache(updateNicknameRequest.getEmail());
             response.setNickname(updateNicknameRequest.getNickname());
             response.setStatusCode(HttpStatus.OK.value()); // 200
             response.setMessage("Nickname has successfully been updated.");

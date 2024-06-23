@@ -167,6 +167,7 @@ export default function ProfileSetUpTwoScreen() {
 							refreshToken
 						});
 						navigation.push('OnboardingScreen', {
+							nickname,
 							email,
 							accessToken: accessToken,
 							refreshToken: refreshToken

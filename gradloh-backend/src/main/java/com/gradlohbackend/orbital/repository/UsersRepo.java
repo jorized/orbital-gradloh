@@ -75,11 +75,12 @@ public interface UsersRepo extends JpaRepository<User, Integer>, UsersRepoCustom
             "  GROUP BY CHS.pillar " +
             ") " +
             "SELECT " +
-            "  SUM(ct2.chs_modules_completed) AS total_completed " +
+            "  COALESCE(SUM(ct2.chs_modules_completed), 0) AS total_completed " +
             "FROM ct2",
             nativeQuery = true)
     @Cacheable(value = "completedCHSModules", key="#email")
-    int findCompletedCHSModulesByEmail(@Param("email") String email);
+    Integer findCompletedCHSModulesByEmail(@Param("email") String email);
+
 
 
 

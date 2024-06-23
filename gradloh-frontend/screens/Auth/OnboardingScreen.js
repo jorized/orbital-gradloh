@@ -31,27 +31,30 @@ export default function OnboardingOneScreen() {
 	});
 
 	const handleSubmit = async () => {
-		await SecureStore.setItemAsync(
+		SecureStore.setItemAsync(
 			'token',
 			JSON.stringify({ accessToken, refreshToken })
-		)
-		await SecureStore.setItemAsync(
-			'userprofiledetails',
-			JSON.stringify({
-				nickname,
-				email
-			})
-		)
+		).then(() => {
+			return SecureStore.setItemAsync(
+				'userprofiledetails',
+				JSON.stringify({
+					nickname,
+					email
+				})
+			);
+		})
 			.then(() => {
-				publicAxios.authAxios.post('/updateonboarding', { email });
+				return publicAxios.authAxios.post('/updateonboarding', { email });
 			})
 			.then(() => {
 				// Step 4: Update auth state with authenticated property
 				authContext.setAuthState({
 					accessToken,
 					refreshToken,
-					authenticated: true
+					authenticated: true,
+					firstTimeUser: true
 				});
+
 			})
 			.catch((e) => {
 				console.error('Error during the process:', e);
