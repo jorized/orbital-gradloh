@@ -17,7 +17,7 @@ import ModulesScreen from './screens/CoursePlanner/ModulesScreen';
 /* OTHERS */
 import 'react-native-gesture-handler';
 import { useCallback, useContext, useState, useEffect } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StatusBar, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { EventRegister } from 'react-native-event-listeners';
 import SplashScreen from './components/SplashScreen';
 import Spinner from './components/Spinner';
@@ -36,6 +36,7 @@ import LoadingOverlay from './components/LoadingOverlay';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import ModuleDetailsScreen from './screens/CoursePlanner/ModuleDetailsScreen';
 import SettingsScreen from './screens/Settings/SettingsScreen';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 
 
@@ -329,12 +330,14 @@ const App = () => {
 			setStatus('success');
 		} catch (error) {
 			setStatus('error');
-			console.log(`Secure Store Error: ${error.message}`);
-			authContext.setAuthState({
-				accessToken: null,
-				refreshToken: null,
-				authenticated: false
-			});
+			if (authContext) {
+				authContext.setAuthState({
+					accessToken: null,
+					refreshToken: null,
+					authenticated: false
+				});
+			}
+
 		}
 	}, []);
 
@@ -357,13 +360,16 @@ const App = () => {
 	}
 
 	return (
-		<NavigationContainer>
-		  {authContext?.authState?.authenticated ? (
-			<PrivateNavigator />
-		  ) : (
-			<PublicNavigator />
-		  )}
-		</NavigationContainer>
+		<>
+			<NavigationContainer>
+			{authContext?.authState?.authenticated ? (
+				<PrivateNavigator/>
+			) : (
+				<PublicNavigator />
+			)}
+			</NavigationContainer>
+			<Toast/>
+		</>
 	  );
 };
 
@@ -377,7 +383,7 @@ const styles = StyleSheet.create({
 	loginBackBtnContainer: {
 		padding: 24,
 		marginTop: 50
-	}
+	},
 });
 
 export default () => (

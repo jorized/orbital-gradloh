@@ -8,7 +8,8 @@ const CheckBoxWithLabel = ({
 	value,
 	onValueChange,
 	error,
-	errorMessage
+	errorMessage,
+	testID
 }) => {
 	return (
 		<View style={styles.container}>
@@ -17,6 +18,7 @@ const CheckBoxWithLabel = ({
 				style={styles.checkboxContainer}
 			>
 				<Checkbox
+					testID={testID}
 					value={value}
 					onValueChange={onValueChange}
 					color={value ? '#EF7C00' : error ? '#D00E17' : undefined}

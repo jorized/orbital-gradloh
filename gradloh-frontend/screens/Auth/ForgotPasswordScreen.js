@@ -48,7 +48,8 @@ export default function ForgotPasswordScreen() {
 			onChangeText: setEmail,
 			label: 'Email address*',
 			error: errors.email,
-			errorMessage: errorMessages.email
+			errorMessage: errorMessages.email,
+			testID: 'emailInput'
 		}
 	];
 
@@ -74,59 +75,44 @@ export default function ForgotPasswordScreen() {
 		emailRef.current.blur();
 	};
 
-	const handleResetPassword = async () => {
-		let hasError = false;
-		const newErrors = { email: false };
-		const newErrorMessages = { email: '' };
+  const handleResetPassword = async () => {
+    let hasError = false;
+    const newErrors = { email: false };
+    const newErrorMessages = { email: '' };
 
-		if (!email) {
-			newErrors.email = true;
-			newErrorMessages.email = 'This field is required.';
-			hasError = true;
-		}
+    if (!email) {
+      newErrors.email = true;
+      newErrorMessages.email = 'This field is required.';
+      hasError = true;
+    }
 
-		setErrors(newErrors);
-		setErrorMessages(newErrorMessages);
+    setErrors(newErrors);
+    setErrorMessages(newErrorMessages);
 
-		if (!hasError) {
-			setLoading(true);
-			try {
-				const response = await publicAxios.post('/sendresetemail', {
-					email
-				});
-				setLoading(false);
-				//If successful, pass the email response over to the next page
-				navigation.push('ResetPasswordConfirmationScreen', {
-					email,
-					showToast: true,
-					toastMessage: response.data.message
-				});
-			} catch (error) {
-				setLoading(false);
-				if (!error.response) {
-					Toast.show({
-						type: 'warning',
-						text1: 'Error',
-						text2: 'Server is offline',
-						visibilityTime: 5000,
-						autoHide: true,
-						position: 'bottom',
-						bottomOffset: 40
-					});
-				} else {
-					Toast.show({
-						type: 'warning',
-						text1: 'Error',
-						text2: error.response.data.message,
-						visibilityTime: 5000,
-						autoHide: true,
-						position: 'bottom',
-						bottomOffset: 40
-					});
-				}
-			}
-		}
-	};
+    if (!hasError) {
+      setLoading(true);
+      try {
+        const response = await publicAxios.post('/sendresetemail', { email });
+        setLoading(false);
+        navigation.push('ResetPasswordConfirmationScreen', {
+          email,
+          showToast: true,
+          toastMessage: response.data.message
+        });
+      } catch (error) {
+        setLoading(false);
+        Toast.show({
+          type: 'warning',
+          text1: 'Error',
+          text2: error.response ? error.response.data.message : 'Server is offline',
+          visibilityTime: 5000,
+          autoHide: true,
+          position: 'bottom',
+          bottomOffset: 40
+        });
+      }
+    }
+  };
 
 	const toastConfig = {
 		warning: ({ text1, text2, props }) => (
@@ -196,7 +182,8 @@ export default function ForgotPasswordScreen() {
 							keyboardType,
 							isPassword,
 							error,
-							errorMessage
+							errorMessage,
+							testID={testID}
 						},
 						index
 					) => (
@@ -211,6 +198,7 @@ export default function ForgotPasswordScreen() {
 							onFocus={handleFocus(index)}
 							error={error}
 							errorMessage={errorMessage}
+							testID={testID}
 						/>
 					)
 				)}
@@ -222,6 +210,7 @@ export default function ForgotPasswordScreen() {
 							false
 						)}
 						disabled={loading}
+						testID="resetButton"
 					>
 						<View
 							style={[
@@ -246,6 +235,7 @@ export default function ForgotPasswordScreen() {
 						]}
 						onPress={loading ? null : handleResetPassword}
 						disabled={loading}
+						testID="resetButton"
 					>
 						{loading ? (
 							<ActivityIndicator size="small" color="#FFF" />

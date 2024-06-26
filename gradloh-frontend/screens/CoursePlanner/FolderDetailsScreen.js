@@ -29,8 +29,12 @@ import { EvilIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import TutorialToolTip from '../../components/TutorialToolTip';
+import { LoadingContext } from '../../contexts/LoadingContext';
 
 export default function FolderDetailsScreen({ route, navigation }) {
+
+	const { setIsLoading } = useContext(LoadingContext);
+
 	const { headerName, semIndex } = route.params;
 
 	const userProfileDetails = SecureStore.getItem('userprofiledetails');
@@ -89,10 +93,18 @@ export default function FolderDetailsScreen({ route, navigation }) {
 	});
 
 	const getSubText = (headerName) => {
-		const year = headerName.match(/Y(\d)/)[1];
-		const semester = headerName.match(/S(\d)/)[1];
-		return `Here is your list of modules for Year ${year} Semester ${semester}`;
-	};
+		const yearMatch = headerName.match(/Y(\d)/);
+		const semesterMatch = headerName.match(/S(\d)/);
+		
+		if (yearMatch && semesterMatch) {
+		  const year = yearMatch[1];
+		  const semester = semesterMatch[1];
+		  return `Here is your list of modules for Year ${year} Semester ${semester}`;
+		}
+		
+		return 'Here is your list of modules';
+	  };
+	  
 
 	const handleFloatingButton = () => {
 		if (animatedPlus.value == '-45deg') {
@@ -179,9 +191,12 @@ export default function FolderDetailsScreen({ route, navigation }) {
       if (result.isPreReq) {
         Alert.alert(`This module is a prerequisite of ${result.module}. Please remove it from other folders first.`);
       } else { // Else delete
+		setIsLoading(true);
         await publicAxios.authAxios.delete('/deletemodfromfolder', {
           params: { email: email, folderName: semIndex, moduleCode: moduleCode }
         });
+		setIsLoading(false);
+		Alert.alert('Success', 'Module has successfully been deleted.');
         EventRegister.emit('updateScreens');
       }
     } catch (error) {

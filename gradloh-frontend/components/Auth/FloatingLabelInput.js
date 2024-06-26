@@ -18,7 +18,8 @@ const FloatingLabelInput = React.forwardRef(
 			isPassword,
 			onFocus,
 			error,
-			errorMessage
+			errorMessage,
+			testID
 		},
 		ref
 	) => {
@@ -55,7 +56,7 @@ const FloatingLabelInput = React.forwardRef(
 				  })
 		};
 
-		return (
+		return (	
 			<View style={styles.container}>
 				<Animated.Text style={labelStyle}>{label}</Animated.Text>
 				<View
@@ -72,6 +73,7 @@ const FloatingLabelInput = React.forwardRef(
 						onBlur={() => setIsFocused(false)}
 						onChangeText={onChangeText}
 						secureTextEntry={!showPassword}
+						testID={testID}
 					/>
 					{isPassword && (
 						<TouchableOpacity

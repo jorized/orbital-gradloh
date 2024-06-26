@@ -15,7 +15,7 @@ import {
 	Lexend_600SemiBold,
 	Lexend_700Bold
 } from '@expo-google-fonts/lexend';
-import { forwardRef, useContext, useState } from 'react';
+import React, { forwardRef, useContext, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import DropdownWithErrorHandling from '../../components/Auth/DropdownWithErrorHandling';
 import SelectableButton from '../../components/Auth/SelectableButton';
@@ -25,9 +25,9 @@ import { AuthContext } from '../../contexts/AuthContext';
 import Faculties from '../../data/Faculties.json';
 import PrimaryMajors from '../../data/PrimaryMajors.json';
 
-LogBox.ignoreLogs([
-	'Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.'
-]);
+// LogBox.ignoreLogs([
+// 	'Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.'
+// ]);
 
 export default function ProfileSetUpTwoScreen() {
 	const navigation = useNavigation();
@@ -84,10 +84,10 @@ export default function ProfileSetUpTwoScreen() {
 		)
 	};
 
-	const CustomToast = forwardRef((props, ref) => (
+	const CustomToast = React.forwardRef((props, ref) => (
 		<Toast ref={ref} config={toastConfig} />
-	));
-
+	  ));
+	  
 	//Loading in data
 	const facultyData = Faculties;
 	const majorData = PrimaryMajors;

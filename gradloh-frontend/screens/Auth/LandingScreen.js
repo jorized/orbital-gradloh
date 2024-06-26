@@ -28,46 +28,47 @@ export default function LandingScreen() {
 		Lexend_600SemiBold
 	});
 
-	const toastConfig = {
-		warning: ({ text1, text2, props }) => (
-			<View style={[styles.toastContainer, styles.warningToast]}>
-				<View style={styles.textContainer}>
-					<Text style={styles.toastText1}>{text1}</Text>
-					{text2 ? (
-						<Text style={styles.toastText2}>{text2}</Text>
-					) : null}
-				</View>
-				<TouchableOpacity
-					onPress={() => Toast.hide()}
-					style={styles.closeButton}
-				>
-					<Text style={styles.closeButtonText}>✕</Text>
-				</TouchableOpacity>
-			</View>
-		),
-		success: ({ text1, text2, props }) => (
-			<View style={[styles.toastContainer, styles.successToast]}>
-				<View style={styles.textContainer}>
-					<Text style={styles.toastText1}>{text1}</Text>
-					{text2 ? (
-						<Text style={styles.toastText2}>{text2}</Text>
-					) : null}
-				</View>
-				<TouchableOpacity
-					onPress={() => Toast.hide()}
-					style={styles.closeButton}
-				>
-					<Text style={styles.closeButtonText}>✕</Text>
-				</TouchableOpacity>
-			</View>
-		)
-	};
+	// const toastConfig = {
+	// 	warning: ({ text1, text2, props }) => (
+	// 		<View style={[styles.toastContainer, styles.warningToast]}>
+	// 			<View style={styles.textContainer}>
+	// 				<Text style={styles.toastText1}>{text1}</Text>
+	// 				{text2 ? (
+	// 					<Text style={styles.toastText2}>{text2}</Text>
+	// 				) : null}
+	// 			</View>
+	// 			<TouchableOpacity
+	// 				onPress={() => Toast.hide()}
+	// 				style={styles.closeButton}
+	// 			>
+	// 				<Text style={styles.closeButtonText}>✕</Text>
+	// 			</TouchableOpacity>
+	// 		</View>
+	// 	),
+	// 	success: ({ text1, text2, props }) => (
+	// 		<View style={[styles.toastContainer, styles.successToast]}>
+	// 			<View style={styles.textContainer}>
+	// 				<Text style={styles.toastText1}>{text1}</Text>
+	// 				{text2 ? (
+	// 					<Text style={styles.toastText2}>{text2}</Text>
+	// 				) : null}
+	// 			</View>
+	// 			<TouchableOpacity
+	// 				onPress={() => Toast.hide()}
+	// 				style={styles.closeButton}
+	// 			>
+	// 				<Text style={styles.closeButtonText}>✕</Text>
+	// 			</TouchableOpacity>
+	// 		</View>
+	// 	)
+	// };
 
-	const CustomToast = forwardRef((props, ref) => (
-		<Toast ref={ref} config={toastConfig} />
-	));
+	// const CustomToast = forwardRef((props, ref) => (
+	// 	<Toast ref={ref} config={toastConfig} />
+	// ));
 
 	useEffect(() => {
+
 		//fetchDataAndUploadToAlgolia();
 		if (showToast) {
 			Toast.show({
@@ -112,7 +113,7 @@ export default function LandingScreen() {
 					<Text style={styles.loginText}>Sign in</Text>
 				</Pressable>
 			</View>
-			<CustomToast />
+			{/* <CustomToast /> */}
 		</View>
 	);
 }

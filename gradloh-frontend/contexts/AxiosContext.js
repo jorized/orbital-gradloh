@@ -36,7 +36,7 @@ const AxiosProvider = ({ children }) => {
   const authAxios = axios.create({
     baseURL: publicApiUrl,
     headers: {
-      Authorization: `Bearer ${authContext.getAccessToken()}`,
+      Authorization: `Bearer ${ authContext ? authContext.getAccessToken() : null}`,
     },
   });
 

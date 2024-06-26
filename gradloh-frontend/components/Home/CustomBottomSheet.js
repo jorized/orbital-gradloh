@@ -12,81 +12,61 @@ import { AxiosContext } from "../../contexts/AxiosContext";
 import * as SecureStore from 'expo-secure-store';
 
 export default function CustomBottomSheet() {
-
   const [status, setStatus] = useState("");
-
   const [ccOrCHSTitle, setCCOrCHSTitle] = useState("");
-
   const [completedCoreMods, setCompletedCoreMods] = useState("");
   const [corePercentage, setCorePercentage] = useState(0);
-
   const [completedCCOrCHSMods, setCompletedCCOrCHSMods] = useState("");
   const [chsPercentage, setCHSPercentage] = useState(0);
 
   const publicAxios = useContext(AxiosContext);
   const userProfileDetails = SecureStore.getItem('userprofiledetails');
-  const email = JSON.parse(userProfileDetails).email;
+  const email = userProfileDetails ? JSON.parse(userProfileDetails).email : null;
   const theme = useContext(ThemeContext);
 
   useEffect(() => {
-    publicAxios.authAxios.get('/userprogressdetails', {
-      params: { email: email }
-    }).then(response => {
-      const data = response.data;
-      setStatus(data.progressionStatus);
-      //If CHS Student
-      if (data.homeFaculty === "CHS") {
-        setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
-        const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
-        if (completedCorePercentage > 100) {
-          setCorePercentage(100);
-        } else {
-          setCorePercentage(completedCorePercentage);
-        }
-        const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
-        setCCOrCHSTitle("CHS modules")
-        setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
-        if (completedCHSPercentage > 100) {
-          setCHSPercentage(100);
-        } else {
-          setCHSPercentage(completedCHSPercentage);
-        }
-      }
-
-    }).catch(error => {
-      console.log(error);
-    })
-  }, [])
-
-  useFocusEffect(
-    useCallback(() => {
+    if (email) {
       publicAxios.authAxios.get('/userprogressdetails', {
         params: { email: email }
       }).then(response => {
         const data = response.data;
         setStatus(data.progressionStatus);
-        //If CHS Student
         if (data.homeFaculty === "CHS") {
-          setCompletedCoreMods("Completed " + data.completedCoreModules.totalModulesCompleted + " / " + data.completedCoreModules.totalModulesRequired);
+          setCompletedCoreMods(`Completed ${data.completedCoreModules.totalModulesCompleted} / ${data.completedCoreModules.totalModulesRequired}`);
           const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
-          if (completedCorePercentage > 100) {
-            setCorePercentage(100);
-          } else {
-            setCorePercentage(completedCorePercentage);
-          }
+          setCorePercentage(completedCorePercentage > 100 ? 100 : completedCorePercentage);
           const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
-          setCCOrCHSTitle("CHS modules")
-          setCompletedCCOrCHSMods("Completed " + data.completedCHSModules + " / 13");
-          if (completedCHSPercentage > 100) {
-            setCHSPercentage(100);
-          } else {
-            setCHSPercentage(completedCHSPercentage);
-          }
+          setCCOrCHSTitle("CHS modules");
+          setCompletedCCOrCHSMods(`Completed ${data.completedCHSModules} / 13`);
+          setCHSPercentage(completedCHSPercentage > 100 ? 100 : completedCHSPercentage);
         }
-
       }).catch(error => {
         console.log(error);
-      })
+      });
+    }
+  }, [email]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (email) {
+        publicAxios.authAxios.get('/userprogressdetails', {
+          params: { email: email }
+        }).then(response => {
+          const data = response.data;
+          setStatus(data.progressionStatus);
+          if (data.homeFaculty === "CHS") {
+            setCompletedCoreMods(`Completed ${data.completedCoreModules.totalModulesCompleted} / ${data.completedCoreModules.totalModulesRequired}`);
+            const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
+            setCorePercentage(completedCorePercentage > 100 ? 100 : completedCorePercentage);
+            const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
+            setCCOrCHSTitle("CHS modules");
+            setCompletedCCOrCHSMods(`Completed ${data.completedCHSModules} / 13`);
+            setCHSPercentage(completedCHSPercentage > 100 ? 100 : completedCHSPercentage);
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      }
     }, [email, publicAxios])
   );
 
@@ -100,6 +80,10 @@ export default function CustomBottomSheet() {
 
   if (!fontsLoaded) {
     return <Text>Loading...</Text>;
+  }
+
+  if (!email) {
+    return <Text>Error loading user details.</Text>;
   }
 
   return (
@@ -139,18 +123,18 @@ export default function CustomBottomSheet() {
           </View>
           <ScrollView style={styles.contentContainer}>
             <BottomSheetCard
-              iconName="pushpino"
+              iconName="chart-bar"
               title="Core modules"
               marks={completedCoreMods}
               percentage={corePercentage} />
             <BottomSheetCard
-              iconName="pushpino"
+              iconName="file-document-outline"
               title={ccOrCHSTitle}
               marks={completedCCOrCHSMods}
               percentage={chsPercentage} />
             <BottomSheetCard
-              iconName="pushpino"
-              title="UE"
+              iconName="pillar"
+              title="Unrestricted electives"
               marks={"Completed 5 / 6"}
               percentage={62} />
           </ScrollView>
@@ -174,7 +158,7 @@ const styles = StyleSheet.create({
 
   titleText: {
     fontSize: 20,
-    fontFamily: "Lexend_700Bold",
+    fontFamily: "Lexend_400Regular",
   },
 
   statusContainer: {
@@ -183,7 +167,7 @@ const styles = StyleSheet.create({
 
   statusText: {
     fontSize: 20,
-    fontFamily: "Lexend_700Bold",
+    fontFamily: "Lexend_400Regular",
     marginRight: 10
   }
 });

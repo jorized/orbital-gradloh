@@ -42,11 +42,11 @@ public class ReqRes {
     private String confirmPassword;
     private User user;
     private List<User> userList;
-    private int completedModulesPercentage;
+    private Integer completedModulesPercentage;
     private String progressionStatus;
-    private int completedCHSModules;
+    private Integer completedCHSModules;
     private Map<String, Integer> completedCoreModules;
-    private int currentSemester;
+    private Integer currentSemester;
     private Map<String, Integer> numOfModsInEachFolder;
     private List<String> modsInSpecificFolder;
     private List<String> modsUpTillCurrentSem;
