@@ -16,7 +16,7 @@ import CustomDoneButton from '../../components/Auth/CustomDoneButton';
 import CustomNextButton from '../../components/Auth/CustomNextButton';
 import { AxiosContext } from '../../contexts/AxiosContext';
 
-export default function OnboardingOneScreen() {
+export default function OnboardingScreen() {
 	const route = useRoute();
 	const { nickname, email, accessToken, refreshToken } = route.params || {};
 

@@ -75,45 +75,6 @@ export default function LoginScreen() {
 	const [nextFocusDisabled, setNextFocusDisabled] = useState(false);
 	const [previousFocusDisabled, setPreviousFocusDisabled] = useState(false);
 
-	const toastConfig = {
-		warning: ({ text1, text2, props }) => (
-			<View style={[styles.toastContainer, styles.warningToast]}>
-				<View style={styles.textContainer}>
-					<Text style={styles.toastText1}>{text1}</Text>
-					{text2 ? (
-						<Text style={styles.toastText2}>{text2}</Text>
-					) : null}
-				</View>
-				<TouchableOpacity
-					onPress={() => Toast.hide()}
-					style={styles.closeButton}
-				>
-					<Text style={styles.closeButtonText}>✕</Text>
-				</TouchableOpacity>
-			</View>
-		),
-		success: ({ text1, text2, props }) => (
-			<View style={[styles.toastContainer, styles.successToast]}>
-				<View style={styles.textContainer}>
-					<Text style={styles.toastText1}>{text1}</Text>
-					{text2 ? (
-						<Text style={styles.toastText2}>{text2}</Text>
-					) : null}
-				</View>
-				<TouchableOpacity
-					onPress={() => Toast.hide()}
-					style={styles.closeButton}
-				>
-					<Text style={styles.closeButtonText}>✕</Text>
-				</TouchableOpacity>
-			</View>
-		)
-	};
-
-	const CustomToast = forwardRef((props, ref) => (
-		<Toast ref={ref} config={toastConfig} />
-	));
-
 	const handleFocus = (index) => () => {
 		setActiveInputIndex(index);
 		setNextFocusDisabled(index === inputs.length - 1);
@@ -204,7 +165,7 @@ export default function LoginScreen() {
 				setLoading(false);
 				if (!error.response) {
 					Toast.show({
-						type: 'warning',
+						type: 'error',
 						text1: 'Error',
 						text2: 'Server is offline',
 						visibilityTime: 5000,
@@ -214,7 +175,7 @@ export default function LoginScreen() {
 					});
 				} else {
 					Toast.show({
-						type: 'warning',
+						type: 'error',
 						text1: 'Error',
 						text2: error.response.data.message,
 						visibilityTime: 5000,
@@ -266,6 +227,7 @@ export default function LoginScreen() {
 							onFocus={handleFocus(index)}
 							error={error}
 							errorMessage={errorMessage}
+							testID= {index === 0 ? 'emailInput' : index === 1 ? 'passwordInput' : undefined}
 						/>
 					)
 				)}
@@ -284,6 +246,7 @@ export default function LoginScreen() {
 							false
 						)}
 						disabled={loading}
+						testID='loginButton'
 					>
 						<View
 							style={[
@@ -306,6 +269,7 @@ export default function LoginScreen() {
 						]}
 						onPress={loading ? null : handleSignIn}
 						disabled={loading}
+						testID='loginButton'
 					>
 						{loading ? (
 							<ActivityIndicator size="small" color="#FFF" />
@@ -328,7 +292,6 @@ export default function LoginScreen() {
 					avoidKeyboard
 				/>
 			)}
-			<CustomToast />
 		</View>
 	);
 }
@@ -363,43 +326,4 @@ const styles = StyleSheet.create({
 		color: '#EF7C00',
 		fontFamily: 'Lexend_400Regular'
 	},
-	toastContainer: {
-		width: '90%',
-		borderRadius: 8,
-		paddingHorizontal: 10,
-		paddingVertical: 8,
-		flexDirection: 'row',
-		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.8,
-		shadowRadius: 2,
-		elevation: 5
-	},
-	warningToast: {
-		backgroundColor: '#D00E17'
-	},
-	successToast: {
-		backgroundColor: '#28a745' // Green color for success
-	},
-	textContainer: {
-		flex: 1,
-		flexShrink: 1
-	},
-	toastText1: {
-		fontSize: 16,
-		color: 'white'
-	},
-	toastText2: {
-		fontSize: 12,
-		color: 'white'
-	},
-	closeButton: {
-		padding: 5
-	},
-	closeButtonText: {
-		fontSize: 18,
-		fontWeight: 'bold',
-		color: 'white'
-	}
 });

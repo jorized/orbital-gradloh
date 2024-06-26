@@ -208,7 +208,7 @@ public class UsersManagementService {
             user.setCompletedOnboard(true);
             usersRepo.save(user);
             response.setStatusCode(HttpStatus.OK.value()); // 200
-            response.setMessage("Updated onboarding.");
+            response.setMessage("Updated onboarding status.");
         }  catch (Exception e) {
             // Handle general exceptions, possibly logging them.
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500

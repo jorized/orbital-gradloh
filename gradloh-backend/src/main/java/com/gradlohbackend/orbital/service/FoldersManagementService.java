@@ -130,6 +130,8 @@ public class FoldersManagementService {
                 response.setMessage("Email does not exist.");
                 return response;
             }
+            //Clear any previous caches
+            redissonConfig.removeSpecificUserCache(modulesForPrevFolderToCurrFolderRequest.getEmail());
 
             response.setModsForPrevFolderToCurrFolder(foldersRepo
                     .findPrevToCurrFoldersModulesByEmailAndFolderName(
@@ -195,7 +197,7 @@ public class FoldersManagementService {
 
             redissonConfig.removeSpecificUserCache(deleteModFromFolderRequest.getEmail());
             response.setMessage("Module deleted from folder successfully.");
-            response.setStatusCode(201);
+            response.setStatusCode(200);
 
         } catch (Exception e) {
             response.setStatusCode(500); // 500 Internal Server Error
