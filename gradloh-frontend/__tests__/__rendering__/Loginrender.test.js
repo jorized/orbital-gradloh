@@ -5,6 +5,8 @@ import LoginScreen from '../../screens/Auth/LoginScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { AxiosContext } from '../../contexts/AxiosContext';
 
+jest.useFakeTimers();
+
 // Mock the toast message module
 jest.mock('react-native-toast-message', () => {
   const React = require('react');

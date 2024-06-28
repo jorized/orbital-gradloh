@@ -5,6 +5,7 @@ import com.gradlohbackend.orbital.entity.User;
 import com.gradlohbackend.orbital.service.OurUserDetailsService;
 import com.gradlohbackend.orbital.service.UsersManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -118,32 +119,11 @@ public class UserManagementController {
     }
 
 
-    //For admin only routes (those that begin with /admin, require admin JWT)
-    @GetMapping("/admin/get-all-users")
-    public ResponseEntity<ReqRes> getAllUsers(){
-        return ResponseEntity.ok(usersManagementService.getAllUsers());
-    }
-
-    @GetMapping("/admin/get-users/{userId}")
-    public ResponseEntity<ReqRes> getUserByID(@PathVariable Integer userId){
-        return ResponseEntity.ok(usersManagementService.getUsersById(userId));
-
-    }
-
-
-
-    @GetMapping("/adminuser/get-profile")
-    public ResponseEntity<ReqRes> getMyProfile(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        ReqRes response = usersManagementService.getMyInfo(email);
-        return  ResponseEntity.status(response.getStatusCode()).body(response);
-    }
-
-    @DeleteMapping("/admin/delete/{userId}")
-    public ResponseEntity<ReqRes> deleteUSer(@PathVariable Integer userId){
-        return ResponseEntity.ok(usersManagementService.deleteUser(userId));
-    }
+//    //For admin only routes (those that begin with /admin, require admin JWT)
+//    @GetMapping("/admin/get-all-users")
+//    public ResponseEntity<ReqRes> getAllUsers(){
+//        return ResponseEntity.ok(usersManagementService.getAllUsers());
+//    }
 
 
 }

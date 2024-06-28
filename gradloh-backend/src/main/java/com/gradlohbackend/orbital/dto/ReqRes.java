@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gradlohbackend.orbital.entity.User;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,9 +17,12 @@ import java.util.Optional;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReqRes {
 
-    private int statusCode;
+    private HttpStatus statusCode;
     private String error;
     private String message;
     private String refreshToken;
@@ -27,6 +31,7 @@ public class ReqRes {
     private String resetOTP;
     private Long resetOTPExp;
     private Boolean completedOnboard;
+    private Boolean completedTutorial;
     private Boolean isDarkMode;
     private String enrolmentYear;
     private String primaryMajor;
@@ -34,6 +39,7 @@ public class ReqRes {
     private String firstMinor;
     private String secondMinor;
     private String homeFaculty;
+    private User.Role role;
     private String newPassword;
     private String confirmNewPassword;
     private String nickname;

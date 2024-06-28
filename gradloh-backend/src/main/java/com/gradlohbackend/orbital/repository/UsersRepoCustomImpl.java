@@ -31,12 +31,12 @@ public class UsersRepoCustomImpl implements UsersRepoCustom {
                                 "      u.primary_major, " +
                                 "      f.* " +
                                 "    FROM Users AS u " +
-                                "    INNER JOIN Folders AS f USING(email) " +
-                                "    WHERE email = :email " +
-                                "    ORDER BY folder_name " +
+                                "    INNER JOIN Folders AS f ON u.email = f.email " +
+                                "    WHERE u.email = :email " +
+                                "    ORDER BY f.folder_name " +
                                 "  ) AS ct1 " +
-                                "  USING (primary_major, module_code) " +
-                                "  WHERE email = :email " +
+                                "  ON p.primary_major = ct1.primary_major AND p.module_code = ct1.module_code " +
+                                "  WHERE ct1.email = :email " +
                                 "  GROUP BY p.module_type " +
                                 ") " +
                                 "SELECT " +
@@ -62,6 +62,7 @@ public class UsersRepoCustomImpl implements UsersRepoCustom {
 
         return resultMap;
     }
+
 
     @Cacheable(value = "numberOfModulesInEachFolder", key = "#email")
     public Map<String, Integer> findNumberOfModulesInEachFolderByEmail(String email) {

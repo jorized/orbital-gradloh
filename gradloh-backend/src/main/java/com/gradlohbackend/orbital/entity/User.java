@@ -1,5 +1,8 @@
 package com.gradlohbackend.orbital.entity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +15,9 @@ import java.util.List;
 @Entity
 @Table(name = "Users")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
