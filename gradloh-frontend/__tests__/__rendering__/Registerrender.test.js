@@ -5,6 +5,8 @@ import RegisterScreen from '../../screens/Auth/RegisterScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { AxiosContext } from '../../contexts/AxiosContext';
 
+jest.useFakeTimers();
+
 jest.mock('react-native-toast-message', () => {
   const React = require('react');
   const Toast = React.forwardRef((props, ref) => <div ref={ref} {...props} />);

@@ -311,14 +311,6 @@ export default function HomeScreen({ toggleTheme, headerName, route, refreshChar
 		<Tooltip childrenWrapperStyle={{flex: 1, height: 400}}>
         	<CustomBottomSheet/>
 		</Tooltip>
-    <View>
-      <Button
-        title="Click me"
-        onPress={() => setMessage('Hi!')}
-        ref={generateTestHook ? generateTestHook('click-me-button') : undefined}
-      />
-      {message ? <Text ref={generateTestHook ? generateTestHook('message-text') : undefined}>{message}</Text> : null}
-    </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
