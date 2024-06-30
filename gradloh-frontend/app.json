@@ -18,10 +18,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "googleMapsApiKey": "AIzaSyDgBRfAVm0e6I2V8awqh6GKHLsTdFDw5WE"
+        "backgroundColor": "#ffffff"
       },
-      "package": "com.jorized.gradlohfrontend"
+      "package": "com.jorized.gradlohfrontend",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDgBRfAVm0e6I2V8awqh6GKHLsTdFDw5WE"
+        }
+      }
     },
     "experiments": {
       "typedRoutes": true
