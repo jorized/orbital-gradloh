@@ -135,8 +135,8 @@ export default function CustomBottomSheet() {
             <BottomSheetCard
               iconName="pillar"
               title="Unrestricted electives"
-              marks={"Completed 5 / 6"}
-              percentage={62} />
+              marks={"Completed 0 / 13"}
+              percentage={0} />
           </ScrollView>
         </View>
       </View>

@@ -10,7 +10,10 @@
 		"preview": {
 			"env": {
 				"EXPO_PUBLIC_API_AUTH_URL": "https://fearless-adventure-development.up.railway.app/auth",
-				"EXPO_PUBLIC_API_URL": "https://fearless-adventure-development.up.railway.app"
+				"EXPO_PUBLIC_API_URL": "https://fearless-adventure-development.up.railway.app",
+				"EXPO_PUBLIC_ALGOLIA_APP_ID": "TTOZL20PV2",
+				"EXPO_PUBLIC_ALGOLIA_SEARCH_API_KEY": "b3d00cafee0896b186e3df8c7afcf54d",
+				"GOOGLE_MAPS_API_KEY": "AIzaSyDgBRfAVm0e6I2V8awqh6GKHLsTdFDw5WE"
 			},
 			"android": {
 				"buildType": "apk"

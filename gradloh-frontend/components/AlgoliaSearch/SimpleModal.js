@@ -71,44 +71,57 @@ export default function SimpleModal({ currentItem, folderName, changeModalVisibl
   
   //Checks the prerequisites and compare from the sem that they are adding into, with the previous sems before this
   const handleAdd = () => {
-    publicAxios.authAxios.get('/modsforprevsemtocurrsem', {
+    //Check that the folder that users are not adding 8 or more modules
+    publicAxios.authAxios.get('/specificfolderdetails', {
       params: { email: email, folderName: semIndex }
     }).then(response => {
-      const modsUpTillCurrentSem = response.data.modsForPrevFolderToCurrFolder;
-
-      if (checkPrerequisites(modsUpTillCurrentSem, moduleDetails.prereqTree)) {
-        const folderName = semIndex;
-        const moduleCode = moduleDetails.moduleCode;
-        publicAxios.authAxios.post('/addmodinspecificsem', {
-            email,
-            folderName,
-            moduleCode
-        }).then(response => {
-            Alert.alert(
-                "Module successfully added.",
-                "",
-                [
-                  {
-                    text: "OK",
-                    onPress: () => {
-                      closeModal(false);  // Close the modal
-                      EventRegister.emit('updateScreens'); 
-                    }
-                  }
-                ]
-              );
-        }).catch(error => {
-            console.log(error);            
-        })
-       
-
+      const modsInSpecificFolder = response.data.modsInSpecificFolder;
+      if (modsInSpecificFolder.length >= 8) {
+        Alert.alert("Semester limit", "You can only add up to 8 modules in 1 semester.");
       } else {
-        // Show alert
-        Alert.alert("Prerequisite not met", "You have not completed the required prerequisites for this module.");
+        publicAxios.authAxios.get('/modsforprevsemtocurrsem', {
+            params: { email: email, folderName: semIndex }
+          }).then(response => {
+            const modsUpTillCurrentSem = response.data.modsForPrevFolderToCurrFolder;
+      
+            if (checkPrerequisites(modsUpTillCurrentSem, moduleDetails.prereqTree)) {
+              const folderName = semIndex;
+              const moduleCode = moduleDetails.moduleCode;
+              publicAxios.authAxios.post('/addmodinspecificsem', {
+                  email,
+                  folderName,
+                  moduleCode
+              }).then(response => {
+                  Alert.alert(
+                      "Module successfully added.",
+                      "",
+                      [
+                        {
+                          text: "OK",
+                          onPress: () => {
+                            closeModal(false);  // Close the modal
+                            EventRegister.emit('updateScreens'); 
+                          }
+                        }
+                      ]
+                    );
+              }).catch(error => {
+                  console.log(error);            
+              })
+             
+      
+            } else {
+              // Show alert
+              Alert.alert("Prerequisite not met", "You have not completed the required prerequisites for this module.");
+            }
+          }).catch(error => {
+            console.log(error);
+          });
       }
     }).catch(error => {
       console.log(error);
-    });
+    })
+
   };
 
     useEffect(() => {

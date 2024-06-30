@@ -166,7 +166,7 @@ export default function SettingsScreen({ toggleTheme, headerName }) {
             </Collapsible>
             {/* Add more questions here in the same format */}
           </Collapsible>
-          <SettingsItem
+          {/* <SettingsItem
             style={styles.loadSamplePlanContainer}
             icon={<AntDesign name="warning" size={24} color={theme.color} />}
             text="Report a bug"
@@ -177,7 +177,7 @@ export default function SettingsScreen({ toggleTheme, headerName }) {
             icon={<Entypo name="paper-plane" size={24} color={theme.color} />}
             text="Give us feedback"
             textColor={theme.color}
-          />
+          /> */}
         </View>
       </ScrollView>
       <ChangeNicknameAlert

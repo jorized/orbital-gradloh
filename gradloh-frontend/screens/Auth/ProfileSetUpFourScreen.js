@@ -81,7 +81,7 @@ const ProfileSetUpFourScreen = () => {
             } catch (error) {
                 setLoading(false);
                 Toast.show({
-                    type: 'warning',
+                    type: 'error',
                     text1: 'Error',
                     text2: error.response ? error.response.data.message : 'Server is offline',
                     visibilityTime: 5000,
@@ -92,33 +92,6 @@ const ProfileSetUpFourScreen = () => {
             }
         }
     };
-
-    const toastConfig = {
-        warning: ({ text1, text2 }) => (
-            <View style={[styles.toastContainer, styles.warningToast]}>
-                <View style={styles.textContainer}>
-                    <Text style={styles.toastText1}>{text1}</Text>
-                    {text2 && <Text style={styles.toastText2}>{text2}</Text>}
-                </View>
-                <TouchableOpacity onPress={() => Toast.hide()} style={styles.closeButton}>
-                    <Text style={styles.closeButtonText}>✕</Text>
-                </TouchableOpacity>
-            </View>
-        ),
-        success: ({ text1, text2 }) => (
-            <View style={[styles.toastContainer, styles.successToast]}>
-                <View style={styles.textContainer}>
-                    <Text style={styles.toastText1}>{text1}</Text>
-                    {text2 && <Text style={styles.toastText2}>{text2}</Text>}
-                </View>
-                <TouchableOpacity onPress={() => Toast.hide()} style={styles.closeButton}>
-                    <Text style={styles.closeButtonText}>✕</Text>
-                </TouchableOpacity>
-            </View>
-        )
-    };
-
-    const CustomToast = React.forwardRef((props, ref) => <Toast ref={ref} config={toastConfig} />);
 
 	if (!fontsLoaded) {
 		return <Text>Loading...</Text>;
@@ -218,7 +191,6 @@ const ProfileSetUpFourScreen = () => {
                     {loading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.loginText}>Next</Text>}
                 </TouchableOpacity>
             )}
-            <CustomToast />
         </View>
     );
 };
@@ -264,45 +236,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: 'Lexend_400Regular'
     },
-    toastContainer: {
-        width: '90%',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        elevation: 5
-    },
-    warningToast: {
-        backgroundColor: '#D00E17'
-    },
-    successToast: {
-        backgroundColor: '#28a745'
-    },
-    textContainer: {
-        flex: 1,
-        flexShrink: 1
-    },
-    toastText1: {
-        fontSize: 16,
-        color: 'white'
-    },
-    toastText2: {
-        fontSize: 12,
-        color: 'white'
-    },
-    closeButton: {
-        padding: 5
-    },
-    closeButtonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'white'
-    }
 });
 
 export default ProfileSetUpFourScreen;

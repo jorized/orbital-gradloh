@@ -151,7 +151,7 @@ export default function FolderDetailsScreen({ route, navigation }) {
 				folderName: headerName
 			});
 		} else {
-			Alert.alert('You can only add up to 8 modules in a');
+			Alert.alert('You can only add up to 8 modules in a semester');
 		}
 	};
 
@@ -370,12 +370,12 @@ export default function FolderDetailsScreen({ route, navigation }) {
 				]}
 				onPress={handleFloatingButton}
 			>
-				<TouchableOpacity>
+				{/* <TouchableOpacity>
 					<Animated.View
 						style={[styles.bgButtonOne, optionStyleOne]}
 					></Animated.View>
-				</TouchableOpacity>
-				<TouchableOpacity>
+				</TouchableOpacity> */}
+				{/* <TouchableOpacity>
 					<Animated.View style={[styles.bgButtonTwo, optionStyleTwo]}>
 						<View style={styles.editButtonContainer}>
 							<Ionicons name="pencil" size={28} color={'black'} />
@@ -384,7 +384,7 @@ export default function FolderDetailsScreen({ route, navigation }) {
 							</Text>
 						</View>
 					</Animated.View>
-				</TouchableOpacity>
+				</TouchableOpacity> */}
 				<TouchableOpacity onPress={handleAddModules}>
 					<Animated.View
 						style={[styles.bgButtonThree, optionStyleThree]}

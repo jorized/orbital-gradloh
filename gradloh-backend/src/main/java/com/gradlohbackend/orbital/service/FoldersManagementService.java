@@ -60,7 +60,7 @@ public class FoldersManagementService {
                 response.setMessage("Email does not exist.");
                 return response;
             }
-
+            redissonConfig.removeSpecificUserCache(specificFolderDetailsRequest.getEmail());
             response.setModsInSpecificFolder(foldersRepo.findModuleCodesByEmailAndFolderName(specificFolderDetailsRequest.getEmail(),
                     specificFolderDetailsRequest.getFolderName()));
             response.setStatusCode(HttpStatus.OK); // 200
