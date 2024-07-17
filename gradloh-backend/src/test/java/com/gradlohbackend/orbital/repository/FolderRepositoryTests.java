@@ -56,6 +56,7 @@ public class FolderRepositoryTests {
         // Arrange: Create and save folders with modules for the user
         Byte folderName = 1;
         String moduleCode = "CS2040";
+        Byte review = 5;
         Folder folder = Folder.builder()
                 .email(email)
                 .folderName(folderName)
@@ -71,7 +72,7 @@ public class FolderRepositoryTests {
         entityManager.clear();
 
         // Assert: Verify that the module is deleted from the folder
-        Optional<Folder> deletedFolder = foldersRepo.findById(new FolderId(email, folderName, moduleCode));
+        Optional<Folder> deletedFolder = foldersRepo.findById(new FolderId(email, folderName, moduleCode, review));
         Assertions.assertThat(deletedFolder).isNotPresent();
     }
 }

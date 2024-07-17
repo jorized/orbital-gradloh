@@ -58,7 +58,13 @@ public class ReqRes {
     private List<String> modsUpTillCurrentSem;
     private List<String> modsForEveryFolder;
     private List<String> modsForPrevFolderToCurrFolder;
+    private List<String> foldersWithoutAllModsReviewed;
+    private List<String> foldersWithModsReviewed;
+    private List<String> modsInSpecificFolderWithoutReviews;
+    private List<String> modsInSpecificFolderWithReviews;
+    private Map<String, Integer> everyModuleReviews;
     private Byte folderName;
     private String moduleCode;
+    private Byte review;
 
 }
