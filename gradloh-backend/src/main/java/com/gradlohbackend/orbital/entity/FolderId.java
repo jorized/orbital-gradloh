@@ -15,10 +15,11 @@ public class FolderId implements Serializable {
     private String email;
     private Byte folderName;
     private String moduleCode;
+    private Byte review;
 
     @Override
     public int hashCode() {
-        return Objects.hash(email, folderName, moduleCode);
+        return Objects.hash(email, folderName, moduleCode, review);
     }
 
     @Override
@@ -28,6 +29,7 @@ public class FolderId implements Serializable {
         FolderId that = (FolderId) obj;
         return Objects.equals(email, that.email) &&
                 Objects.equals(folderName, that.folderName) &&
-                Objects.equals(moduleCode, that.moduleCode);
+                Objects.equals(moduleCode, that.moduleCode) &&
+                Objects.equals(review, that.review);
     }
 }

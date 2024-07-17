@@ -1,10 +1,10 @@
 import React, { useEffect, useContext, useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { SCREEN_HEIGHT, LOGIN_VIEW_HEIGHT } from "../../misc/consts";
 import ThemeContext from "../../contexts/ThemeContext";
 import { AntDesign } from '@expo/vector-icons';
 import BottomSheetCard from "./BottomSheetCard";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Quicksand_600SemiBold, Quicksand_700Bold } from "@expo-google-fonts/quicksand";
 import { Lexend_300Light, Lexend_600SemiBold, Lexend_700Bold } from "@expo-google-fonts/lexend";
@@ -12,6 +12,7 @@ import { AxiosContext } from "../../contexts/AxiosContext";
 import * as SecureStore from 'expo-secure-store';
 
 export default function CustomBottomSheet() {
+  const navigation = useNavigation();
   const [status, setStatus] = useState("");
   const [ccOrCHSTitle, setCCOrCHSTitle] = useState("");
   const [completedCoreMods, setCompletedCoreMods] = useState("");
@@ -78,6 +79,13 @@ export default function CustomBottomSheet() {
     Lexend_700Bold
   });
 
+  const handleHenryNavigation = () => {
+    navigation.navigate("HenryStack", {
+      screen: 'ChatbotScreen',
+      params: { headerName: "Henry" }
+    });
+  }
+
   if (!fontsLoaded) {
     return <Text>Loading...</Text>;
   }
@@ -87,30 +95,9 @@ export default function CustomBottomSheet() {
   }
 
   return (
-    <View
-      style={[
-        {
-          ...StyleSheet.absoluteFill,
-          transform: [{ translateY: SCREEN_HEIGHT - LOGIN_VIEW_HEIGHT }],
-        },
-      ]}
-    >
-      <View
-        style={[
-          {
-            height: LOGIN_VIEW_HEIGHT,
-            backgroundColor: theme.bottomSheetBgColor,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-          },
-        ]}
-      >
+    <View style={styles.container}>
+      {/* Bottom Sheet */}
+      <View style={[styles.bottomSheet, { backgroundColor: theme.bottomSheetBgColor}]}>
         <View style={styles.cardContainer}>
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, { color: theme.color }]}>
@@ -140,34 +127,68 @@ export default function CustomBottomSheet() {
           </ScrollView>
         </View>
       </View>
+
+      {/* Icon Behind the Bottom Sheet */}
+      <TouchableOpacity onPress={handleHenryNavigation}>
+        <Image
+          source={require('../../assets/images/henryicon.png')}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  bottomSheet: {
+    width: '100%',
+    height: LOGIN_VIEW_HEIGHT,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 2, // Ensure the bottom sheet is on top
+  },
   cardContainer: {
     flex: 1,
   },
-
   titleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
   },
-
   titleText: {
     fontSize: 20,
     fontFamily: "Lexend_400Regular",
   },
-
   statusContainer: {
     flexDirection: "row"
   },
-
   statusText: {
     fontSize: 20,
     fontFamily: "Lexend_400Regular",
     marginRight: 10
-  }
+  },
+  icon: {
+    position: 'absolute',
+    bottom: LOGIN_VIEW_HEIGHT - 20, // Adjust the icon position here
+    left: 120,
+    width: 60,
+    height: 60,
+    zIndex: 1, // Ensure the icon is behind the bottom sheet
+  },
 });

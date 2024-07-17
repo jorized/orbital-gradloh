@@ -237,4 +237,187 @@ public class FoldersManagementService {
 
         return response;
     }
+
+    public ReqRes getSemWithoutAllModsReviewed(ReqRes semWithoutAllModsReviewedRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            var userOptional = ourUserDetailsService.findUserByEmail(semWithoutAllModsReviewedRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            response.setFoldersWithoutAllModsReviewed(foldersRepo.
+                    findFoldersWithoutAllModulesReviewedByEmail(semWithoutAllModsReviewedRequest.getEmail()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved semesters without all modules reviewed.");
+
+        } catch (Exception e) {
+            System.out.println(e);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes getSemWithModsReviewed(ReqRes semWithModsReviewedRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            var userOptional = ourUserDetailsService.findUserByEmail(semWithModsReviewedRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            response.setFoldersWithModsReviewed(foldersRepo.
+                    findFoldersWithModulesReviewedByEmail(semWithModsReviewedRequest.getEmail()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved semesters with modules reviewed.");
+
+        } catch (Exception e) {
+            System.out.println(e);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes getModsInSpecificFolderWithReviews(ReqRes modsInSpecificFolderWithReviewsRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            var userOptional = ourUserDetailsService.findUserByEmail(modsInSpecificFolderWithReviewsRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+            redissonConfig.removeSpecificUserCache(modsInSpecificFolderWithReviewsRequest.getEmail());
+            response.setModsInSpecificFolderWithReviews(foldersRepo
+                    .findModulesInSpecificFolderWithReviewsByEmailAndFolderName(
+                            modsInSpecificFolderWithReviewsRequest.getEmail(),
+                            modsInSpecificFolderWithReviewsRequest.getFolderName()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved specific folder details.");
+
+        } catch (Exception e) {
+            System.out.println(e);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+
+    public ReqRes getModsInSpecificFolderWithoutReviews(ReqRes modsInSpecificFolderWithoutReviewsRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            var userOptional = ourUserDetailsService.findUserByEmail(modsInSpecificFolderWithoutReviewsRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+            redissonConfig.removeSpecificUserCache(modsInSpecificFolderWithoutReviewsRequest.getEmail());
+            response.setModsInSpecificFolderWithoutReviews(foldersRepo
+                    .findModulesInSpecificFolderWithoutReviewsByEmailAndFolderName(
+                            modsInSpecificFolderWithoutReviewsRequest.getEmail(),
+                            modsInSpecificFolderWithoutReviewsRequest.getFolderName()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved specific folder details.");
+
+        } catch (Exception e) {
+            System.out.println(e);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes updateModuleReview(ReqRes updateModuleReviewRequest) {
+        ReqRes response = new ReqRes();
+        try {
+            // Retrieve the user details from the database.
+            var userOptional = ourUserDetailsService.findUserByEmail(updateModuleReviewRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Invalid email address.");
+                return response;
+            }
+
+            foldersRepo.updateReviewByEmailAndFolderNameAndModuleCode(
+                    updateModuleReviewRequest.getEmail(),
+                    updateModuleReviewRequest.getFolderName(),
+                    updateModuleReviewRequest.getModuleCode(),
+                    updateModuleReviewRequest.getReview());
+            redissonConfig.removeSpecificUserCache(updateModuleReviewRequest.getEmail());
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Module review has successfully been updated.");
+
+        } catch (Exception e) {
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes getEveryModuleReview(ReqRes everyModuleReviewRequest) {
+        ReqRes response = new ReqRes();
+        try {
+
+            var userOptional = ourUserDetailsService.findUserByEmail(everyModuleReviewRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            response.setEveryModuleReviews(foldersRepo.findEveryModuleReviewByEmail(everyModuleReviewRequest.getEmail()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved every module review for this user.");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+    public ReqRes getModuleReview(ReqRes moduleReviewRequest) {
+        ReqRes response = new ReqRes();
+        try {
+
+            var userOptional = ourUserDetailsService.findUserByEmail(moduleReviewRequest.getEmail());
+
+            if (userOptional.isEmpty()) {
+                response.setStatusCode(HttpStatus.NOT_FOUND); // 404
+                response.setMessage("Email does not exist.");
+                return response;
+            }
+
+            response.setReview(foldersRepo
+                    .findModuleReviewByEmailAndFolderNameAndModuleCode(moduleReviewRequest.getEmail(),
+                            moduleReviewRequest.getFolderName(),
+                            moduleReviewRequest.getModuleCode()));
+            response.setStatusCode(HttpStatus.OK); // 200
+            response.setMessage("Successfully retrieved review for this current module for this user.");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            response.setMessage("An internal error occurred.");
+        }
+        return response;
+    }
+
+
+
 }

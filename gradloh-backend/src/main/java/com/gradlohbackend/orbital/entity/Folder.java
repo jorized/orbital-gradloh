@@ -26,5 +26,8 @@ public class Folder {
     @Column(name = "module_code", length = 8, nullable = false)
     private String moduleCode;
 
+    @Id
+    @Column(name = "review", nullable = false)
+    private Byte review;
 
 }

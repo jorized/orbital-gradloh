@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
+public interface FoldersRepo extends JpaRepository<Folder, FolderId>, FoldersRepoCustom {
 
     Optional<Folder> findByEmail(String email);
 
@@ -73,5 +73,38 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId> {
             "INNER JOIN SingleMajorSamplePlan s ON u.primary_major = s.primary_major " +
             "WHERE u.email = ?1 ", nativeQuery = true)
     void insertSingleMajorSamplePlanByEmail(String email);
+
+    //This method shows the unique folders that has no reviews in them
+    // (E.g. let's say folder 1, have cs1010j and hsi1000, even if cs1010j have review, but hsi1000 does not, it will still show
+    @Query("SELECT DISTINCT f.folderName FROM Folders f WHERE f.email = :email AND f.review = 0")
+    @Cacheable(value = "folderswithoutallmodulesreviewed", key = "#email")
+    List<String> findFoldersWithoutAllModulesReviewedByEmail(@Param("email") String email);
+
+    //This method shows the modules within the specific folder that has no reviews yet
+    @Query("SELECT DISTINCT f.moduleCode FROM Folders f WHERE f.email = :email AND f.review = 0 AND f.folderName = :folderName")
+    @Cacheable(value = "moduleswithoutreviews", key = "#email")
+    List<String> findModulesInSpecificFolderWithoutReviewsByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Folders f SET f.review = :review WHERE f.email = :email AND f.folderName = :folderName AND f.moduleCode = :moduleCode")
+    int updateReviewByEmailAndFolderNameAndModuleCode(
+            @Param("email") String email,
+            @Param("folderName") Byte folderName,
+            @Param("moduleCode") String moduleCode,
+            @Param("review") Byte review
+    );
+
+    @Query("SELECT DISTINCT f.folderName FROM Folders f WHERE f.email = :email AND f.review <> 0")
+    @Cacheable(value = "folderswithallmodulesreviewed", key = "#email")
+    List<String> findFoldersWithModulesReviewedByEmail(@Param("email") String email);
+
+    @Query("SELECT DISTINCT f.moduleCode FROM Folders f WHERE f.email = :email AND f.review <> 0 AND f.folderName = :folderName")
+    @Cacheable(value = "moduleswithreviews", key = "#email")
+    List<String> findModulesInSpecificFolderWithReviewsByEmailAndFolderName(@Param("email") String email, @Param("folderName") Byte folderName);
+
+    @Query("SELECT f.review FROM Folders f WHERE f.email = :email AND f.folderName = :folderName AND f.moduleCode = :moduleCode")
+    @Cacheable(value = "modulereview", key = "#email")
+    Byte findModuleReviewByEmailAndFolderNameAndModuleCode(@Param("email") String email, @Param("folderName") Byte folderName, @Param("moduleCode") String moduleCode);
 
 }

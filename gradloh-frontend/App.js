@@ -37,12 +37,14 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import ModuleDetailsScreen from './screens/CoursePlanner/ModuleDetailsScreen';
 import SettingsScreen from './screens/Settings/SettingsScreen';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import ChatbotScreen from './screens/Henry/ChatbotScreen';
 
 
 
 
 const PublicStack = createStackNavigator();
 const FolderStack = createStackNavigator();
+const HenryStack = createStackNavigator();
 const PrivateDrawer = createDrawerNavigator();
 
 
@@ -273,6 +275,24 @@ const PrivateNavigator = () => {
 			}}
 		  />
 		  <PrivateDrawer.Screen
+			name="HenryStack"
+			component={HenryStackNavigator}
+			options={{ 
+			  swipeEnabled: true, 
+			  drawerIcon: ({ focused, size }) => (
+				isDarkMode ? 
+				<Ionicons name="chatbubble-ellipses-sharp" size={size} color={focused ? '#FFB67E' : '#FFB67E'} /> : 
+				<Ionicons name="chatbubble-ellipses-sharp" size={size} color={focused ? '#EF7C00' : '#EF7C00'} />
+			  ),
+			  drawerLabel: ({ focused }) => (
+				isDarkMode ?
+				<Text style={{ color: focused ? '#FFB67E' : '#FFB67E' }}>Henry</Text> :
+				<Text style={{ color: focused ? '#EF7C00' : '#EF7C00' }}>Henry</Text>
+			  )
+			}}
+		  />
+		  
+		  <PrivateDrawer.Screen
 			name="Settings"
 			options={{ 
 				swipeEnabled: true, 
@@ -308,6 +328,19 @@ const FolderStackNavigator = ({ route }) => {
 		<FolderStack.Screen name="ModuleDetailsScreen" component = {ModuleDetailsScreen} options = {{headerShown: false}} initialParams={initialParams}/>
 	</FolderStack.Navigator>)
 };
+
+const HenryStackNavigator = ({ route }) => {
+	const initialParams = route?.params || {};
+  
+	return (
+	  <HenryStack.Navigator>
+		<HenryStack.Screen name="ChatbotScreen" options={{ headerShown: false }} initialParams={initialParams}>
+		  {props => <ChatbotScreen {...props} headerName={"Henry"} />}
+		</HenryStack.Screen>
+		<HenryStack.Screen name="ModuleDetailsScreen" component={ModuleDetailsScreen} options={{ headerShown: false }} initialParams={initialParams} />
+	  </HenryStack.Navigator>
+	)
+  }
 
 const App = () => {
 	

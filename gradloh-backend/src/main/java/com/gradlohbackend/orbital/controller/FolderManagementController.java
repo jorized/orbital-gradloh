@@ -119,4 +119,105 @@ public class FolderManagementController {
         return ResponseEntity.status(reqRes.getStatusCode())
                 .body(reqRes);
     }
+
+    @GetMapping("/folderswithoutallmodsreviewed")
+    public ResponseEntity<ReqRes> getFoldersWithoutAllModsReviewed(@RequestParam String email) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getSemWithoutAllModsReviewed(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @GetMapping("/folderswithmodsreviewed")
+    public ResponseEntity<ReqRes> getFoldersWithModsReviewed(@RequestParam String email) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getSemWithModsReviewed(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @GetMapping("/modsinspecificfolderwithoutreviews")
+    public ResponseEntity<ReqRes> getModulesInSpecificFolderWithoutReviews(@RequestParam String email, @RequestParam Byte folderName) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        req.setFolderName(folderName);
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getModsInSpecificFolderWithoutReviews(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @GetMapping("/modsinspecificfolderwithreviews")
+    public ResponseEntity<ReqRes> getModulesInSpecificFolderWithReviews(@RequestParam String email, @RequestParam Byte folderName) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        req.setFolderName(folderName);
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getModsInSpecificFolderWithReviews(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @GetMapping("/everymodulereview")
+    public ResponseEntity<ReqRes> getEveryModuleReview(@RequestParam String email) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getEveryModuleReview(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @GetMapping("/modulereview")
+    public ResponseEntity<ReqRes> getEveryModuleReview(@RequestParam String email, @RequestParam Byte folderName, @RequestParam String moduleCode) {
+
+        // Create a ReqRes object using the email parameter
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        req.setFolderName(folderName);
+        req.setModuleCode(moduleCode);
+        // Call the service method with the created ReqRes object
+        ReqRes reqRes = foldersManagementService.getModuleReview(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+    @PutMapping("/updatemodulereview")
+    public ResponseEntity<ReqRes> updatedModuleReview(@RequestBody ReqRes req){
+        var reqRes = foldersManagementService.updateModuleReview(req);
+
+        // Return the response with the appropriate status code
+        return ResponseEntity.status(reqRes.getStatusCode())
+                .body(reqRes);
+    }
+
+
 }
