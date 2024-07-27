@@ -17,7 +17,7 @@ import ModulesScreen from './screens/CoursePlanner/ModulesScreen';
 /* OTHERS */
 import 'react-native-gesture-handler';
 import { useCallback, useContext, useState, useEffect } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StatusBar, StyleSheet, Text, View, TouchableOpacity, LogBox } from 'react-native';
 import { EventRegister } from 'react-native-event-listeners';
 import SplashScreen from './components/SplashScreen';
 import Spinner from './components/Spinner';
@@ -40,7 +40,7 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import ChatbotScreen from './screens/Henry/ChatbotScreen';
 
 
-
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 const PublicStack = createStackNavigator();
 const FolderStack = createStackNavigator();

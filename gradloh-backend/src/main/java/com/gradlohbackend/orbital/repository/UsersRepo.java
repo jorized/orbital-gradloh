@@ -81,8 +81,20 @@ public interface UsersRepo extends JpaRepository<User, Integer>, UsersRepoCustom
     @Cacheable(value = "completedCHSModules", key="#email")
     Integer findCompletedCHSModulesByEmail(@Param("email") String email);
 
-
-
+    // Find completed UE modules by email
+    @Query(value = "SELECT COUNT(*) as ue_modules_completed " +
+            "FROM railway.Folders " +
+            "WHERE email = :email " +
+            "AND module_code NOT IN ( " +
+            "    SELECT module_code " +
+            "    FROM railway.PrimaryMajorRequirements " +
+            "    UNION " +
+            "    SELECT module_code " +
+            "    FROM railway.CHSRequirements " +
+            ")",
+            nativeQuery = true)
+    @Cacheable(value = "completedUEModules", key = "#email")
+    Integer findCompletedUEModulesByEmail(@Param("email") String email);
 
 
 }

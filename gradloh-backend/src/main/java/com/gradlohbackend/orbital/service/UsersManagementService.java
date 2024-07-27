@@ -231,21 +231,37 @@ public class UsersManagementService {
                 response.setMessage("Email does not exist.");
                 return response;
             }
-
+            User user = userOptional.get();
             //Set Pie and Status percentage
             response.setCompletedModulesPercentage(usersRepo.findCompletedModulesPercentageByEmail(userProgressDetailsRequest.getEmail()));
             response.setProgressionStatus(usersRepo.findProgressionStatusByEmail(userProgressDetailsRequest.getEmail()));
 
             // If CHS student
-            if ("FOS".equals(userOptional.get().getHomeFaculty()) || "FASS".equals(userOptional.get().getHomeFaculty())) {
-                // If DSA student
-                if ("Data Science and Analytics".equals(userOptional.get().getPrimaryMajor())) {
+            if ("FOS".equals(user.getHomeFaculty()) || "FASS".equals(user.getHomeFaculty())) {
+                //If user is a single primary major
+                if (!"".equals(user.getPrimaryMajor())
+                        && "".equals(user.getSecondaryMajor())
+                        && "".equals(user.getFirstMinor())
+                        && "".equals(user.getSecondMinor())) {
+                    // If DSA student
+                    if ("Data Science and Analytics".equals(userOptional.get().getPrimaryMajor())) {
+                        response.setCompletedCoreModules(usersRepo.findCompletedDSACoreModsByEmail(userProgressDetailsRequest.getEmail()));
+                    }
+                    response.setCompletedUEModules(usersRepo.findCompletedUEModulesByEmail(userProgressDetailsRequest.getEmail()));
+                    response.setCompletedCHSModules(ourUserDetailsService.getCompletedCHSModules(userProgressDetailsRequest.getEmail()));
+                    response.setHomeFaculty("CHS");
+                } else if (!"".equals(user.getPrimaryMajor())
+                        && !"".equals(user.getSecondaryMajor())
+                        && "".equals(user.getFirstMinor())
+                        && "".equals(user.getSecondMinor())) { //If user is a double major student
 
-                    response.setCompletedCoreModules(usersRepo.findCompletedDSACoreModsByEmail(userProgressDetailsRequest.getEmail()));
+                } else if (!"".equals(user.getPrimaryMajor())
+                        && "".equals(user.getSecondaryMajor())
+                        && !"".equals(user.getFirstMinor())
+                        && "".equals(user.getSecondMinor())) { //If user is 1 primary major and 1 minor
+
                 }
 
-                response.setCompletedCHSModules(ourUserDetailsService.getCompletedCHSModules(userProgressDetailsRequest.getEmail()));
-                response.setHomeFaculty("CHS");
 
             }
 

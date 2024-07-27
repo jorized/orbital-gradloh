@@ -67,11 +67,11 @@ public interface FoldersRepo extends JpaRepository<Folder, FolderId>, FoldersRep
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO Folders (email, folder_name, module_code) " +
-            "SELECT u.email, s.folder_name, s.module_code " +
+    @Query(value = "INSERT INTO Folders (email, folder_name, module_code, review) " +
+            "SELECT u.email, s.folder_name, s.module_code, 0 " +
             "FROM Users u " +
             "INNER JOIN SingleMajorSamplePlan s ON u.primary_major = s.primary_major " +
-            "WHERE u.email = ?1 ", nativeQuery = true)
+            "WHERE u.email = ?1", nativeQuery = true)
     void insertSingleMajorSamplePlanByEmail(String email);
 
     //This method shows the unique folders that has no reviews in them
