@@ -195,7 +195,7 @@ public class FolderManagementController {
     }
 
     @GetMapping("/modulereview")
-    public ResponseEntity<ReqRes> getEveryModuleReview(@RequestParam String email, @RequestParam Byte folderName, @RequestParam String moduleCode) {
+    public ResponseEntity<ReqRes> getModuleReview(@RequestParam String email, @RequestParam Byte folderName, @RequestParam String moduleCode) {
 
         // Create a ReqRes object using the email parameter
         ReqRes req = new ReqRes();

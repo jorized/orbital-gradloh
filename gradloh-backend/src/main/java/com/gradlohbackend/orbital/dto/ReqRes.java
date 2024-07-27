@@ -51,6 +51,7 @@ public class ReqRes {
     private Integer completedModulesPercentage;
     private String progressionStatus;
     private Integer completedCHSModules;
+    private Integer completedUEModules;
     private Map<String, Integer> completedCoreModules;
     private Integer currentSemester;
     private Map<String, Integer> numOfModsInEachFolder;

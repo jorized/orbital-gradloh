@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import DrawerHeader from "../../components/Drawer/DrawerHeader";
-import { Bubble, GiftedChat, Send } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar, Send } from "react-native-gifted-chat";
 import * as SecureStore from 'expo-secure-store';
 import ThemeContext from "../../contexts/ThemeContext";
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
@@ -955,6 +955,16 @@ export default function ChatbotScreen({ headerName, navigation }) {
         );
     }
 
+    const CustomInputToolbar = props => {
+        return (
+          <InputToolbar
+            {...props}
+            containerStyle={{ backgroundColor: theme.backgroundColor }}
+          />
+        );
+      };
+
+
     async function handleButtonPress(buttonText) {
         const newMessage = {
             _id: Date.now() + Math.random(),
@@ -973,7 +983,7 @@ export default function ChatbotScreen({ headerName, navigation }) {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: theme.backgroundColor}]}>
             <DrawerHeader headerName={headerName} />
 
             <GiftedChat
@@ -987,6 +997,7 @@ export default function ChatbotScreen({ headerName, navigation }) {
                 scrollToBottom
                 scrollToBottomComponent={scrollToBottomComponent}
                 isTyping={isTyping}
+                renderInputToolbar={props => <CustomInputToolbar  {...props} />}
             />
         </View>
     )
@@ -995,7 +1006,6 @@ export default function ChatbotScreen({ headerName, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white",
     },
     sendingContainer: {
         justifyContent: 'center',

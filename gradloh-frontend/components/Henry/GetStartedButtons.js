@@ -9,7 +9,7 @@ const GetStartedButtons = ({ text, onButtonPress, textCenter }) => {
             style={[styles.button, { backgroundColor: theme.hamburgerColor }]}
             onPress={onButtonPress}
         >
-            <Text style={textCenter ? styles.buttonTextCenter : styles.buttonText}>{text}</Text>
+            <Text style={textCenter ? [styles.buttonTextCenter, {color: theme.reverseColor}] : [styles.buttonText, {color: theme.reverseColor}]}>{text}</Text>
         </TouchableOpacity>
     );
 };
@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
         marginVertical: 5
     },
     buttonTextCenter: {
-        color: 'white',
         fontSize: 16,
         textAlign: "center"
     },

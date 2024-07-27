@@ -19,6 +19,8 @@ export default function CustomBottomSheet() {
   const [corePercentage, setCorePercentage] = useState(0);
   const [completedCCOrCHSMods, setCompletedCCOrCHSMods] = useState("");
   const [chsPercentage, setCHSPercentage] = useState(0);
+  const [completedUEMods, setCompletedUEMods] = useState("");
+  const [uePercentage, setUEPercentage] = useState(0);
 
   const publicAxios = useContext(AxiosContext);
   const userProfileDetails = SecureStore.getItem('userprofiledetails');
@@ -36,10 +38,17 @@ export default function CustomBottomSheet() {
           setCompletedCoreMods(`Completed ${data.completedCoreModules.totalModulesCompleted} / ${data.completedCoreModules.totalModulesRequired}`);
           const completedCorePercentage = Math.round((data.completedCoreModules.totalModulesCompleted / data.completedCoreModules.totalModulesRequired) * 100);
           setCorePercentage(completedCorePercentage > 100 ? 100 : completedCorePercentage);
-          const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
+
+          
           setCCOrCHSTitle("CHS modules");
           setCompletedCCOrCHSMods(`Completed ${data.completedCHSModules} / 13`);
+          const completedCHSPercentage = Math.round((data.completedCHSModules / 13) * 100);
           setCHSPercentage(completedCHSPercentage > 100 ? 100 : completedCHSPercentage);
+
+          setCompletedUEMods(`Completed ${data.completedUEModules} / 13`);
+          const completedUEPercentage = Math.round((data.completedUEModules / 13) * 100);
+          setUEPercentage(completedUEPercentage > 100 ? 100 : completedUEPercentage);
+          
         }
       }).catch(error => {
         console.log(error);
@@ -122,8 +131,8 @@ export default function CustomBottomSheet() {
             <BottomSheetCard
               iconName="pillar"
               title="Unrestricted electives"
-              marks={"Completed 0 / 13"}
-              percentage={0} />
+              marks={completedUEMods}
+              percentage={uePercentage} />
           </ScrollView>
         </View>
       </View>

@@ -164,6 +164,7 @@ public class FoldersManagementService {
             addedFolder.setEmail(addModIntoSpecificFolderRequest.getEmail());
             addedFolder.setFolderName(addModIntoSpecificFolderRequest.getFolderName());
             addedFolder.setModuleCode(addModIntoSpecificFolderRequest.getModuleCode());
+            addedFolder.setReview(Byte.valueOf((byte) 0));
             foldersRepo.save(addedFolder);
             redissonConfig.removeSpecificUserCache(addModIntoSpecificFolderRequest.getEmail());
             response.setMessage("Module added into folder successfully.");
